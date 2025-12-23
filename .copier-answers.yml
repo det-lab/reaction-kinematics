@@ -1,0 +1,9 @@
+# Changes here will be overwritten by Copier. Do not edit manually.
+_commit: v0.2.19
+_src_path: gh:jlevy/simple-modern-uv
+package_author_email: joseph.qualantone@ucdenver.edu
+package_author_name: Joseph Qualantone
+package_description: Kinematics for nuclear reactions
+package_github_org: det-lab
+package_module: reaction_kinematics
+package_name: reaction-kinematics
