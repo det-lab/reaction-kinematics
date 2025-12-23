@@ -12,7 +12,7 @@ authors = [
     { name="Joseph Qualantone", email="joseph.qualantone@ucdenver.edu" },
 ]
 readme = "README.md"
-license = "MIT"
+license = { text = "GPL-2.0-only" }
 requires-python = ">=3.11,<4.0"
 dynamic = ["version"]
 
