@@ -3,7 +3,7 @@ User input containers
 """
 
 from .mass import get_mass
-from .units import EnergyUnit, AngleUnit
+from .units import AngleUnit, EnergyUnit
 
 
 class MassInput:
@@ -31,11 +31,16 @@ class ReactionInput:
         ejectile,
         recoil,
         kinetic_energy: EnergyValue,
-        ex_ejectile: EnergyValue = None,
-        ex_recoil: EnergyValue = None,
+        ex_ejectile: EnergyValue | None = None,
+        ex_recoil: EnergyValue | None = None,
         angle_unit: AngleUnit = AngleUnit.deg,
         energy_unit: EnergyUnit = EnergyUnit.MeV,
     ):
+        if ex_ejectile is None:
+            ex_ejectile = EnergyValue(0.0, EnergyUnit.MeV)
+        if ex_recoil is None:
+            ex_recoil = EnergyValue(0.0, EnergyUnit.MeV)
+
         self.m1 = projectile.mass
         self.m2 = target.mass
         self.m3 = ejectile.mass
