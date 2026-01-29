@@ -3,16 +3,147 @@ Relativistic two-body reaction kinematics
 """
 
 import math
+import bisect
+
+from reaction_kinematics.inputs import MassInput
+from reaction_kinematics.units import EnergyUnit
+
+def _parse_mass(m, unit=None):
+    if isinstance(m, MassInput):
+        return m.mass
+
+    if isinstance(m, str):
+        return MassInput(m).mass
+
+    if isinstance(m, (int, float)):
+        if unit is None:
+            raise ValueError("Numeric mass provided without mass_unit")
+
+        if isinstance(unit, str):
+            unit = EnergyUnit[unit]
+
+        return m * unit.value
+
+    raise TypeError(f"Unsupported mass input type: {type(m)}")
+
 
 
 class TwoBody:
-    def __init__(self, m1, m2, m3, m4, ek):
-        self.m1 = m1
-        self.m2 = m2
-        self.m3 = m3
-        self.m4 = m4
-        self.ek = ek
+    """
+    This class calculates the lab-frame and center-of-mass kinematics for a reaction:
+        projectile + target → ejectile + recoil
 
+    It automatically computes:
+        - Center-of-mass energies and momenta
+        - Lab-frame energy extrema
+        - Lab-frame angles and velocities
+
+    All masses are converted internally to MeV. Kinetic energy is assumed in MeV unless specified otherwise.
+        Angles are returned in radians by default. Use the `AngleUnit` enum to convert if needed.
+
+    where:
+        m1 : Projectile (MassInput, string symbol ["alpha"], or numeric mass [ 3727.3794118])
+        m2 : Target (MassInput, string symbol["12C], or numeric mass [11177.928])
+        m3 : Ejectile (MassInput, string symbol ["p"], or numeric mass [938.272])
+        m4 : Recoil (MassInput, string symbol ["12C"], or numeric mass[11177.928])
+
+    Parameters
+    ----------
+    m1, m2, m3, m4 : str, MassInput, or float
+        Masses of the particles. Strings like "p", "12C" will be converted
+        using the internal mass table. Floats must be accompanied by `mass_unit`.
+    ek : float or EnergyValue
+        Kinetic energy of the projectile in the lab frame. If a float is given,
+        `energy_unit` specifies the units (default: MeV).
+    mass_unit : str or EnergyUnit, optional
+        Unit of numeric masses if floats are provided (e.g., "MeV", "keV", "amu").
+    energy_unit : EnergyUnit or str, optional
+        Unit of kinetic energy (default: MeV).
+
+    Attributes
+    ----------
+    s : float
+        Mandelstam s of the reaction.
+    pcm : float
+        Initial center-of-mass momentum.
+    pcmp : float
+        Final-state center-of-mass momentum.
+    e03, e04 : float
+        Center-of-mass energies of particles 3 and 4.
+    emax3, emin3, emax4, emin4 : float
+        Lab-frame extrema of particle energies.
+    theta3max, theta4max : float
+        Maximum lab-frame angles for ejectile and recoil (radians).
+    cmcos3max, cmcos4max : float
+        Maximum CM frame cos(theta) for particles 3 and 4.
+
+    User-facing methods
+    ------------------
+    compute_arrays()
+        Returns a dictionary of arrays for cos(theta_CM), theta3, theta4, e3, e4, v3, v4.
+    get_points()
+        Returns a list of dictionaries with kinematic values at each CM angle.
+    at_value(quantity, theta_cm)
+        Returns interpolated values of a chosen quantity at a given CM angle.
+
+    Returned dictionary from compute_arrays():
+        - "coscm"   : cos(theta) in the CM frame
+        - "theta_cm": theta in the CM frame (radians)
+        - "theta3"  : lab-frame angle of ejectile (radians)
+        - "theta4"  : lab-frame angle of recoil (radians)
+        - "e3"      : lab-frame kinetic energy of ejectile (MeV)
+        - "e4"      : lab-frame kinetic energy of recoil (MeV)
+        - "v3"      : lab-frame velocity of ejectile (fraction of c)
+        - "v4"      : lab-frame velocity of recoil (fraction of c)
+
+    Example
+    -------
+    # Using MassInput objects
+    >>> from reaction_kinematics.inputs import MassInput
+    >>> p = MassInput("p")       # proton
+    >>> C12 = MassInput("12C")   # carbon-12
+    >>> ek = 5.0                 # MeV
+    >>> rxn = TwoBody(p, C12, p, C12, ek)
+    >>> data = rxn.compute_arrays()
+    >>> print(data["theta3"][:5])
+
+    # Using string symbols (auto-converted using mass table)
+    >>> rxn2 = TwoBody("p", "12C", "p", "12C", ek)
+    >>> data2 = rxn2.compute_arrays()
+    >>> print(data2["e3"][:5])
+
+    # Using numeric masses with a specified unit
+    >>> # masses in MeV
+    >>> m_proj = 938.272    # proton
+    >>> m_targ = 11177.928  # carbon-12
+    >>> m_ej = 938.272
+    >>> m_recoil = 11177.928
+    >>> rxn3 = TwoBody(m_proj, m_targ, m_ej, m_recoil, ek, mass_unit="MeV")
+    >>> data3 = rxn3.compute_arrays()
+    >>> print(data3["v3"][:5])
+
+    # Quick start:
+    >>>  from reaction_kinematics.reaction_kinematics import TwoBody
+    >>> rxn = TwoBody("p", "12C", "p", "12C", 5.0)
+    >>> data = rxn.compute_arrays()
+    """
+
+    def __init__(self, m1, m2, m3, m4, ek, *, 
+                 mass_unit=None, energy_unit=EnergyUnit.MeV):
+        self.m1 = _parse_mass(m1, mass_unit)
+        self.m2 = _parse_mass(m2, mass_unit) 
+        self.m3 = _parse_mass(m3, mass_unit)
+        self.m4 = _parse_mass(m4, mass_unit) 
+        
+        if isinstance(ek, (int, float)):
+            if isinstance(energy_unit, str):
+                energy_unit = EnergyUnit[energy_unit]
+            self.ek = ek * energy_unit.value
+        else:
+            self.ek = ek
+
+
+       
         # defaults
         self.ncoscm = 500
         self.nogo = False
@@ -23,6 +154,21 @@ class TwoBody:
         self.e4atmaxang = -1.0
         self.theta3max = None
         self.theta4max = None
+
+        # kinematic quantities (always defined)
+        self.s = None
+        self.pcm = None
+        self.pcmp = None
+        self.cmrap = None
+        self.thesinh = None
+        self.thecosh = None
+        self.e03 = None
+        self.e04 = None
+        self.emax3 = None
+        self.emin3 = None
+        self.emax4 = None
+        self.emin4 = None
+
 
         self._compute()
 
@@ -115,16 +261,7 @@ class TwoBody:
                     self.e04 * self.thecosh - self.cmcos4max * self.pcmp * self.thesinh - self.m4
                 )
 
-
-def get_points(self, kx, ky):
-    """
-    Generate kinematic curves.
-    Returns list: [x0, y0, x1, y1, ...]
-    """
-    pts = []
-
-    for i in range(-self.ncoscm, self.ncoscm + 1):
-        coscm = i / self.ncoscm
+    def _kinematics_at_coscm(self, coscm):
         sincm = math.sqrt(max(0.0, 1.0 - coscm**2))
 
         ppar3 = self.pcmp * self.thecosh * coscm + self.e03 * self.thesinh
@@ -135,9 +272,8 @@ def get_points(self, kx, ky):
         pperp4 = self.pcmp * sincm
         ptot4 = math.hypot(ppar4, pperp4)
 
-        q3 = math.acos(ppar3 / ptot3) if ptot3 > 0 else 0.0
-        q4 = math.acos(ppar4 / ptot4) if ptot4 > 0 else 0.0
-        qcm = math.acos(coscm)
+        theta3 = math.acos(ppar3 / ptot3) if ptot3 > 0 else 0.0
+        theta4 = math.acos(ppar4 / ptot4) if ptot4 > 0 else 0.0
 
         e3 = self.e03 * self.thecosh + coscm * self.pcmp * self.thesinh - self.m3
         e4 = self.e04 * self.thecosh - coscm * self.pcmp * self.thesinh - self.m4
@@ -145,29 +281,99 @@ def get_points(self, kx, ky):
         v3 = ptot3 / (e3 + self.m3)
         v4 = ptot4 / (e4 + self.m4)
 
-        x = self._select(kx, q3, q4, qcm, coscm, e3, e4, v3, v4)
-        y = self._select(ky, q3, q4, qcm, coscm, e3, e4, v3, v4)
+        return {
+            "coscm": coscm,
+            "theta_cm": math.acos(coscm),
+            "theta3": theta3,
+            "theta4": theta4,
+            "e3": e3,
+            "e4": e4,
+            "v3": v3,
+            "v4": v4,
+            "p3": ptot3,
+            "p4": ptot4,
+        }
+    
+    def _solve_at_theta_cm(self, theta_cm):
+        coscm = math.cos(theta_cm)
+        return self._kinematics_at_coscm(coscm)
+    
+    def _build_table(self):
+        table = {}
+        keys = [
+            "coscm", "theta_cm", "theta3", "theta4",
+            "e3", "e4", "v3", "v4", "p3", "p4"
+        ]
+        for k in keys:
+            table[k] = []
 
-        pts.extend((x, y))
+        for i in range(-self.ncoscm, self.ncoscm + 1):
+            coscm = i / self.ncoscm
+            row = self._kinematics_at_coscm(coscm)
+            for k in keys:
+                table[k].append(row[k])
 
-    return pts
+        self._table = table
 
 
-def _select(self, k, q3, q4, qcm, coscm, e3, e4, v3, v4):
-    if k == 1:
-        return q3
-    if k == 2:
-        return q4
-    if k == 3:
-        return qcm
-    if k == 4:
-        return coscm
-    if k == 5:
-        return e3
-    if k == 6:
-        return e4
-    if k == 7:
-        return v3
-    if k == 8:
-        return v4
-    return 0.0
+    
+
+
+    def at_value(self, x_name, x, *, y_names=None):
+        """
+        Interpolate kinematic quantities.
+
+        Parameters
+        ----------
+        x_name : str
+            Independent variable (e.g. 'theta3', 'theta_cm', 'coscm')
+        x : float
+            Value to evaluate at
+        y_names : list[str] or None
+            Dependent variables. If None, returns all.
+        """
+
+        if not hasattr(self, "_table"):
+            self._build_table()
+
+        xs = self._table[x_name]
+
+        if x < min(xs) or x > max(xs):
+            raise ValueError(f"{x_name}={x} outside physical range")
+
+        i = bisect.bisect_left(xs, x)
+
+        def interp(arr):
+            if i == 0:
+                return arr[0]
+            if i == len(xs):
+                return arr[-1]
+            x0, x1 = xs[i - 1], xs[i]
+            y0, y1 = arr[i - 1], arr[i]
+            t = (x - x0) / (x1 - x0)
+            return y0 + t * (y1 - y0)
+
+        if y_names is None:
+            return {k: interp(self._table[k]) for k in self._table}
+
+        if isinstance(y_names, str):
+            y_names = [y_names]
+
+        return {k: interp(self._table[k]) for k in y_names}
+
+
+    def compute_arrays(self):
+        data = {k: [] for k in [
+            "coscm", "theta_cm", "theta3", "theta4",
+            "e3", "e4", "v3", "v4"
+        ]}
+
+        for i in range(-self.ncoscm, self.ncoscm + 1):
+            coscm = i / self.ncoscm
+            kin = self._kinematics_at_coscm(coscm)
+
+            for k in data:
+                data[k].append(kin[k])
+
+        return data
+

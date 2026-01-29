@@ -19,7 +19,8 @@ class MassInput:
 
 
 class EnergyValue:
-    def __init__(self, value, unit: EnergyUnit):
+    def __init__(self, value, unit=EnergyUnit.MeV):
+        unit = EnergyUnit.from_any(unit)
         self.value = float(value) * unit.value
 
 

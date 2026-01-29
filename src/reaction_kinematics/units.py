@@ -11,6 +11,17 @@ class EnergyUnit(Enum):
     MeV = 1.0
     GeV = 1e3
     TeV = 1e6
+    
+    @classmethod
+    def from_any(cls, unit):
+        if isinstance(unit, cls):
+            return unit
+        if isinstance(unit, str):
+            try:
+                return cls[unit]
+            except KeyError:
+                raise ValueError(f"Unknown energy unit '{unit}'")
+        raise TypeError(f"Invalid unit type: {type(unit)}")
 
 
 class AngleUnit(Enum):

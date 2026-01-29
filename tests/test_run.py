@@ -12,26 +12,39 @@ from reaction_kinematics.inputs import EnergyValue, MassInput
 from reaction_kinematics.reaction_kinematics import TwoBody
 from reaction_kinematics.units import EnergyUnit
 
-print(reaction_kinematics.__file__)
 
-# ----------------------------
-# Simple physical sanity test
-# ----------------------------
+rxn = TwoBody("alpha", "12C", "alpha", '12C' ,4 , mass_unit="MeV")
+      
+kinematics_arrays = rxn.compute_arrays()
 
-# Elastic scattering: p + 12C → p + 12C
-p = MassInput("p")
-C12 = MassInput("12C")
 
-ek = EnergyValue(5.0, EnergyUnit.MeV)
+# exact
 
-rxn = TwoBody(p.mass, C12.mass, p.mass, C12.mass, ek.value)
+# interpolated single value
+print(rxn.at_value("theta3", 25 * math.pi/180, y_names="e3"))
 
-print("\n--- Reaction Test: p + 12C ---")
-print("s =", rxn.s)
-print("Emax ejectile (MeV) =", rxn.emax3)
-print("Emin ejectile (MeV) =", rxn.emin3)
+# interpolated multiple outputs
+print(rxn.at_value(
+    "theta3",
+    25 * math.pi/180,
+    y_names=["e3", "v3", "p3"]
+))
 
-if rxn.theta3max is not None:
-    print("Theta_max (deg) =", rxn.theta3max * 180 / math.pi)
-else:
-    print("Theta_max: none (full angular range)")
+# interpolated full state
+print(rxn.at_value("theta_cm", 0.8))
+
+
+import matplotlib.pyplot as plt
+
+# assuming rxn is already created
+
+theta3 = kinematics_arrays["theta3"]   # radians
+e3 = kinematics_arrays["e3"]           # energy (same units as input)
+
+plt.figure()
+plt.plot(e3, theta3)
+plt.xlabel(r"$\theta_3$ (rad)")
+plt.ylabel(r"$E_3$")
+plt.title("Ejectile Energy vs Angle")
+plt.grid(True)
+plt.show()
