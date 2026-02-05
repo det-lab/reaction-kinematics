@@ -17,6 +17,7 @@ def parse_isotope(isotope: str):
 
     aliases = {
         "p": (1, "h"),
+        "n": (1, "n"),
         "d": (2, "h"),
         "t": (3, "h"),
         "alpha": (4, "he"),

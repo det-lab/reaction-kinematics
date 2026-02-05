@@ -319,9 +319,11 @@ class TwoBody:
     
 
 
-    def at_value(self, x_name, x, *, y_names=None):
+    def at_value(self, x_name, x, *, y_names=None, duplicate_tol=1e-6):
         """
         Interpolate kinematic quantities.
+
+        Always returns lists to handle multi-valued cases.
 
         Parameters
         ----------
@@ -331,35 +333,63 @@ class TwoBody:
             Value to evaluate at
         y_names : list[str] or None
             Dependent variables. If None, returns all.
+        duplicate_tol: float
+            A point where it will stop two roots and merge into one 
         """
 
+      
         if not hasattr(self, "_table"):
             self._build_table()
 
         xs = self._table[x_name]
 
-        if x < min(xs) or x > max(xs):
-            raise ValueError(f"{x_name}={x} outside physical range")
-
-        i = bisect.bisect_left(xs, x)
-
-        def interp(arr):
-            if i == 0:
-                return arr[0]
-            if i == len(xs):
-                return arr[-1]
-            x0, x1 = xs[i - 1], xs[i]
-            y0, y1 = arr[i - 1], arr[i]
-            t = (x - x0) / (x1 - x0)
-            return y0 + t * (y1 - y0)
-
-        if y_names is None:
-            return {k: interp(self._table[k]) for k in self._table}
-
         if isinstance(y_names, str):
             y_names = [y_names]
 
-        return {k: interp(self._table[k]) for k in y_names}
+        if y_names is None:
+            y_names = list(self._table.keys())
+
+        results = {k: [] for k in y_names}
+
+        found = False
+
+        for i in range(len(xs) - 1):
+
+            x0, x1 = xs[i], xs[i+1]
+
+            # Check if x is bracketed
+            if (x0 - x) * (x1 - x) <= 0 and x0 != x1:
+
+                found = True
+
+                t = (x - x0) / (x1 - x0)
+
+                for k in y_names:
+                    y0 = self._table[k][i]
+                    y1 = self._table[k][i+1]
+
+                    y = y0 + t * (y1 - y0)
+                    results[k].append(y)
+
+        if not found:
+            raise ValueError(f"{x_name}={x} outside physical range")
+        
+        for k in results:
+            results[k].sort(reverse=True)
+
+        for k in results:
+            results[k] = self._unique(results[k], duplicate_tol)
+
+        return results
+    
+    def _unique(self, arr, tol=1e-6):
+        out = []
+        for v in arr:
+            if not any(abs(v-u) < tol for u in out):
+                out.append(v)
+        return out
+
+
 
 
     def compute_arrays(self):
