@@ -22,13 +22,11 @@ This code can do:
 
 ## Installation
 
-Clone the repository and install locally:
 
-```bash
-git clone https://github.com/your-username/reaction-kinematics.git
-cd reaction-kinematics
-pip install -e .
 ```
+pip instal -reaction-kinematics
+```
+
 
 ---
 
