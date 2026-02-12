@@ -19,8 +19,8 @@ class EnergyUnit(Enum):
         if isinstance(unit, str):
             try:
                 return cls[unit]
-            except KeyError:
-                raise ValueError(f"Unknown energy unit '{unit}'")
+            except KeyError as err:
+                raise ValueError(f"Unknown energy unit '{unit}'") from err
         raise TypeError(f"Invalid unit type: {type(unit)}")
 
 

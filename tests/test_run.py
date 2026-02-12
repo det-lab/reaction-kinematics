@@ -13,7 +13,7 @@ kinematics_arrays = rxn.compute_arrays()
 # interpolated full state
 print(rxn.at_value("theta_cm", 0.8))
 eps = 9.76e-8  # small number
-
+assert rxn.theta4max is not None, "theta4max must be set for this reaction"
 angle = rxn.theta4max - eps
 
 # exact
