@@ -3,10 +3,10 @@ Relativistic two-body reaction kinematics
 """
 
 import math
-import bisect
 
 from reaction_kinematics.inputs import MassInput
 from reaction_kinematics.units import EnergyUnit
+
 
 def _parse_mass(m, unit=None):
     if isinstance(m, MassInput):
@@ -25,7 +25,6 @@ def _parse_mass(m, unit=None):
         return m * unit.value
 
     raise TypeError(f"Unsupported mass input type: {type(m)}")
-
 
 
 class TwoBody:
@@ -128,13 +127,12 @@ class TwoBody:
     >>> data = rxn.compute_arrays()
     """
 
-    def __init__(self, m1, m2, m3, m4, ek, *, 
-                 mass_unit=None, energy_unit=EnergyUnit.MeV):
+    def __init__(self, m1, m2, m3, m4, ek, *, mass_unit=None, energy_unit=EnergyUnit.MeV):
         self.m1 = _parse_mass(m1, mass_unit)
-        self.m2 = _parse_mass(m2, mass_unit) 
+        self.m2 = _parse_mass(m2, mass_unit)
         self.m3 = _parse_mass(m3, mass_unit)
-        self.m4 = _parse_mass(m4, mass_unit) 
-        
+        self.m4 = _parse_mass(m4, mass_unit)
+
         if isinstance(ek, (int, float)):
             if isinstance(energy_unit, str):
                 energy_unit = EnergyUnit[energy_unit]
@@ -142,8 +140,6 @@ class TwoBody:
         else:
             self.ek = ek
 
-
-       
         # defaults
         self.ncoscm = 500
         self.nogo = False
@@ -168,7 +164,6 @@ class TwoBody:
         self.emin3 = None
         self.emax4 = None
         self.emin4 = None
-
 
         self._compute()
 
@@ -293,17 +288,14 @@ class TwoBody:
             "p3": ptot3,
             "p4": ptot4,
         }
-    
+
     def _solve_at_theta_cm(self, theta_cm):
         coscm = math.cos(theta_cm)
         return self._kinematics_at_coscm(coscm)
-    
+
     def _build_table(self):
         table = {}
-        keys = [
-            "coscm", "theta_cm", "theta3", "theta4",
-            "e3", "e4", "v3", "v4", "p3", "p4"
-        ]
+        keys = ["coscm", "theta_cm", "theta3", "theta4", "e3", "e4", "v3", "v4", "p3", "p4"]
         for k in keys:
             table[k] = []
 
@@ -314,10 +306,6 @@ class TwoBody:
                 table[k].append(row[k])
 
         self._table = table
-
-
-    
-
 
     def at_value(self, x_name, x, *, y_names=None, duplicate_tol=1e-6):
         """
@@ -334,10 +322,9 @@ class TwoBody:
         y_names : list[str] or None
             Dependent variables. If None, returns all.
         duplicate_tol: float
-            A point where it will stop two roots and merge into one 
+            A point where it will stop two roots and merge into one
         """
 
-      
         if not hasattr(self, "_table"):
             self._build_table()
 
@@ -354,26 +341,24 @@ class TwoBody:
         found = False
 
         for i in range(len(xs) - 1):
-
-            x0, x1 = xs[i], xs[i+1]
+            x0, x1 = xs[i], xs[i + 1]
 
             # Check if x is bracketed
             if (x0 - x) * (x1 - x) <= 0 and x0 != x1:
-
                 found = True
 
                 t = (x - x0) / (x1 - x0)
 
                 for k in y_names:
                     y0 = self._table[k][i]
-                    y1 = self._table[k][i+1]
+                    y1 = self._table[k][i + 1]
 
                     y = y0 + t * (y1 - y0)
                     results[k].append(y)
 
         if not found:
             raise ValueError(f"{x_name}={x} outside physical range")
-        
+
         for k in results:
             results[k].sort(reverse=True)
 
@@ -381,22 +366,16 @@ class TwoBody:
             results[k] = self._unique(results[k], duplicate_tol)
 
         return results
-    
+
     def _unique(self, arr, tol=1e-6):
         out = []
         for v in arr:
-            if not any(abs(v-u) < tol for u in out):
+            if not any(abs(v - u) < tol for u in out):
                 out.append(v)
         return out
 
-
-
-
     def compute_arrays(self):
-        data = {k: [] for k in [
-            "coscm", "theta_cm", "theta3", "theta4",
-            "e3", "e4", "v3", "v4"
-        ]}
+        data = {k: [] for k in ["coscm", "theta_cm", "theta3", "theta4", "e3", "e4", "v3", "v4"]}
 
         for i in range(-self.ncoscm, self.ncoscm + 1):
             coscm = i / self.ncoscm
@@ -406,4 +385,3 @@ class TwoBody:
                 data[k].append(kin[k])
 
         return data
-

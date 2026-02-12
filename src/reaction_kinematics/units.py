@@ -11,7 +11,7 @@ class EnergyUnit(Enum):
     MeV = 1.0
     GeV = 1e3
     TeV = 1e6
-    
+
     @classmethod
     def from_any(cls, unit):
         if isinstance(unit, cls):
