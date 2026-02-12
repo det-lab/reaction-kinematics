@@ -5,39 +5,43 @@ Created on Fri Dec 26 13:02:45 2025
 @author: joey
 """
 
-from reaction_kinematics.reaction_kinematics import TwoBody
+# Smoke-test example and plotting in a pytest function
+import matplotlib
 
-rxn = TwoBody("p", "3H", "n", "3He", 1.2, mass_unit="MeV")
-
-kinematics_arrays = rxn.compute_arrays()
-# interpolated full state
-print(rxn.at_value("theta_cm", 0.8))
-eps = 9.76e-8  # small number
-assert rxn.theta4max is not None, "theta4max must be set for this reaction"
-angle = rxn.theta4max - eps
-
-# exact
-
-# interpolated single value
-print(rxn.at_value("theta4", angle, y_names="e3"))
-print("----------")
-
-# interpolated multiple outputs
-print(rxn.at_value("theta4", angle, y_names=["e3", "v3", "p3"], duplicate_tol=1e-3))
-# interpolated full state
-
-
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-# assuming rxn is already created
+from reaction_kinematics.reaction_kinematics import TwoBody
 
-theta4 = kinematics_arrays["theta4"]  # radians
-e3 = kinematics_arrays["e3"]  # energy (same units as input)
 
-plt.figure()
-plt.plot(theta4, e3)
-plt.ylabel(r"$\theta_4$ (rad)")
-plt.xlabel(r"$E_3$")
-plt.title("Ejectile Energy vs Angle")
-plt.grid(True)
-plt.show()
+def test_run_and_plot_example() -> None:
+    """
+    Smoke-test the TwoBody kinematics example and ensure plotting works.
+    """
+    # Initialize reaction and compute arrays
+    rxn = TwoBody("p", "3H", "n", "3He", 1.2, mass_unit="MeV")
+    data = rxn.compute_arrays()
+
+    # Basic at_value interpolation
+    result = rxn.at_value("theta_cm", 0.8)
+    assert isinstance(result, dict)
+    assert "theta_cm" in result
+    assert all(isinstance(v, float) for values in result.values() for v in values)
+
+    # Ensure theta4max is defined and interpolation at its edge does not error
+    assert rxn.theta4max is not None
+    edge_angle = rxn.theta4max - 9.76e-8
+    for y in ("e3", "v3", "p3"):
+        vals = rxn.at_value("theta4", edge_angle, y_names=y)[y]
+        assert all(isinstance(v, float) for v in vals)
+
+    # Plot energy vs angle without errors
+    theta4 = data["theta4"]
+    e3 = data["e3"]
+    plt.figure()
+    plt.plot(theta4, e3)
+    plt.ylabel(r"$\theta_4$ (rad)")
+    plt.xlabel(r"$E_3$")
+    plt.title("Ejectile Energy vs Angle")
+    plt.grid(True)
+    plt.close()
