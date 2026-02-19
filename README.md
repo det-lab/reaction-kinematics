@@ -35,7 +35,7 @@ pip install reaction-kinematics
 The main interface is the `TwoBody` class.
 
 ```python
-from reaction_kinematics.reaction_kinematics import TwoBody
+from reaction_kinematics import TwoBody
 ```
 
 Create a reaction by specifying the particle masses and projectile kinetic energy.

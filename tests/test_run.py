@@ -11,7 +11,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-from reaction_kinematics.reaction_kinematics import TwoBody
+from reaction_kinematics import TwoBody
 
 
 def test_run_and_plot_example() -> None:
@@ -19,7 +19,7 @@ def test_run_and_plot_example() -> None:
     Smoke-test the TwoBody kinematics example and ensure plotting works.
     """
     # Initialize reaction and compute arrays
-    rxn = TwoBody("p", "3H", "n", "3He", 1.2, mass_unit="MeV")
+    rxn = TwoBody("a", "12C", "a", "12C", 1.2, mass_unit="MeV")
     data = rxn.compute_arrays()
 
     # Basic at_value interpolation
@@ -40,8 +40,8 @@ def test_run_and_plot_example() -> None:
     e3 = data["e3"]
     plt.figure()
     plt.plot(theta4, e3)
-    plt.ylabel(r"$\theta_4$ (rad)")
-    plt.xlabel(r"$E_3$")
+    plt.xlabel(r"$\theta_4$ (rad)")
+    plt.ylabel(r"$E_3$")
     plt.title("Ejectile Energy vs Angle")
     plt.grid(True)
     plt.close()
