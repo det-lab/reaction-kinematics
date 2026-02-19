@@ -21,6 +21,7 @@ def parse_isotope(isotope: str):
         "d": (2, "h"),
         "t": (3, "h"),
         "alpha": (4, "he"),
+        "a": (4, "he")
     }
 
     if isotope in aliases:

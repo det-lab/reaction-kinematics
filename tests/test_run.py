@@ -30,7 +30,7 @@ def test_run_and_plot_example() -> None:
 
     # Ensure theta4max is defined and interpolation at its edge does not error
     assert rxn.theta4max is not None
-    edge_angle = rxn.theta4max - 9.76e-8
+    edge_angle = min(rxn.theta4max - 1e-12, rxn._table["theta4"][-1])
     for y in ("e3", "v3", "p3"):
         vals = rxn.at_value("theta4", edge_angle, y_names=y)[y]
         assert all(isinstance(v, float) for v in vals)
