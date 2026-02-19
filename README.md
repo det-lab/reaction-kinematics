@@ -24,7 +24,7 @@ This code can do:
 
 
 ```
-pip install -reaction-kinematics
+pip install reaction-kinematics
 ```
 
 
