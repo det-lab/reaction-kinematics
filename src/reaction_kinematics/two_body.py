@@ -4,6 +4,8 @@ Relativistic two-body reaction kinematics
 
 import math
 
+import numpy as np
+
 from reaction_kinematics.inputs import MassInput
 from reaction_kinematics.units import EnergyUnit
 
@@ -346,21 +348,26 @@ class TwoBody:
 
         results = {k: [] for k in y_names}
 
-        found = False
+        exact_idx = np.where(np.isclose(xs, x, atol=1e-12))[0]
+        if len(exact_idx) > 0:
+            i = exact_idx[0]
+            for k in y_names:
+                results[k].append(self._table[k][i])
+            for k in results:
+                results[k].sort(reverse=True)
+                results[k] = self._unique(results[k], duplicate_tol)
+            return results
 
+        # Interpolation
+        found = False
         for i in range(len(xs) - 1):
             x0, x1 = xs[i], xs[i + 1]
-
-            # Check if x is bracketed
             if (x0 - x) * (x1 - x) <= 0 and x0 != x1:
                 found = True
-
                 t = (x - x0) / (x1 - x0)
-
                 for k in y_names:
                     y0 = self._table[k][i]
                     y1 = self._table[k][i + 1]
-
                     y = y0 + t * (y1 - y0)
                     results[k].append(y)
 
@@ -369,8 +376,6 @@ class TwoBody:
 
         for k in results:
             results[k].sort(reverse=True)
-
-        for k in results:
             results[k] = self._unique(results[k], duplicate_tol)
 
         return results
