@@ -4,7 +4,7 @@
 # data from https://skisickness.com/math-physics/kinematics/
 # retrieved on March 5 2026
 
-theta3,costheta3cm,E3,E4,theta3cm,theta4,v3,v4
+theta3 (degrees),costheta3cm,E3 (MeV),E4 (MeV),theta3cm (degrees),theta4 (degrees),v3 (fraction of c),v4 (fraction of c)
 180.000000,-1.000000,0.998622,3.001378,180.000000,0.000000,0.023143,0.023172
 174.564302,-0.998000,1.001623,2.998377,176.375693,1.812032,0.023178,0.023161
 172.316593,-0.996000,1.004625,2.995375,174.873600,2.563028,0.023213,0.023149

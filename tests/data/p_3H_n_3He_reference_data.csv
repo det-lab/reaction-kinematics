@@ -1,4 +1,10 @@
-theta3,costheta3cm,E3,E4,theta3cm,theta4,v3,v4
+# projectile + target -> ejectile + recoil
+# proton + 3H -> neutron + 3He
+# projectile at 1.2 MeV
+# data from https://skisickness.com/math-physics/kinematics/
+# retrieved on March 12 2026
+
+theta3 (degrees),costheta3cm,E3 (MeV),E4 (MeV),theta3cm (degrees),theta4 (degrees),v3 (fraction of c),v4 (fraction of c)
 180.000000,-1.000000,0.001965,0.434279,180.000000,0.000000,0.002045,0.017584
 155.237778,-0.998000,0.002316,0.433928,176.375693,1.014005,0.002220,0.017577
 146.509088,-0.996000,0.002666,0.433578,174.873600,1.433955,0.002382,0.017570
