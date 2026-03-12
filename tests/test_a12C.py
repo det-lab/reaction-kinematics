@@ -30,10 +30,13 @@ def test_alpha12C_reference_table():
 
     calc = []
 
+
     for _, row in df.iterrows():
         theta3 = np.deg2rad(row["theta3"])
         r = rxn.at_value("theta3", theta3)
-
+     
+        # at_value can return multiple theta4 branches, so choose the one
+        # that matches the reference table value for this row
         theta4_vals_deg = np.rad2deg(np.array(r["theta4"]))
         theta4_best = theta4_vals_deg[np.argmin(np.abs(theta4_vals_deg - row["theta4"]))]
 
