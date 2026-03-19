@@ -10,7 +10,23 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from reaction_kinematics import TwoBody
+from reaction_kinematics import TwoBody, q_value
+
+
+def test_q_value_p3H_n3He():
+    """
+    Validate Q-value for 3H(p,n)3He against NNDC Q-value calculator.
+    Reference: https://www.nndc.bnl.gov/qcalc/
+    Q = -763.75498 keV = -0.76375498 MeV
+    """
+    expected_mev = -763.75498e-3  # keV → MeV
+
+    # standalone function
+    assert np.isclose(q_value("p", "3H", "n", "3He"), expected_mev, rtol=1e-5)
+
+    # TwoBody property
+    rxn = TwoBody("p", "3H", "n", "3He", 1.2)
+    assert np.isclose(rxn.q_value, expected_mev, rtol=1e-5)
 
 
 def test_p3H_n3He_reference_table():

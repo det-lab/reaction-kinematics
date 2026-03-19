@@ -29,6 +29,35 @@ def _parse_mass(m, unit=None):
     raise TypeError(f"Unsupported mass input type: {type(m)}")
 
 
+def q_value(m1, m2, m3, m4, *, mass_unit=None) -> float:
+    """
+    Compute the Q-value for a reaction: projectile + target → ejectile + recoil
+
+    Q = m1 + m2 - m3 - m4  (in MeV)
+
+    Accepts the same mass input types as TwoBody: string symbols, MassInput objects,
+    or numeric values (which require mass_unit).
+
+    Parameters
+    ----------
+    m1, m2, m3, m4 : str, MassInput, or float
+        Masses of projectile, target, ejectile, and recoil.
+    mass_unit : str or EnergyUnit, optional
+        Unit for numeric masses (e.g. "MeV", "keV", "amu").
+
+    Returns
+    -------
+    float
+        Q-value in MeV.
+    """
+    return (
+        _parse_mass(m1, mass_unit)
+        + _parse_mass(m2, mass_unit)
+        - _parse_mass(m3, mass_unit)
+        - _parse_mass(m4, mass_unit)
+    )
+
+
 class TwoBody:
     """
     This class calculates the lab-frame and center-of-mass kinematics for a reaction:
@@ -257,6 +286,11 @@ class TwoBody:
                 self.e4atmaxang = (
                     self.e04 * self.thecosh - self.cmcos4max * self.pcmp * self.thesinh - self.m4
                 )
+
+    @property
+    def q_value(self) -> float:
+        """Q-value of the reaction in MeV: Q = m1 + m2 - m3 - m4"""
+        return self.m1 + self.m2 - self.m3 - self.m4
 
     def _kinematics_at_coscm(self, coscm):
         # Kinematic computations require these to have been initialized by _compute()

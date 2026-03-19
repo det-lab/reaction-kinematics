@@ -1,3 +1,3 @@
-from .two_body import TwoBody
+from .two_body import TwoBody, q_value
 
-__all__ = ["TwoBody"]
+__all__ = ["TwoBody", "q_value"]
