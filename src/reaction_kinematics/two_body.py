@@ -260,13 +260,15 @@ class TwoBody:
 
     def _kinematics_at_coscm(self, coscm):
         # Kinematic computations require these to have been initialized by _compute()
-        assert (
-            self.pcmp is not None
-            and self.thecosh is not None
-            and self.e03 is not None
-            and self.thesinh is not None
-            and self.e04 is not None
-        ), "Kinematic quantities not computed"
+        # For example if reaction is below threshold these values will not be computed
+        if (
+            self.pcmp is None
+            or self.thecosh is None
+            or self.e03 is None
+            or self.thesinh is None
+            or self.e04 is None
+        ): 
+            raise ValueError("Kinematic quantities not computed")
         sincm = math.sqrt(max(0.0, 1.0 - coscm**2))
 
         ppar3 = self.pcmp * self.thecosh * coscm + self.e03 * self.thesinh
