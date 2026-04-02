@@ -7,7 +7,7 @@ import math
 import numpy as np
 
 from reaction_kinematics.inputs import MassInput
-from reaction_kinematics.units import EnergyUnit
+from reaction_kinematics.units import AngleUnit, EnergyUnit
 
 
 def _parse_mass(m, unit=None):
@@ -56,6 +56,79 @@ def q_value(m1, m2, m3, m4, *, mass_unit=None) -> float:
         - _parse_mass(m3, mass_unit)
         - _parse_mass(m4, mass_unit)
     )
+
+
+def kinematic_curve(m1, m2, m3, m4, theta3, ek_array, *, mass_unit=None, angle_unit=AngleUnit.rad):
+    """
+    Compute ejectile kinematics at a fixed lab angle over a range of beam energies.
+
+    Returns two branches (high-energy and low-energy) as a list of two dicts. Each
+    dict contains arrays indexed by beam energy, with NaN where that branch does not
+    exist. Branch 0 is always the higher-energy solution.
+
+    Parameters
+    ----------
+    m1, m2, m3, m4 : str, MassInput, or float
+        Masses of projectile, target, ejectile, and recoil.
+    theta3 : float
+        Fixed lab angle of the ejectile.
+    ek_array : array-like
+        Beam energies to evaluate (in MeV unless energy_unit is specified via mass_unit).
+    mass_unit : str or EnergyUnit, optional
+        Unit for numeric masses.
+    angle_unit : AngleUnit or str, optional
+        Unit of theta3 (default: radians).
+
+    Returns
+    -------
+    list of two dicts, each with keys:
+        - "ek"     : beam energy (MeV)
+        - "e3"     : ejectile kinetic energy (MeV)
+        - "e4"     : recoil kinetic energy (MeV)
+        - "theta4" : recoil lab angle (radians)
+        - "v3"     : ejectile velocity (fraction of c)
+        - "v4"     : recoil velocity (fraction of c)
+
+    Example
+    -------
+    >>> import numpy as np
+    >>> branches = kinematic_curve("p", "3H", "n", "3He", np.deg2rad(30), np.linspace(1.0, 5.0, 200))
+    >>> for b in branches:
+    ...     plt.plot(b["ek"], b["e3"])
+    """
+    if isinstance(angle_unit, str):
+        angle_unit = AngleUnit[angle_unit]
+
+    theta3_rad = theta3 * angle_unit.value
+
+    keys = ["e3", "e4", "theta4", "v3", "v4"]
+    branches = [
+        {"ek": [], **{k: [] for k in keys}},
+        {"ek": [], **{k: [] for k in keys}},
+    ]
+
+    for ek in ek_array:
+        rxn = TwoBody(m1, m2, m3, m4, ek, mass_unit=mass_unit)
+
+        try:
+            row = rxn.at_value("theta3", theta3_rad, y_names=keys)
+        except ValueError:
+            solutions = []
+        else:
+            n = len(row["e3"])
+            solutions = [{k: row[k][i] for k in keys} for i in range(n)]
+
+        for i, branch in enumerate(branches):
+            branch["ek"].append(ek)
+            sol = solutions[i] if i < len(solutions) else None
+            for k in keys:
+                branch[k].append(sol[k] if sol is not None else float("nan"))
+
+    for branch in branches:
+        for k in branch:
+            branch[k] = np.array(branch[k])
+
+    return branches
 
 
 class TwoBody:
@@ -382,38 +455,40 @@ class TwoBody:
         if y_names is None:
             y_names = list(self._table.keys())
 
-        results = {k: [] for k in y_names}
+        # Collect solutions as tuples to keep keys in sync across deduplication/sorting.
+        solutions = []
 
         exact_idx = np.where(np.isclose(xs, x, atol=1e-12))[0]
         if len(exact_idx) > 0:
-            i = exact_idx[0]
-            for k in y_names:
-                results[k].append(self._table[k][i])
-            for k in results:
-                results[k].sort(reverse=True)
-                results[k] = self._unique(results[k], duplicate_tol)
-            return results
+            for i in exact_idx:
+                solutions.append({k: self._table[k][i] for k in y_names})
+        else:
+            # Interpolation
+            found = False
+            for i in range(len(xs) - 1):
+                x0, x1 = xs[i], xs[i + 1]
+                if (x0 - x) * (x1 - x) <= 0 and x0 != x1:
+                    found = True
+                    t = (x - x0) / (x1 - x0)
+                    sol = {}
+                    for k in y_names:
+                        y0 = self._table[k][i]
+                        y1 = self._table[k][i + 1]
+                        sol[k] = y0 + t * (y1 - y0)
+                    solutions.append(sol)
 
-        # Interpolation
-        found = False
-        for i in range(len(xs) - 1):
-            x0, x1 = xs[i], xs[i + 1]
-            if (x0 - x) * (x1 - x) <= 0 and x0 != x1:
-                found = True
-                t = (x - x0) / (x1 - x0)
-                for k in y_names:
-                    y0 = self._table[k][i]
-                    y1 = self._table[k][i + 1]
-                    y = y0 + t * (y1 - y0)
-                    results[k].append(y)
+            if not found:
+                raise ValueError(f"{x_name}={x} outside physical range")
 
-        if not found:
-            raise ValueError(f"{x_name}={x} outside physical range")
+        # Deduplicate on e3 (or first available key), then sort descending by e3.
+        e_key = "e3" if "e3" in y_names else y_names[0]
+        unique_solutions = []
+        for sol in solutions:
+            if not any(abs(sol[e_key] - u[e_key]) < duplicate_tol for u in unique_solutions):
+                unique_solutions.append(sol)
+        unique_solutions.sort(key=lambda s: s[e_key], reverse=True)
 
-        for k in results:
-            results[k].sort(reverse=True)
-            results[k] = self._unique(results[k], duplicate_tol)
-
+        results = {k: [s[k] for s in unique_solutions] for k in y_names}
         return results
 
     def _unique(self, arr, tol=1e-6):

@@ -1,3 +1,3 @@
-from .two_body import TwoBody, q_value
+from .two_body import TwoBody, kinematic_curve, q_value
 
-__all__ = ["TwoBody", "q_value"]
+__all__ = ["TwoBody", "kinematic_curve", "q_value"]
