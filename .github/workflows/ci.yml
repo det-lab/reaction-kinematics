@@ -26,6 +26,9 @@ jobs:
     # Linux only by default. Use ${{ matrix.os }} for other OSes.
     runs-on: ${{ matrix.os }}
 
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
     steps:
       # Generally following uv docs:
       # https://docs.astral.sh/uv/guides/integration/github/
