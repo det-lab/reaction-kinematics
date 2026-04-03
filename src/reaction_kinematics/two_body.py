@@ -124,11 +124,7 @@ def kinematic_curve(m1, m2, m3, m4, theta3, ek_array, *, mass_unit=None, angle_u
             for k in keys:
                 branch[k].append(sol[k] if sol is not None else float("nan"))
 
-    for branch in branches:
-        for k in branch:
-            branch[k] = np.array(branch[k])
-
-    return branches
+    return [{k: np.array(v) for k, v in branch.items()} for branch in branches]
 
 
 class TwoBody:
@@ -374,7 +370,7 @@ class TwoBody:
             or self.e03 is None
             or self.thesinh is None
             or self.e04 is None
-        ): 
+        ):
             raise ValueError("Kinematic quantities not computed")
         sincm = math.sqrt(max(0.0, 1.0 - coscm**2))
 

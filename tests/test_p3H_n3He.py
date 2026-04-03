@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on Thu Mar 12 10:51:29 2026
 
@@ -7,6 +6,7 @@ Created on Thu Mar 12 10:51:29 2026
 """
 
 from pathlib import Path
+
 import numpy as np
 import pandas as pd
 
@@ -62,9 +62,7 @@ def test_p3H_n3He_reference_table():
         theta_cm_best = theta_cm_vals_deg[
             np.argmin(np.abs(theta_cm_vals_deg - row["theta3cm (degrees)"]))
         ]
-        theta4_best = theta4_vals_deg[
-            np.argmin(np.abs(theta4_vals_deg - row["theta4 (degrees)"]))
-        ]
+        theta4_best = theta4_vals_deg[np.argmin(np.abs(theta4_vals_deg - row["theta4 (degrees)"]))]
         v3_best = v3_vals[np.argmin(np.abs(v3_vals - row["v3 (fraction of c)"]))]
         v4_best = v4_vals[np.argmin(np.abs(v4_vals - row["v4 (fraction of c)"]))]
 
@@ -83,15 +81,7 @@ def test_p3H_n3He_reference_table():
 
     assert np.allclose(calc["E3 (MeV)"], df["E3 (MeV)"], rtol=1e-3)
     assert np.allclose(calc["E4 (MeV)"], df["E4 (MeV)"], rtol=1e-3)
-    assert np.allclose(
-        calc["theta3cm (degrees)"], df["theta3cm (degrees)"], rtol=1e-3
-    )
-    assert np.allclose(
-        calc["theta4 (degrees)"], df["theta4 (degrees)"], rtol=1e-3
-    )
-    assert np.allclose(
-        calc["v3 (fraction of c)"], df["v3 (fraction of c)"], rtol=1e-3
-    )
-    assert np.allclose(
-        calc["v4 (fraction of c)"], df["v4 (fraction of c)"], rtol=1e-3
-    )
+    assert np.allclose(calc["theta3cm (degrees)"], df["theta3cm (degrees)"], rtol=1e-3)
+    assert np.allclose(calc["theta4 (degrees)"], df["theta4 (degrees)"], rtol=1e-3)
+    assert np.allclose(calc["v3 (fraction of c)"], df["v3 (fraction of c)"], rtol=1e-3)
+    assert np.allclose(calc["v4 (fraction of c)"], df["v4 (fraction of c)"], rtol=1e-3)

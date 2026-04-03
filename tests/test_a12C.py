@@ -30,11 +30,10 @@ def test_alpha12C_reference_table():
 
     calc = []
 
-
     for _, row in df.iterrows():
         theta3 = np.deg2rad(row["theta3 (degrees)"])
         r = rxn.at_value("theta3", theta3)
-     
+
         # at_value can return multiple theta4 branches, so choose the one
         # that matches the reference table value for this row
         theta4_vals_deg = np.rad2deg(np.array(r["theta4"]))
@@ -59,6 +58,8 @@ def test_alpha12C_reference_table():
     assert np.allclose(calc["E3"], df["E3 (MeV)"], rtol=1e-3)
     assert np.allclose(calc["E4"], df["E4 (MeV)"], rtol=1e-3)
     assert np.allclose(calc["theta3cm"], df["theta3cm (degrees)"], rtol=1e-3)
-    assert np.allclose(calc.loc[theta4_mask, "theta4"], df.loc[theta4_mask, "theta4 (degrees)"], rtol=1e-3)
+    assert np.allclose(
+        calc.loc[theta4_mask, "theta4"], df.loc[theta4_mask, "theta4 (degrees)"], rtol=1e-3
+    )
     assert np.allclose(calc["v3"], df["v3 (fraction of c)"], rtol=1e-3)
     assert np.allclose(calc["v4"], df["v4 (fraction of c)"], rtol=1e-3)
