@@ -1,10 +1,15 @@
 site_name: Reaction Kinematics 
 site_url: https://det-lab.github.io/reaction-kinematics/
 
+theme:
+  name: mkdocs
+  color_mode: dark
+
 nav:
-  - About: index.md
+  - Getting Started: index.md 
   - Examples: 
     - Computing Kinematic Arrays: comupting-kinematic-arrays.md
     - Accessing Induvidual Values: accessing-induvidual-values.md 
     - Plotting: plotting.md
-    
+  - Contribuiting: contributing.md
+  - Api documentation: apidocs.md 

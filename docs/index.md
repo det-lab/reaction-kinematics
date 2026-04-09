@@ -1,17 +1,26 @@
-# Welcome to MkDocs
+# Welcome to Reaction Kinematics 
+<br>
 
-For full documentation visit [mkdocs.org](https://www.mkdocs.org).
+## About
+The main interface is the `TwoBody` class.
 
-## Commands
+```python
+from reaction_kinematics import TwoBody
+```
 
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs -h` - Print help message and exit.
+Create a reaction by specifying the particle masses and projectile kinetic energy.
 
-## Project layout
+### Reaction 
 
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
+<br> 
+
+### Units 
+<br>
+
+### Compute Arrays
+<br>
+
+###### See Plotting Example for How to Plot
+
+
+

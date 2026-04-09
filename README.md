@@ -30,6 +30,10 @@ pip install reaction-kinematics
 
 ---
 
+## Documentation 
+
+https://det-lab.github.io/reaction-kinematics/
+
 ## Basic Usage
 
 The main interface is the `TwoBody` class.
