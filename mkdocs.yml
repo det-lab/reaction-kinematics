@@ -1,1 +1,10 @@
-site_name: My Docs
+site_name: Reaction Kinematics 
+site_url: https://det-lab.github.io/reaction-kinematics/
+
+nav:
+  - About: index.md
+  - Examples: 
+    - Computing Kinematic Arrays: comupting-kinematic-arrays.md
+    - Accessing Induvidual Values: accessing-induvidual-values.md 
+    - Plotting: plotting.md
+    
