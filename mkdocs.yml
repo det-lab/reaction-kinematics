@@ -11,5 +11,7 @@ nav:
     - Computing Kinematic Arrays: comupting-kinematic-arrays.md
     - Accessing Induvidual Values: accessing-induvidual-values.md 
     - Plotting: plotting.md
-  - Contribuiting: contributing.md
+  - Contribuiting: 
+      - Adding to Documentation: contributing.md
+      - Suggestions for Code Updates: updatecode.md
   - Api documentation: apidocs.md 

@@ -44,12 +44,7 @@ from reaction_kinematics import TwoBody
 
 Create a reaction by specifying the particle masses and projectile kinetic energy.
 
-## Units
 
-* Masses are internally stored in MeV/c²
-* Energies are in MeV by default
-* Velocities are given as fractions of c
-* Angles are in radians
 
 You may specify alternative units using `EnergyUnit` and `MassInput`.
 
@@ -69,25 +64,6 @@ p + 3H → n + 3He
 with a projectile energy of 1.2 MeV.
 
 ---
-
-## Computing Kinematic Arrays
-
-To generate arrays of kinematic quantities over all center-of-mass angles, use `compute_arrays()`.
-
-```python
-data = rxn.compute_arrays()
-```
-
-This will return a dictionary containing the following:
-
-* `coscm`   : cos(θ_CM)
-* `theta_cm`: CM angle (rad)
-* `theta3`  : Ejectile lab angle (rad)
-* `theta4`  : Recoil lab angle (rad)
-* `e3`      : Ejectile energy (MeV)
-* `e4`      : Recoil energy (MeV)
-* `v3`      : Ejectile velocity (c)
-* `v4`      : Recoil velocity (c)
 
 ### Example
 

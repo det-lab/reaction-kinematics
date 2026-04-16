@@ -1,4 +1,4 @@
-Updating mkdocs 
+####Updating mkdocs 
 
 - Make changes in docs directory or mkdocs.yml
 - mkdocs build (in terminal, to check errors)
