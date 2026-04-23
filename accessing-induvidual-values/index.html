@@ -120,7 +120,28 @@
 <p>To evaluate kinematic quantities at a specific value, use <code>at_value()</code>.</p>
 <p>This method automatically handles multi-valued solutions and always returns lists.</p>
 <h3 id="syntax">Syntax</h3>
-<pre><code class="language-python">rxn.at_value(x_name, x_value, y_names=None)
+<pre><code class="language-python">from reaction_kinematics import TwoBody
+
+rxn = TwoBody(&quot;p&quot;, &quot;3H&quot;, &quot;n&quot;, &quot;3He&quot;, 1.2)
+# Proton + Tritium Reaction
+
+
+r = rxn.at_value(&quot;theta3&quot;, 2.13, y_names=None)
+# 2.13 is in radians 
+print(r)
+
+</code></pre>
+<p>This will return:</p>
+<pre><code class="language-python">{'coscm': [-0.9813047694699246], 
+'theta_cm': [2.9479854759117416], 
+'theta3': [2.13], 
+'theta4': [0.054070851022814864], 
+'e3': [0.005237930117122223], 
+'e4': [0.43100601988343396], 
+'v3': [0.003338681989975168], 
+'v4': [0.017517730726598162], 
+'p3': [3.136927647029636], 
+'p4': [49.204196838704895]}
 </code></pre>
 <p>Parameters:</p>
 <ul>

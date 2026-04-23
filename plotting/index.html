@@ -112,6 +112,11 @@
               </ul>
             </li>
             
+            <li class="nav-item" data-bs-level="2"><a href="#_1" class="nav-link"></a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
             <li class="nav-item" data-bs-level="2"><a href="#kinematic-curves-at-fixed-lab-angle" class="nav-link">Kinematic Curves at Fixed Lab Angle</a>
               <ul class="nav flex-column">
               </ul>
@@ -124,7 +129,11 @@
 <h2 id="plotting-example">Plotting Example</h2>
 <p>You can use <code>matplotlib</code> to visualize kinematic relationships.</p>
 <h3 id="example-ejectile-energy-vs-recoil-angle">Example: Ejectile Energy vs Recoil Angle</h3>
-<pre><code class="language-python">import matplotlib.pyplot as plt
+<pre><code class="language-python">from reaction_kinematics import TwoBody
+import matplotlib.pyplot as plt
+
+rxn = TwoBody(&quot;p&quot;, &quot;3H&quot;, &quot;n&quot;, &quot;3He&quot;, 1.2)
+#Proton + Tritium Reaction
 
 data = rxn.compute_arrays()
 
@@ -135,7 +144,8 @@ plt.title(&quot;E₃ vs θ₄&quot;)
 plt.grid(True)
 plt.show()
 </code></pre>
-<hr />
+<p>It should return a graph like this: </p>
+<h2 id="_1"><img alt="e3_v_theta_graph.png" src="../figures/e3_v_theta_graph.png" /></h2>
 <h2 id="kinematic-curves-at-fixed-lab-angle">Kinematic Curves at Fixed Lab Angle</h2>
 <p><code>kinematic_curve</code> sweeps over a range of beam energies at a <strong>fixed lab angle</strong>,
 returning ejectile kinematics for both solution branches.</p>

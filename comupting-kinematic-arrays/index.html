@@ -118,7 +118,19 @@
 
 <h2 id="computing-kinematic-arrays">Computing Kinematic Arrays</h2>
 <p>To generate arrays of kinematic quantities over all center-of-mass angles, use <code>compute_arrays()</code>.</p>
-<pre><code class="language-python">data = rxn.compute_arrays()
+<pre><code class="language-python">import numpy as np
+from reaction_kinematics import TwoBody
+
+rxn = TwoBody(&quot;p&quot;, &quot;3H&quot;, &quot;n&quot;, &quot;3He&quot;, 1.2)
+#Proton + Tritium Reaction
+
+data = rxn.compute_arrays()
+
+theta4 = np.array(data[&quot;theta4&quot;])
+e3 = np.array(data[&quot;e3&quot;])
+
+print(theta4)
+print(e3)
 </code></pre>
 <p>This will return a dictionary containing the following:</p>
 <ul>
@@ -130,12 +142,7 @@
 <li><code>e4</code>      : Recoil energy (MeV)</li>
 <li><code>v3</code>      : Ejectile velocity (c)</li>
 <li><code>v4</code>      : Recoil velocity (c)</li>
-</ul>
-<h3 id="example">Example</h3>
-<pre><code class="language-python">theta4 = data[&quot;theta4&quot;]
-e3 = data[&quot;e3&quot;]
-</code></pre>
-<hr /></div>
+</ul></div>
             </div>
         </div>
 
