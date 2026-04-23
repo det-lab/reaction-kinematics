@@ -3,7 +3,19 @@
 To generate arrays of kinematic quantities over all center-of-mass angles, use `compute_arrays()`.
 
 ```python
+import numpy as np
+from reaction_kinematics import TwoBody
+
+rxn = TwoBody("p", "3H", "n", "3He", 1.2)
+#Proton + Tritium Reaction
+
 data = rxn.compute_arrays()
+
+theta4 = np.array(data["theta4"])
+e3 = np.array(data["e3"])
+
+print(theta4)
+print(e3)
 ```
 
 This will return a dictionary containing the following:
@@ -17,11 +29,5 @@ This will return a dictionary containing the following:
 * `v3`      : Ejectile velocity (c)
 * `v4`      : Recoil velocity (c)
 
-### Example
 
-```python
-theta4 = data["theta4"]
-e3 = data["e3"]
-```
 
----

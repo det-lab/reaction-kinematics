@@ -5,7 +5,11 @@ You can use `matplotlib` to visualize kinematic relationships.
 ### Example: Ejectile Energy vs Recoil Angle
 
 ```python
+from reaction_kinematics import TwoBody
 import matplotlib.pyplot as plt
+
+rxn = TwoBody("p", "3H", "n", "3He", 1.2)
+#Proton + Tritium Reaction
 
 data = rxn.compute_arrays()
 
@@ -16,7 +20,9 @@ plt.title("E₃ vs θ₄")
 plt.grid(True)
 plt.show()
 ```
+It should return a graph like this: 
 
+![e3_v_theta_graph.png](figures/e3_v_theta_graph.png)
 ---
 
 ## Kinematic Curves at Fixed Lab Angle
