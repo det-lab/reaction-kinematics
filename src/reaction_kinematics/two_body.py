@@ -495,6 +495,51 @@ class TwoBody:
         return out
 
     def compute_arrays(self):
+         """
+         Compute full two-body kinematics over center-of-mass angles.
+
+         This method evaluates the reaction kinematics across a grid of
+         center-of-mass (CM) angles and returns the corresponding lab-frame
+         quantities for both outgoing particles.
+
+         The results are stored internally and also returned as a dictionary
+         of NumPy arrays. These arrays form the basis for interpolation via
+         `at_value()`.
+
+         Returns
+         -------
+         dict of str -> numpy.ndarray
+             Dictionary containing kinematic quantities evaluated over the
+             CM angle grid. Keys include:
+
+             - "coscm"     : cos(theta_cm)
+             - "theta_cm"  : center-of-mass angle (radians)
+             - "theta3"    : ejectile lab angle (radians)
+             - "theta4"    : recoil lab angle (radians)
+             - "e3"        : ejectile kinetic energy (MeV)
+             - "e4"        : recoil kinetic energy (MeV)
+             - "p3"        : ejectile momentum
+             - "p4"        : recoil momentum
+             - "v3"        : ejectile velocity (fraction of c)
+             - "v4"        : recoil velocity (fraction of c)
+
+         Notes
+         -----
+         - The angular grid is defined internally using `self.ncoscm`.
+         - All angles are in radians.
+         - Energies are in MeV.
+         - If the reaction is kinematically forbidden (e.g., below threshold),
+           a ValueError is raised.
+
+         Examples
+         --------
+         >>> rxn = TwoBody("p", "3H", "n", "3He", 1.0)
+         >>> data = rxn.compute_arrays()
+         >>> data["theta3"]  # array of lab angles
+
+         This output can be used for plotting or passed to `at_value()` for
+         interpolation at specific angles. 
+         """
         data = {k: [] for k in ["coscm", "theta_cm", "theta3", "theta4", "e3", "e4", "v3", "v4"]}
 
         for i in range(-self.ncoscm, self.ncoscm + 1):
