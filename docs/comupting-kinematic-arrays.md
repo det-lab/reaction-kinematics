@@ -3,7 +3,6 @@
 To generate arrays of kinematic quantities over all center-of-mass angles, use `compute_arrays()`.
 
 ```python
-import numpy as np
 from reaction_kinematics import Reaction
 
 rxn = Reaction("p", "3H", "n", "3He")
@@ -11,11 +10,8 @@ rxn = Reaction("p", "3H", "n", "3He")
 
 data = rxn.compute_arrays(ek=1.2)
 
-theta4 = np.array(data["theta4"])
-e3 = np.array(data["e3"])
-
-print(theta4)
-print(e3)
+print(data["theta4"])
+print(data["e3"])
 ```
 
 This will return a dictionary containing the following:

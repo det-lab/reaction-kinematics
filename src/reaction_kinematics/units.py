@@ -13,7 +13,7 @@ class EnergyUnit(Enum):
     TeV = 1e6
 
     @classmethod
-    def from_any(cls, unit):
+    def from_any(cls, unit: "EnergyUnit | str") -> "EnergyUnit":
         if isinstance(unit, cls):
             return unit
         if isinstance(unit, str):

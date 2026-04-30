@@ -64,12 +64,10 @@ p + 3H → n + 3He
 ### Example: Computing Kinematic Arrays
 
 ```python
-import numpy as np
-
 data = rxn.compute_arrays(ek=1.2)
 
-theta4 = np.array(data["theta4"])
-e3 = np.array(data["e3"])
+theta4 = data["theta4"]
+e3 = data["e3"]
 ```
 
 ---

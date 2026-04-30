@@ -3,14 +3,18 @@ Relativistic two-body reaction kinematics
 """
 
 import math
+from collections.abc import Iterable
 
 import numpy as np
+import numpy.typing as npt
 
 from reaction_kinematics.inputs import MassInput
 from reaction_kinematics.units import AngleUnit, EnergyUnit
 
+MassArg = str | int | float | MassInput
 
-def _parse_mass(m, unit=None):
+
+def _parse_mass(m: MassArg, unit: str | EnergyUnit | None = None) -> float:
     if isinstance(m, MassInput):
         return m.mass
     if isinstance(m, str):
@@ -63,14 +67,22 @@ class Reaction:
     >>> branches = rxn.kinematic_curve(np.deg2rad(30), np.linspace(1.0, 5.0, 200))
     """
 
-    def __init__(self, m1, m2, m3, m4, *, mass_unit=None):
+    def __init__(
+        self,
+        m1: MassArg,
+        m2: MassArg,
+        m3: MassArg,
+        m4: MassArg,
+        *,
+        mass_unit: str | EnergyUnit | None = None,
+    ) -> None:
         self.m1 = _parse_mass(m1, mass_unit)
         self.m2 = _parse_mass(m2, mass_unit)
         self.m3 = _parse_mass(m3, mass_unit)
         self.m4 = _parse_mass(m4, mass_unit)
         self._ncoscm: int = 500
         self._cached_ek: float | None = None
-        self._table: dict | None = None
+        self._table: dict[str, list[float]] | None = None
         # per-energy kinematic state, populated by _bind
         self._nogo: bool = False
         self._pcmp: float | None = None
@@ -86,10 +98,10 @@ class Reaction:
         # max lab angles and associated quantities (None = no forward maximum)
         self.theta3max: float | None = None
         self.theta4max: float | None = None
-        self.e3atmaxang: float = -1.0
-        self.e4atmaxang: float = -1.0
-        self.cmcos3max: float = 2.0
-        self.cmcos4max: float = 2.0
+        self.e3atmaxang: float | None = None
+        self.e4atmaxang: float | None = None
+        self.cmcos3max: float | None = None
+        self.cmcos4max: float | None = None
 
     @property
     def ncoscm(self) -> int:
@@ -157,10 +169,10 @@ class Reaction:
         # reset max-angle quantities to sentinel values
         self.theta3max = None
         self.theta4max = None
-        self.e3atmaxang = -1.0
-        self.e4atmaxang = -1.0
-        self.cmcos3max = 2.0
-        self.cmcos4max = 2.0
+        self.e3atmaxang = None
+        self.e4atmaxang = None
+        self.cmcos3max = None
+        self.cmcos4max = None
 
         # max ejectile lab angle (only exists when pcmp < m3 * sinh(rapidity))
         thetatest3: float | None = None
@@ -210,7 +222,7 @@ class Reaction:
                     - self.m4
                 )
 
-    def _kinematics_at_coscm(self, coscm: float) -> dict:
+    def _kinematics_at_coscm(self, coscm: float) -> dict[str, float]:
         if (
             self._pcmp is None
             or self._thecosh is None
@@ -249,14 +261,16 @@ class Reaction:
     def _build_table(self) -> None:
         """Build the interpolation table over the full CM angle grid."""
         keys = ["coscm", "theta_cm", "theta3", "theta4", "e3", "e4", "v3", "v4", "p3", "p4"]
-        table: dict = {k: [] for k in keys}
+        table: dict[str, list[float]] = {k: [] for k in keys}
         for i in range(-self._ncoscm, self._ncoscm + 1):
             row = self._kinematics_at_coscm(i / self._ncoscm)
             for k in keys:
                 table[k].append(row[k])
         self._table = table
 
-    def compute_arrays(self, ek: float, *, energy_unit: EnergyUnit = EnergyUnit.MeV) -> dict:
+    def compute_arrays(
+        self, ek: float, *, energy_unit: EnergyUnit = EnergyUnit.MeV
+    ) -> dict[str, npt.NDArray[np.float64]]:
         """
         Compute full kinematics over a CM angle grid.
 
@@ -269,7 +283,7 @@ class Reaction:
 
         Returns
         -------
-        dict of str -> list
+        dict[str, np.ndarray]
             Keys: ``"coscm"``, ``"theta_cm"``, ``"theta3"``, ``"theta4"``,
             ``"e3"``, ``"e4"``, ``"v3"``, ``"v4"``.
 
@@ -282,14 +296,12 @@ class Reaction:
         self._bind(ek_mev)
         if self._nogo:
             raise ValueError(f"Reaction kinematically forbidden at ek={ek_mev} MeV")
-        data: dict = {
-            k: [] for k in ["coscm", "theta_cm", "theta3", "theta4", "e3", "e4", "v3", "v4"]
-        }
-        for i in range(-self._ncoscm, self._ncoscm + 1):
-            kin = self._kinematics_at_coscm(i / self._ncoscm)
-            for k in data:
-                data[k].append(kin[k])
-        return data
+        keys = ["coscm", "theta_cm", "theta3", "theta4", "e3", "e4", "v3", "v4"]
+        rows = [
+            self._kinematics_at_coscm(i / self._ncoscm)
+            for i in range(-self._ncoscm, self._ncoscm + 1)
+        ]
+        return {k: np.array([row[k] for row in rows]) for k in keys}
 
     def at_value(
         self,
@@ -298,9 +310,9 @@ class Reaction:
         *,
         ek: float,
         energy_unit: EnergyUnit = EnergyUnit.MeV,
-        y_names=None,
+        y_names: str | list[str] | None = None,
         duplicate_tol: float = 1e-6,
-    ) -> dict:
+    ) -> dict[str, list[float]]:
         """
         Interpolate kinematic quantities at a fixed independent variable.
 
@@ -387,11 +399,11 @@ class Reaction:
     def kinematic_curve(
         self,
         theta: float,
-        ek_array,
+        ek_array: Iterable[float],
         *,
         angle_unit: AngleUnit = AngleUnit.rad,
         energy_unit: EnergyUnit = EnergyUnit.MeV,
-    ) -> list[dict]:
+    ) -> list[dict[str, npt.NDArray[np.float64]]]:
         """
         Compute ejectile kinematics at a fixed lab angle over a range of beam energies.
 

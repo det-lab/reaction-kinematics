@@ -8,7 +8,7 @@ from .constants import AMU, EMASS
 from .masstable import MTAB
 
 
-def parse_isotope(isotope: str):
+def parse_isotope(isotope: str) -> tuple[int, str]:
     """
     Parse strings like '12C', '4He', 'p', 'd', 't'
     Returns (A, element)

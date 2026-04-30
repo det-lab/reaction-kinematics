@@ -16,6 +16,10 @@ DATA_DIR = Path(__file__).parent / "data"
 
 KRANE_FILES = sorted(DATA_DIR.glob("3H(p,n)3He * (Krane) *.csv"))
 
+# Maximum acceptable deviation from digitized Krane plot values (MeV).
+# Reading off a printed plot introduces ~60 keV of digitization uncertainty.
+KRANE_ATOL_MEV = 0.06
+
 
 def parse_angle(path: Path) -> float:
     """Extract lab angle in degrees from filename."""
@@ -51,13 +55,14 @@ def test_kinematic_curve_single_valued():
 def test_kinematic_curve_two_valued():
     """12C(p,p)12C in inverse kinematics at 3° has a two-valued region: both
     branches should be populated for most of the energy range."""
+    # Two-valued regime for 12C(p,p)12C at 3° starts well below 50 MeV 12C beam energy.
     ek_array = np.linspace(50.0, 200.0, 100)
     branches = Reaction("12C", "p", "12C", "p").kinematic_curve(np.deg2rad(3), ek_array)
 
     # Branch 0 should be fully populated
     assert not np.any(np.isnan(branches[0]["e3"]))
-    # Branch 1 should have values for the majority of the range
-    assert np.sum(~np.isnan(branches[1]["e3"])) > 90
+    # Branch 1 should have values for more than 90% of the range
+    assert np.sum(~np.isnan(branches[1]["e3"])) > 0.9 * len(ek_array)
     # Branch 0 always higher energy than branch 1 where both exist
     both = ~np.isnan(branches[1]["e3"])
     assert np.all(branches[0]["e3"][both] > branches[1]["e3"][both])
@@ -91,7 +96,7 @@ def test_kinematic_curve_vs_krane(data_file):
 
         candidates = [v for v in [e3_b0[i], e3_b1[i]] if not np.isnan(v)]
         best = min(candidates, key=lambda v: abs(v - e3_ref))
-        assert np.isclose(best, e3_ref, atol=0.06, rtol=0.0), (
+        assert np.isclose(best, e3_ref, atol=KRANE_ATOL_MEV, rtol=0.0), (
             f"ek={df['ek'][i]:.4f}: computed {best:.4f}, reference {e3_ref:.4f} "
             f"(angle={theta3_deg} deg, file={data_file.name})"
         )
