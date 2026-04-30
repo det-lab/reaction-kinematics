@@ -11,28 +11,27 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-from reaction_kinematics import TwoBody
+from reaction_kinematics import Reaction
 
 
 def test_run_and_plot_example() -> None:
     """
-    Smoke-test the TwoBody kinematics example and ensure plotting works.
+    Smoke-test the Reaction kinematics example and ensure plotting works.
     """
-    # Initialize reaction and compute arrays
-    rxn = TwoBody("a", "12C", "a", "12C", 1.2, mass_unit="MeV")
-    data = rxn.compute_arrays()
+    rxn = Reaction("a", "12C", "a", "12C")
+    data = rxn.compute_arrays(1.2)
 
     # Basic at_value interpolation
-    result = rxn.at_value("theta_cm", 0.8)
+    result = rxn.at_value("theta_cm", 0.8, ek=1.2)
     assert isinstance(result, dict)
     assert "theta_cm" in result
     assert all(isinstance(v, float) for values in result.values() for v in values)
 
-    # Ensure theta4max is defined and interpolation at its edge does not error
-    assert rxn.theta4max is not None
-    edge_angle = min(rxn.theta4max - 1e-12, rxn._table["theta4"][-1])
+    # Interpolation near the edge of the theta4 range
+    theta4_arr = data["theta4"]
+    edge_angle = max(theta4_arr) - 1e-12
     for y in ("e3", "v3", "p3"):
-        vals = rxn.at_value("theta4", edge_angle, y_names=y)[y]
+        vals = rxn.at_value("theta4", edge_angle, ek=1.2, y_names=y)[y]
         assert all(isinstance(v, float) for v in vals)
 
     # Plot energy vs angle without errors

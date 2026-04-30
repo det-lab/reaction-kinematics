@@ -10,7 +10,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from reaction_kinematics import TwoBody
+from reaction_kinematics import Reaction
 
 
 def test_alpha12C_reference_table():
@@ -26,13 +26,13 @@ def test_alpha12C_reference_table():
 
     df = pd.read_csv(data_file, skiprows=6)
 
-    rxn = TwoBody("a", "12C", "a", "12C", 4.0, mass_unit="MeV")
+    rxn = Reaction("a", "12C", "a", "12C")
 
     calc = []
 
     for _, row in df.iterrows():
-        theta3 = np.deg2rad(row["theta3 (degrees)"])
-        r = rxn.at_value("theta3", theta3)
+        theta3 = float(np.deg2rad(row["theta3 (degrees)"]))
+        r = rxn.at_value("theta3", theta3, ek=4.0)
 
         # at_value can return multiple theta4 branches, so choose the one
         # that matches the reference table value for this row

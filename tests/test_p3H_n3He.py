@@ -10,7 +10,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from reaction_kinematics import TwoBody, q_value
+from reaction_kinematics import Reaction
 
 
 def test_q_value_p3H_n3He():
@@ -21,11 +21,7 @@ def test_q_value_p3H_n3He():
     """
     expected_mev = -763.75498e-3  # keV → MeV
 
-    # standalone function
-    assert np.isclose(q_value("p", "3H", "n", "3He"), expected_mev, rtol=1e-5)
-
-    # TwoBody property
-    rxn = TwoBody("p", "3H", "n", "3He", 1.2)
+    rxn = Reaction("p", "3H", "n", "3He")
     assert np.isclose(rxn.q_value, expected_mev, rtol=1e-5)
 
 
@@ -41,12 +37,12 @@ def test_p3H_n3He_reference_table():
     data_file = Path(__file__).parent / "data" / "p_3H_n_3He_reference_data.csv"
     df = pd.read_csv(data_file, skiprows=6)
 
-    rxn = TwoBody("p", "3H", "n", "3He", 1.2, mass_unit="MeV")
+    rxn = Reaction("p", "3H", "n", "3He")
 
     calc = []
 
     for _, row in df.iterrows():
-        r = rxn.at_value("coscm", row["costheta3cm"])
+        r = rxn.at_value("coscm", float(row["costheta3cm"]), ek=1.2)  # pyright: ignore[reportArgumentType]
 
         e3_vals = np.array(r["e3"])
         e4_vals = np.array(r["e4"])

@@ -12,10 +12,10 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-from reaction_kinematics import kinematic_curve
+from reaction_kinematics import Reaction
 
 ek_array = np.linspace(1.0, 5.0, 500)
-branches = kinematic_curve("p", "3H", "n", "3He", np.deg2rad(30), ek_array)
+branches = Reaction("p", "3H", "n", "3He").kinematic_curve(np.deg2rad(30), ek_array)
 
 fig, ax = plt.subplots(figsize=(7, 5))
 

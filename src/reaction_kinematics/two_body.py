@@ -7,7 +7,7 @@ import math
 import numpy as np
 
 from reaction_kinematics.inputs import MassInput
-from reaction_kinematics.units import AngleUnit, EnergyUnit
+from reaction_kinematics.units import EnergyUnit
 
 
 def _parse_mass(m, unit=None):
@@ -27,104 +27,6 @@ def _parse_mass(m, unit=None):
         return m * unit.value
 
     raise TypeError(f"Unsupported mass input type: {type(m)}")
-
-
-def q_value(m1, m2, m3, m4, *, mass_unit=None) -> float:
-    """
-    Compute the Q-value for a reaction: projectile + target → ejectile + recoil
-
-    Q = m1 + m2 - m3 - m4  (in MeV)
-
-    Accepts the same mass input types as TwoBody: string symbols, MassInput objects,
-    or numeric values (which require mass_unit).
-
-    Parameters
-    ----------
-    m1, m2, m3, m4 : str, MassInput, or float
-        Masses of projectile, target, ejectile, and recoil.
-    mass_unit : str or EnergyUnit, optional
-        Unit for numeric masses (e.g. "MeV", "keV", "amu").
-
-    Returns
-    -------
-    float
-        Q-value in MeV.
-    """
-    return (
-        _parse_mass(m1, mass_unit)
-        + _parse_mass(m2, mass_unit)
-        - _parse_mass(m3, mass_unit)
-        - _parse_mass(m4, mass_unit)
-    )
-
-
-def kinematic_curve(m1, m2, m3, m4, theta3, ek_array, *, mass_unit=None, angle_unit=AngleUnit.rad):
-    """
-    Compute ejectile kinematics at a fixed lab angle over a range of beam energies.
-
-    Returns two branches (high-energy and low-energy) as a list of two dicts. Each
-    dict contains arrays indexed by beam energy, with NaN where that branch does not
-    exist. Branch 0 is always the higher-energy solution.
-
-    Parameters
-    ----------
-    m1, m2, m3, m4 : str, MassInput, or float
-        Masses of projectile, target, ejectile, and recoil.
-    theta3 : float
-        Fixed lab angle of the ejectile.
-    ek_array : array-like
-        Beam energies to evaluate (in MeV unless energy_unit is specified via mass_unit).
-    mass_unit : str or EnergyUnit, optional
-        Unit for numeric masses.
-    angle_unit : AngleUnit or str, optional
-        Unit of theta3 (default: radians).
-
-    Returns
-    -------
-    list of two dicts, each with keys:
-        - "ek"     : beam energy (MeV)
-        - "e3"     : ejectile kinetic energy (MeV)
-        - "e4"     : recoil kinetic energy (MeV)
-        - "theta4" : recoil lab angle (radians)
-        - "v3"     : ejectile velocity (fraction of c)
-        - "v4"     : recoil velocity (fraction of c)
-
-    Example
-    -------
-    >>> import numpy as np
-    >>> branches = kinematic_curve("p", "3H", "n", "3He", np.deg2rad(30), np.linspace(1.0, 5.0, 200))
-    >>> for b in branches:
-    ...     plt.plot(b["ek"], b["e3"])
-    """
-    if isinstance(angle_unit, str):
-        angle_unit = AngleUnit[angle_unit]
-
-    theta3_rad = theta3 * angle_unit.value
-
-    keys = ["e3", "e4", "theta4", "v3", "v4"]
-    branches = [
-        {"ek": [], **{k: [] for k in keys}},
-        {"ek": [], **{k: [] for k in keys}},
-    ]
-
-    for ek in ek_array:
-        rxn = TwoBody(m1, m2, m3, m4, ek, mass_unit=mass_unit)
-
-        try:
-            row = rxn.at_value("theta3", theta3_rad, y_names=keys)
-        except ValueError:
-            solutions = []
-        else:
-            n = len(row["e3"])
-            solutions = [{k: row[k][i] for k in keys} for i in range(n)]
-
-        for i, branch in enumerate(branches):
-            branch["ek"].append(ek)
-            sol = solutions[i] if i < len(solutions) else None
-            for k in keys:
-                branch[k].append(sol[k] if sol is not None else float("nan"))
-
-    return [{k: np.array(v) for k, v in branch.items()} for branch in branches]
 
 
 class TwoBody:
@@ -495,51 +397,51 @@ class TwoBody:
         return out
 
     def compute_arrays(self):
-         """
-         Compute full two-body kinematics over center-of-mass angles.
+        """
+        Compute full two-body kinematics over center-of-mass angles.
 
-         This method evaluates the reaction kinematics across a grid of
-         center-of-mass (CM) angles and returns the corresponding lab-frame
-         quantities for both outgoing particles.
+        This method evaluates the reaction kinematics across a grid of
+        center-of-mass (CM) angles and returns the corresponding lab-frame
+        quantities for both outgoing particles.
 
-         The results are stored internally and also returned as a dictionary
-         of NumPy arrays. These arrays form the basis for interpolation via
-         `at_value()`.
+        The results are stored internally and also returned as a dictionary
+        of NumPy arrays. These arrays form the basis for interpolation via
+        `at_value()`.
 
-         Returns
-         -------
-         dict of str -> numpy.ndarray
-             Dictionary containing kinematic quantities evaluated over the
-             CM angle grid. Keys include:
+        Returns
+        -------
+        dict of str -> numpy.ndarray
+            Dictionary containing kinematic quantities evaluated over the
+            CM angle grid. Keys include:
 
-             - "coscm"     : cos(theta_cm)
-             - "theta_cm"  : center-of-mass angle (radians)
-             - "theta3"    : ejectile lab angle (radians)
-             - "theta4"    : recoil lab angle (radians)
-             - "e3"        : ejectile kinetic energy (MeV)
-             - "e4"        : recoil kinetic energy (MeV)
-             - "p3"        : ejectile momentum
-             - "p4"        : recoil momentum
-             - "v3"        : ejectile velocity (fraction of c)
-             - "v4"        : recoil velocity (fraction of c)
+            - "coscm"     : cos(theta_cm)
+            - "theta_cm"  : center-of-mass angle (radians)
+            - "theta3"    : ejectile lab angle (radians)
+            - "theta4"    : recoil lab angle (radians)
+            - "e3"        : ejectile kinetic energy (MeV)
+            - "e4"        : recoil kinetic energy (MeV)
+            - "p3"        : ejectile momentum
+            - "p4"        : recoil momentum
+            - "v3"        : ejectile velocity (fraction of c)
+            - "v4"        : recoil velocity (fraction of c)
 
-         Notes
-         -----
-         - The angular grid is defined internally using `self.ncoscm`.
-         - All angles are in radians.
-         - Energies are in MeV.
-         - If the reaction is kinematically forbidden (e.g., below threshold),
-           a ValueError is raised.
+        Notes
+        -----
+        - The angular grid is defined internally using `self.ncoscm`.
+        - All angles are in radians.
+        - Energies are in MeV.
+        - If the reaction is kinematically forbidden (e.g., below threshold),
+          a ValueError is raised.
 
-         Examples
-         --------
-         >>> rxn = TwoBody("p", "3H", "n", "3He", 1.0)
-         >>> data = rxn.compute_arrays()
-         >>> data["theta3"]  # array of lab angles
+        Examples
+        --------
+        >>> rxn = TwoBody("p", "3H", "n", "3He", 1.0)
+        >>> data = rxn.compute_arrays()
+        >>> data["theta3"]  # array of lab angles
 
-         This output can be used for plotting or passed to `at_value()` for
-         interpolation at specific angles. 
-         """
+        This output can be used for plotting or passed to `at_value()` for
+        interpolation at specific angles.
+        """
         data = {k: [] for k in ["coscm", "theta_cm", "theta3", "theta4", "e3", "e4", "v3", "v4"]}
 
         for i in range(-self.ncoscm, self.ncoscm + 1):

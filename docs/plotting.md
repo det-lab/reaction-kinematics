@@ -5,13 +5,13 @@ You can use `matplotlib` to visualize kinematic relationships.
 ### Example: Ejectile Energy vs Recoil Angle
 
 ```python
-from reaction_kinematics import TwoBody
+from reaction_kinematics import Reaction
 import matplotlib.pyplot as plt
 
-rxn = TwoBody("p", "3H", "n", "3He", 1.2)
-#Proton + Tritium Reaction
+rxn = Reaction("p", "3H", "n", "3He")
+# Proton + Tritium Reaction
 
-data = rxn.compute_arrays()
+data = rxn.compute_arrays(ek=1.2)
 
 plt.plot(data["theta4"], data["e3"])
 plt.xlabel("Recoil Angle θ₄ (rad)")
@@ -33,10 +33,11 @@ returning ejectile kinematics for both solution branches.
 ```python
 import numpy as np
 import matplotlib.pyplot as plt
-from reaction_kinematics import kinematic_curve
+from reaction_kinematics import Reaction
 
+rxn = Reaction("p", "3H", "n", "3He")
 ek_array = np.linspace(1.0, 5.0, 500)
-branches = kinematic_curve("p", "3H", "n", "3He", np.deg2rad(30), ek_array)
+branches = rxn.kinematic_curve(np.deg2rad(30), ek_array)
 
 for branch in branches:
     plt.plot(branch["ek"], branch["e3"])

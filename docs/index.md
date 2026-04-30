@@ -18,13 +18,13 @@ This code can do:
 <br>
 
 ## About
-The main interface is the `TwoBody` class.
+The main interface is the `Reaction` class.
 
 ```python
-from reaction_kinematics import TwoBody
+from reaction_kinematics import Reaction
 ```
 
-Create a reaction by specifying the particle masses and projectile kinetic energy.
+Create a reaction by specifying the four particle masses. The beam energy is passed separately to each calculation method.
 
 ### Reaction 
 We define a reaction with these variables
@@ -33,13 +33,14 @@ We define a reaction with these variables
 * m2 (Target)
 * m3 (Ejectile)
 * m4 (Recoil)
-* ek (Beam Energy in MeV)
 
 All masses are converted internally to MeV. Kinetic energy is assumed in MeV unless specified otherwise.
 
-For example if you wanted to do p(3H, 3He)n with protons at 4 MeV:
-```
-TwoBody("p", "3H", "n", "3He", 4.0, mass_unit="MeV")
+For example if you wanted to do p(3H, n)3He:
+```python
+from reaction_kinematics import Reaction
+
+rxn = Reaction("p", "3H", "n", "3He")
 ```
 <br> 
 
@@ -57,7 +58,7 @@ TwoBody("p", "3H", "n", "3He", 4.0, mass_unit="MeV")
 To generate arrays of kinematic quantities over all center-of-mass angles, use `compute_arrays()`.
 
 ```python
-data = rxn.compute_arrays()
+data = rxn.compute_arrays(ek=4.0)
 ```
 
 This will return a dictionary containing the following:
@@ -73,6 +74,5 @@ This will return a dictionary containing the following:
 <br>
 
 ###### See [Plotting Example](plotting.md) for How to Plot
-
 
 

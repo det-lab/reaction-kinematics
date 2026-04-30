@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from reaction_kinematics import kinematic_curve
+from reaction_kinematics import Reaction
 
 DATA_DIR = Path(__file__).parent / "data"
 
@@ -28,7 +28,7 @@ def parse_angle(path: Path) -> float:
 def test_kinematic_curve_return_structure():
     """kinematic_curve returns a list of two dicts each with the expected keys."""
     ek_array = np.linspace(1.5, 5.0, 20)
-    branches = kinematic_curve("p", "3H", "n", "3He", np.deg2rad(30), ek_array)
+    branches = Reaction("p", "3H", "n", "3He").kinematic_curve(np.deg2rad(30), ek_array)
 
     assert len(branches) == 2
     expected_keys = {"ek", "e3", "e4", "theta4", "v3", "v4"}
@@ -42,7 +42,7 @@ def test_kinematic_curve_single_valued():
     """3H(p,n)3He at 30° is single-valued over this energy range: branch 0 fully
     populated, branch 1 all NaN."""
     ek_array = np.linspace(1.5, 5.0, 50)
-    branches = kinematic_curve("p", "3H", "n", "3He", np.deg2rad(30), ek_array)
+    branches = Reaction("p", "3H", "n", "3He").kinematic_curve(np.deg2rad(30), ek_array)
 
     assert not np.any(np.isnan(branches[0]["e3"]))
     assert np.all(np.isnan(branches[1]["e3"]))
@@ -52,7 +52,7 @@ def test_kinematic_curve_two_valued():
     """12C(p,p)12C in inverse kinematics at 3° has a two-valued region: both
     branches should be populated for most of the energy range."""
     ek_array = np.linspace(50.0, 200.0, 100)
-    branches = kinematic_curve("12C", "p", "12C", "p", np.deg2rad(3), ek_array)
+    branches = Reaction("12C", "p", "12C", "p").kinematic_curve(np.deg2rad(3), ek_array)
 
     # Branch 0 should be fully populated
     assert not np.any(np.isnan(branches[0]["e3"]))
@@ -78,7 +78,7 @@ def test_kinematic_curve_vs_krane(data_file):
 
     df = pd.read_csv(data_file, header=None, names=["ek", "e3_ref"])
 
-    branches = kinematic_curve("p", "3H", "n", "3He", theta3_rad, df["ek"].to_numpy())
+    branches = Reaction("p", "3H", "n", "3He").kinematic_curve(theta3_rad, df["ek"].to_numpy())
 
     e3_b0 = branches[0]["e3"]
     e3_b1 = branches[1]["e3"]

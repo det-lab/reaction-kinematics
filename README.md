@@ -36,15 +36,13 @@ https://det-lab.github.io/reaction-kinematics/
 
 ## Basic Usage
 
-The main interface is the `TwoBody` class.
+The main interface is the `Reaction` class.
 
 ```python
-from reaction_kinematics import TwoBody
+from reaction_kinematics import Reaction
 ```
 
-Create a reaction by specifying the particle masses and projectile kinetic energy.
-
-
+Create a reaction by specifying the four particle masses. The beam energy is passed separately to each calculation method.
 
 You may specify alternative units using `EnergyUnit` and `MassInput`.
 
@@ -52,7 +50,7 @@ You may specify alternative units using `EnergyUnit` and `MassInput`.
 ### Example: Proton + Tritium Reaction
 
 ```python
-rxn = TwoBody("p", "3H", "n", "3He", 1.2)
+rxn = Reaction("p", "3H", "n", "3He")
 ```
 
 This represents:
@@ -61,15 +59,17 @@ This represents:
 p + 3H → n + 3He
 ```
 
-with a projectile energy of 1.2 MeV.
-
 ---
 
-### Example
+### Example: Computing Kinematic Arrays
 
 ```python
-theta4 = data["theta4"]
-e3 = data["e3"]
+import numpy as np
+
+data = rxn.compute_arrays(ek=1.2)
+
+theta4 = np.array(data["theta4"])
+e3 = np.array(data["e3"])
 ```
 
 ---
@@ -83,14 +83,15 @@ This method automatically handles multi-valued solutions and always returns list
 ### Syntax
 
 ```python
-rxn.at_value(x_name, x_value, y_names=None)
+rxn.at_value(x_name, x, ek=..., y_names=None)
 ```
 
 Parameters:
 
 * `x_name` : Independent variable (e.g. `"theta4"`, `"theta_cm"`, `"coscm"`)
-* `x_value`: Value at which to evaluate
-* `y_names`: Dependent variables (string or list)
+* `x`      : Value at which to evaluate (radians for angles)
+* `ek`     : Beam kinetic energy in MeV (required)
+* `y_names`: Dependent variables (string or list, `None` returns all)
 
 ---
 
@@ -101,7 +102,7 @@ import math
 
 angle = 10 * math.pi / 180
 
-vals = rxn.at_value("theta4", angle, y_names="e3")
+vals = rxn.at_value("theta4", angle, ek=1.2, y_names="e3")
 print(vals)
 ```
 
@@ -121,6 +122,7 @@ Multiple values indicate multiple physical solutions.
 vals = rxn.at_value(
     "theta4",
     angle,
+    ek=1.2,
     y_names=["e3", "v3", "p3"]
 )
 
@@ -144,7 +146,7 @@ Example output:
 If `y_names` is omitted, all quantities are returned.
 
 ```python
-vals = rxn.at_value("theta_cm", 0.8)
+vals = rxn.at_value("theta_cm", 0.8, ek=1.2)
 print(vals)
 ```
 
@@ -164,26 +166,16 @@ Example output:
 }
 ```
 
-### Convert to NumPy Arrays
-
-```python
-import numpy as np
-
-data = rxn.compute_arrays()
-
-theta4 = np.array(data["theta4"])
-e3 = np.array(data["e3"])
-```
+---
 
 ### Using Explicit Mass Values
 
 ```python
-rxn = TwoBody(
+rxn = Reaction(
     938.272,
     11177.928,
     938.272,
     11177.928,
-    5.0,
     mass_unit="MeV"
 )
 ```
@@ -199,7 +191,7 @@ You can use `matplotlib` to visualize kinematic relationships.
 ```python
 import matplotlib.pyplot as plt
 
-data = rxn.compute_arrays()
+data = rxn.compute_arrays(ek=1.2)
 
 plt.plot(data["theta4"], data["e3"])
 plt.xlabel("Recoil Angle θ₄ (rad)")
@@ -219,10 +211,11 @@ returning ejectile kinematics for both solution branches.
 ```python
 import numpy as np
 import matplotlib.pyplot as plt
-from reaction_kinematics import kinematic_curve
+from reaction_kinematics import Reaction
 
+rxn = Reaction("p", "3H", "n", "3He")
 ek_array = np.linspace(1.0, 5.0, 500)
-branches = kinematic_curve("p", "3H", "n", "3He", np.deg2rad(30), ek_array)
+branches = rxn.kinematic_curve(np.deg2rad(30), ek_array)
 
 for branch in branches:
     plt.plot(branch["ek"], branch["e3"])
@@ -235,8 +228,6 @@ plt.show()
 Each call returns a list of **two dicts** (branch 0 = high-energy solution,
 branch 1 = low-energy solution), each containing arrays for `ek`, `e3`, `e4`,
 `theta4`, `v3`, and `v4`. Where a branch does not exist the values are `NaN`.
-
-![3H(p,n)3He kinematic curve at 30°](examples/kinematic_curve_plot.png)
 
 The full example script is at [`examples/kinematic_curve_example.py`](examples/kinematic_curve_example.py).
 

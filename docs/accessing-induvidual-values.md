@@ -7,14 +7,13 @@ This method automatically handles multi-valued solutions and always returns list
 ### Syntax
 
 ```python
-from reaction_kinematics import TwoBody
+from reaction_kinematics import Reaction
 
-rxn = TwoBody("p", "3H", "n", "3He", 1.2)
+rxn = Reaction("p", "3H", "n", "3He")
 # Proton + Tritium Reaction
 
-
-r = rxn.at_value("theta3", 2.13, y_names=None)
-# 2.13 is in radians 
+r = rxn.at_value("theta3", 2.13, ek=1.2)
+# 2.13 is in radians
 print(r)
 
 ```
@@ -33,6 +32,7 @@ This will return:
 ```
 Parameters:
 
-* `x_name` : Independent variable (e.g. `"theta4"`, `"theta_cm"`, `"coscm"`)
-* `x_value`: Value at which to evaluate
-* `y_names`: Dependent variables (string or list)
+* `x_name` : Independent variable (e.g. `"theta3"`, `"theta4"`, `"theta_cm"`, `"coscm"`)
+* `x`      : Value at which to evaluate (radians for angles)
+* `ek`     : Beam kinetic energy in MeV (required)
+* `y_names`: Dependent variables to return — string, list, or `None` for all

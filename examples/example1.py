@@ -20,18 +20,18 @@ print(matplotlib.get_backend())
 
 import matplotlib.pyplot as plt
 
-from reaction_kinematics import TwoBody
+from reaction_kinematics import Reaction
 
 
 """
-Smoke-test the TwoBody kinematics example and ensure plotting works.
+Smoke-test the Reaction kinematics example and ensure plotting works.
 """
- # Initialize reaction and compute arrays
-rxn = TwoBody("alpha", "12C", "alpha", "12C", 4.0, mass_unit="MeV")
-data = rxn.compute_arrays()
+# Initialize reaction and compute arrays
+rxn = Reaction("alpha", "12C", "alpha", "12C")
+data = rxn.compute_arrays(4.0)
 
 # Basic at_value interpolation
-result = rxn.at_value("theta_cm", 0.8)
+result = rxn.at_value("theta_cm", 0.8, ek=4.0)
 assert isinstance(result, dict)
 assert "theta_cm" in result
 assert all(isinstance(v, float) for values in result.values() for v in values)
