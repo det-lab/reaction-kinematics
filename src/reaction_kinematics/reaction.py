@@ -2,11 +2,26 @@
 Relativistic two-body reaction kinematics
 """
 
+import math
+
 import numpy as np
 
-from reaction_kinematics.two_body import TwoBody as _TwoBody
-from reaction_kinematics.two_body import _parse_mass
+from reaction_kinematics.inputs import MassInput
 from reaction_kinematics.units import AngleUnit, EnergyUnit
+
+
+def _parse_mass(m, unit=None):
+    if isinstance(m, MassInput):
+        return m.mass
+    if isinstance(m, str):
+        return MassInput(m).mass
+    if isinstance(m, (int, float)):
+        if unit is None:
+            raise ValueError("Numeric mass provided without mass_unit")
+        if isinstance(unit, str):
+            unit = EnergyUnit[unit]
+        return m * unit.value
+    raise TypeError(f"Unsupported mass input type: {type(m)}")
 
 
 def _parse_energy(ek: float, energy_unit: EnergyUnit) -> float:
@@ -35,8 +50,8 @@ class Reaction:
     Attributes
     ----------
     ncoscm : int
-        Number of CM angle grid points used by :meth:`compute_arrays` and
-        :meth:`at_value` (default 500). Changing this invalidates the cache.
+        Number of CM angle grid points (default 500). Changing this invalidates
+        the cache.
 
     Examples
     --------
@@ -55,7 +70,26 @@ class Reaction:
         self.m4 = _parse_mass(m4, mass_unit)
         self._ncoscm: int = 500
         self._cached_ek: float | None = None
-        self._bound: _TwoBody | None = None
+        self._table: dict | None = None
+        # per-energy kinematic state, populated by _bind
+        self._nogo: bool = False
+        self._pcmp: float | None = None
+        self._thesinh: float | None = None
+        self._thecosh: float | None = None
+        self._e03: float | None = None
+        self._e04: float | None = None
+        # lab-frame energy extrema
+        self.emax3: float | None = None
+        self.emin3: float | None = None
+        self.emax4: float | None = None
+        self.emin4: float | None = None
+        # max lab angles and associated quantities (None = no forward maximum)
+        self.theta3max: float | None = None
+        self.theta4max: float | None = None
+        self.e3atmaxang: float = -1.0
+        self.e4atmaxang: float = -1.0
+        self.cmcos3max: float = 2.0
+        self.cmcos4max: float = 2.0
 
     @property
     def ncoscm(self) -> int:
@@ -65,19 +99,162 @@ class Reaction:
     def ncoscm(self, val: int) -> None:
         self._ncoscm = val
         self._cached_ek = None
+        self._table = None
 
     @property
     def q_value(self) -> float:
         """Q-value of the reaction in MeV: Q = m1 + m2 - m3 - m4."""
         return self.m1 + self.m2 - self.m3 - self.m4
 
-    def _at_energy(self, ek_mev: float) -> _TwoBody:
-        if ek_mev != self._cached_ek:
-            self._bound = _TwoBody(self.m1, self.m2, self.m3, self.m4, ek_mev, mass_unit="MeV")
-            self._bound.ncoscm = self._ncoscm
-            self._cached_ek = ek_mev
-        assert self._bound is not None
-        return self._bound
+    def _bind(self, ek_mev: float) -> None:
+        """Compute and cache kinematic state for the given beam energy."""
+        if ek_mev == self._cached_ek:
+            return
+        self._cached_ek = ek_mev
+        self._table = None
+        self._compute(ek_mev)
+
+    def _compute(self, ek_mev: float) -> None:
+        self._nogo = False
+        self._pcmp = self._thesinh = self._thecosh = self._e03 = self._e04 = None
+
+        # Mandelstam s
+        s = (self.m1 + self.m2) ** 2 + 2.0 * self.m2 * ek_mev
+        if s <= 0.0:
+            self._nogo = True
+            return
+
+        # initial CM momentum
+        pcm2 = (s - self.m1**2 - self.m2**2) ** 2 - 4.0 * self.m1**2 * self.m2**2
+        if pcm2 < 0:
+            self._nogo = True
+            return
+        pcm = math.sqrt(pcm2 / (4.0 * s))
+
+        # CM rapidity → boost parameters
+        acmratio = (math.sqrt(self.m2**2 + pcm**2) + pcm) / self.m2
+        cmrap = math.log(acmratio)
+        self._thesinh = math.sinh(cmrap)
+        self._thecosh = math.cosh(cmrap)
+
+        # final-state CM momentum
+        pcmp2 = (s - self.m3**2 - self.m4**2) ** 2 - 4.0 * self.m3**2 * self.m4**2
+        if pcmp2 < 0:
+            self._nogo = True
+            return
+        self._pcmp = math.sqrt(pcmp2 / (4.0 * s))
+
+        # CM total energies of outgoing particles
+        self._e03 = math.sqrt(self._pcmp**2 + self.m3**2)
+        self._e04 = math.sqrt(self._pcmp**2 + self.m4**2)
+
+        # lab-frame energy extrema
+        self.emax3 = self._e03 * self._thecosh + self._pcmp * self._thesinh - self.m3
+        self.emin3 = self._e03 * self._thecosh - self._pcmp * self._thesinh - self.m3
+        self.emax4 = self._e04 * self._thecosh + self._pcmp * self._thesinh - self.m4
+        self.emin4 = self._e04 * self._thecosh - self._pcmp * self._thesinh - self.m4
+
+        # reset max-angle quantities to sentinel values
+        self.theta3max = None
+        self.theta4max = None
+        self.e3atmaxang = -1.0
+        self.e4atmaxang = -1.0
+        self.cmcos3max = 2.0
+        self.cmcos4max = 2.0
+
+        # max ejectile lab angle (only exists when pcmp < m3 * sinh(rapidity))
+        thetatest3: float | None = None
+        if self.m3 > 0.0:
+            thetatest3 = self._pcmp / (self.m3 * self._thesinh)
+            if thetatest3 < 1.0:
+                self.theta3max = math.asin(thetatest3)
+                patmax = (self._e03 * math.cos(self.theta3max) * self._thesinh) / (
+                    1.0 + thetatest3**2 * self._thesinh**2
+                )
+                eatmax = math.sqrt(patmax**2 + self.m3**2)
+                self.e3atmaxang = eatmax - self.m3
+                self.cmcos3max = (eatmax - self._e03 * self._thecosh) / (self._pcmp * self._thesinh)
+
+        # elastic case: forward-angle symmetry forces theta3max = 90°
+        if (self.m1 + self.m2) == (self.m3 + self.m4) and thetatest3 is not None:
+            if abs(thetatest3 - 1.0) < 1e-3:
+                self.theta3max = math.pi / 2.0
+                self.cmcos3max = -1.0
+                self.e3atmaxang = (
+                    self._e03 * self._thecosh
+                    + self.cmcos3max * self._pcmp * self._thesinh
+                    - self.m3
+                )
+
+        # max recoil lab angle
+        thetatest4: float | None = None
+        if self.m4 > 0.0:
+            thetatest4 = self._pcmp / (self.m4 * self._thesinh)
+            if thetatest4 < 1.0:
+                self.theta4max = math.asin(thetatest4)
+                patmax = (self._e04 * math.cos(self.theta4max) * self._thesinh) / (
+                    1.0 + thetatest4**2 * self._thesinh**2
+                )
+                eatmax = math.sqrt(patmax**2 + self.m4**2)
+                self.e4atmaxang = eatmax - self.m4
+                self.cmcos4max = (eatmax - self._e04 * self._thecosh) / (self._pcmp * self._thesinh)
+
+        # elastic case: theta4max = 90°
+        if (self.m1 + self.m2) == (self.m3 + self.m4) and thetatest4 is not None:
+            if abs(thetatest4 - 1.0) < 1e-3:
+                self.theta4max = math.pi / 2.0
+                self.cmcos4max = 1.0
+                self.e4atmaxang = (
+                    self._e04 * self._thecosh
+                    - self.cmcos4max * self._pcmp * self._thesinh
+                    - self.m4
+                )
+
+    def _kinematics_at_coscm(self, coscm: float) -> dict:
+        if (
+            self._pcmp is None
+            or self._thecosh is None
+            or self._e03 is None
+            or self._thesinh is None
+            or self._e04 is None
+        ):
+            raise ValueError("Kinematic state not computed — call _bind first")
+
+        sincm = math.sqrt(max(0.0, 1.0 - coscm**2))
+
+        ppar3 = self._pcmp * self._thecosh * coscm + self._e03 * self._thesinh
+        pperp3 = self._pcmp * sincm
+        ptot3 = math.hypot(ppar3, pperp3)
+
+        ppar4 = -self._pcmp * self._thecosh * coscm + self._e04 * self._thesinh
+        pperp4 = self._pcmp * sincm
+        ptot4 = math.hypot(ppar4, pperp4)
+
+        e3 = self._e03 * self._thecosh + coscm * self._pcmp * self._thesinh - self.m3
+        e4 = self._e04 * self._thecosh - coscm * self._pcmp * self._thesinh - self.m4
+
+        return {
+            "coscm": coscm,
+            "theta_cm": math.acos(coscm),
+            "theta3": math.acos(ppar3 / ptot3) if ptot3 > 0 else 0.0,
+            "theta4": math.acos(ppar4 / ptot4) if ptot4 > 0 else 0.0,
+            "e3": e3,
+            "e4": e4,
+            "v3": ptot3 / (e3 + self.m3),
+            "v4": ptot4 / (e4 + self.m4),
+            "p3": ptot3,
+            "p4": ptot4,
+        }
+
+    def _build_table(self) -> None:
+        """Build the interpolation table over the full CM angle grid."""
+        keys = ["coscm", "theta_cm", "theta3", "theta4", "e3", "e4", "v3", "v4", "p3", "p4"]
+        table: dict = {k: [] for k in keys}
+        for i in range(-self._ncoscm, self._ncoscm + 1):
+            row = self._kinematics_at_coscm(i / self._ncoscm)
+            for k in keys:
+                table[k].append(row[k])
+        self._table = table
 
     def compute_arrays(self, ek: float, *, energy_unit: EnergyUnit = EnergyUnit.MeV) -> dict:
         """
@@ -102,10 +279,17 @@ class Reaction:
             If the reaction is kinematically forbidden at this energy.
         """
         ek_mev = _parse_energy(ek, energy_unit)
-        bound = self._at_energy(ek_mev)
-        if bound.nogo:
+        self._bind(ek_mev)
+        if self._nogo:
             raise ValueError(f"Reaction kinematically forbidden at ek={ek_mev} MeV")
-        return bound.compute_arrays()
+        data: dict = {
+            k: [] for k in ["coscm", "theta_cm", "theta3", "theta4", "e3", "e4", "v3", "v4"]
+        }
+        for i in range(-self._ncoscm, self._ncoscm + 1):
+            kin = self._kinematics_at_coscm(i / self._ncoscm)
+            for k in data:
+                data[k].append(kin[k])
+        return data
 
     def at_value(
         self,
@@ -156,9 +340,49 @@ class Reaction:
         {'e3': [...], 'v3': [...]}
         """
         ek_mev = _parse_energy(ek, energy_unit)
-        return self._at_energy(ek_mev).at_value(
-            x_name, x, y_names=y_names, duplicate_tol=duplicate_tol
-        )
+        self._bind(ek_mev)
+
+        if self._table is None:
+            self._build_table()
+        assert self._table is not None
+
+        xs = self._table[x_name]
+
+        if isinstance(y_names, str):
+            y_names = [y_names]
+        if y_names is None:
+            y_names = list(self._table.keys())
+
+        solutions = []
+
+        exact_idx = np.where(np.isclose(xs, x, atol=1e-12))[0]
+        if len(exact_idx) > 0:
+            for i in exact_idx:
+                solutions.append({k: self._table[k][i] for k in y_names})
+        else:
+            found = False
+            for i in range(len(xs) - 1):
+                x0, x1 = xs[i], xs[i + 1]
+                if (x0 - x) * (x1 - x) <= 0 and x0 != x1:
+                    found = True
+                    t = (x - x0) / (x1 - x0)
+                    solutions.append(
+                        {
+                            k: self._table[k][i] + t * (self._table[k][i + 1] - self._table[k][i])
+                            for k in y_names
+                        }
+                    )
+            if not found:
+                raise ValueError(f"{x_name}={x} outside physical range")
+
+        e_key = "e3" if "e3" in y_names else y_names[0]
+        unique: list = []
+        for sol in solutions:
+            if not any(abs(sol[e_key] - u[e_key]) < duplicate_tol for u in unique):
+                unique.append(sol)
+        unique.sort(key=lambda s: s[e_key], reverse=True)
+
+        return {k: [s[k] for s in unique] for k in y_names}
 
     def kinematic_curve(
         self,
@@ -210,10 +434,8 @@ class Reaction:
 
         for ek in ek_array:
             ek_mev = _parse_energy(ek, energy_unit)
-            bound = self._at_energy(ek_mev)
-
             try:
-                row = bound.at_value("theta3", theta_rad, y_names=keys)
+                row = self.at_value("theta3", theta_rad, ek=ek_mev, y_names=keys)
             except ValueError:
                 solutions = []
             else:

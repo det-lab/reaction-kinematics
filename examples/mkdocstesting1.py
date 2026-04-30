@@ -1,17 +1,13 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
-Created on Thu Apr 23 10:20:04 2026
-
-@author: joey
+Plotting example: Ejectile Energy vs Recoil Angle for p + 3H → n + 3He.
 """
-from reaction_kinematics import TwoBody
 import matplotlib.pyplot as plt
 
-rxn = TwoBody("p", "3H", "n", "3He", 1.2)
-#Proton + Tritium Reaction
+from reaction_kinematics import Reaction
 
-data = rxn.compute_arrays()
+rxn = Reaction("p", "3H", "n", "3He")
+data = rxn.compute_arrays(ek=1.2)
 
 plt.plot(data["theta4"], data["e3"])
 plt.xlabel("Recoil Angle θ₄ (rad)")

@@ -3,9 +3,6 @@ Nuclear mass table converted from masstab.js
 Mass excess values are in keV
 """
 
-AMU = 931.494104  # MeV
-EMASS = 0.510999  # MeV
-
 MTAB = {
     (0, "g"): {"Z": 0, "mexcess": 0.0},
     (1, "h"): {"Z": 1, "mexcess": 7288.97064},

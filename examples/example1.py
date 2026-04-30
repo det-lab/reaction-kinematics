@@ -1,16 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
-Created on Thu Feb 19 10:24:22 2026
-
-@author: joey
-"""
-
-#!/usr/bin/env python3
-"""
-Created on Fri Dec 26 13:02:45 2025
-
-@author: joey
+Smoke-test the Reaction API and basic plotting.
 """
 
 # Smoke-test example and plotting in a pytest function
