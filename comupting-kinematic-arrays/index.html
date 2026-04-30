@@ -119,12 +119,12 @@
 <h2 id="computing-kinematic-arrays">Computing Kinematic Arrays</h2>
 <p>To generate arrays of kinematic quantities over all center-of-mass angles, use <code>compute_arrays()</code>.</p>
 <pre><code class="language-python">import numpy as np
-from reaction_kinematics import TwoBody
+from reaction_kinematics import Reaction
 
-rxn = TwoBody(&quot;p&quot;, &quot;3H&quot;, &quot;n&quot;, &quot;3He&quot;, 1.2)
-#Proton + Tritium Reaction
+rxn = Reaction(&quot;p&quot;, &quot;3H&quot;, &quot;n&quot;, &quot;3He&quot;)
+# Proton + Tritium Reaction
 
-data = rxn.compute_arrays()
+data = rxn.compute_arrays(ek=1.2)
 
 theta4 = np.array(data[&quot;theta4&quot;])
 e3 = np.array(data[&quot;e3&quot;])

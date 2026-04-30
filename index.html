@@ -136,10 +136,10 @@
 <br></li>
 </ul>
 <h2 id="about">About</h2>
-<p>The main interface is the <code>TwoBody</code> class.</p>
-<pre><code class="language-python">from reaction_kinematics import TwoBody
+<p>The main interface is the <code>Reaction</code> class.</p>
+<pre><code class="language-python">from reaction_kinematics import Reaction
 </code></pre>
-<p>Create a reaction by specifying the particle masses and projectile kinetic energy.</p>
+<p>Create a reaction by specifying the four particle masses. The beam energy is passed separately to each calculation method.</p>
 <h3 id="reaction">Reaction</h3>
 <p>We define a reaction with these variables</p>
 <ul>
@@ -147,11 +147,12 @@
 <li>m2 (Target)</li>
 <li>m3 (Ejectile)</li>
 <li>m4 (Recoil)</li>
-<li>ek (Beam Energy in MeV)</li>
 </ul>
 <p>All masses are converted internally to MeV. Kinetic energy is assumed in MeV unless specified otherwise.</p>
-<p>For example if you wanted to do p(3H, 3He)n with protons at 4 MeV:</p>
-<pre><code>TwoBody(&quot;p&quot;, &quot;3H&quot;, &quot;n&quot;, &quot;3He&quot;, 4.0, mass_unit=&quot;MeV&quot;)
+<p>For example if you wanted to do p(3H, n)3He:</p>
+<pre><code class="language-python">from reaction_kinematics import Reaction
+
+rxn = Reaction(&quot;p&quot;, &quot;3H&quot;, &quot;n&quot;, &quot;3He&quot;)
 </code></pre>
 <p><br> </p>
 <h3 id="units">Units</h3>
@@ -164,7 +165,7 @@
 </ul>
 <h3 id="compute-arrays">Compute Arrays</h3>
 <p>To generate arrays of kinematic quantities over all center-of-mass angles, use <code>compute_arrays()</code>.</p>
-<pre><code class="language-python">data = rxn.compute_arrays()
+<pre><code class="language-python">data = rxn.compute_arrays(ek=4.0)
 </code></pre>
 <p>This will return a dictionary containing the following:</p>
 <ul>
@@ -260,5 +261,5 @@
 
 <!--
 MkDocs version : 1.6.1
-Build Date UTC : 2026-04-23 17:23:50.548736+00:00
+Build Date UTC : 2026-04-30 17:42:11.116466+00:00
 -->

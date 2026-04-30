@@ -129,13 +129,13 @@
 <h2 id="plotting-example">Plotting Example</h2>
 <p>You can use <code>matplotlib</code> to visualize kinematic relationships.</p>
 <h3 id="example-ejectile-energy-vs-recoil-angle">Example: Ejectile Energy vs Recoil Angle</h3>
-<pre><code class="language-python">from reaction_kinematics import TwoBody
+<pre><code class="language-python">from reaction_kinematics import Reaction
 import matplotlib.pyplot as plt
 
-rxn = TwoBody(&quot;p&quot;, &quot;3H&quot;, &quot;n&quot;, &quot;3He&quot;, 1.2)
-#Proton + Tritium Reaction
+rxn = Reaction(&quot;p&quot;, &quot;3H&quot;, &quot;n&quot;, &quot;3He&quot;)
+# Proton + Tritium Reaction
 
-data = rxn.compute_arrays()
+data = rxn.compute_arrays(ek=1.2)
 
 plt.plot(data[&quot;theta4&quot;], data[&quot;e3&quot;])
 plt.xlabel(&quot;Recoil Angle θ₄ (rad)&quot;)
@@ -151,10 +151,11 @@ plt.show()
 returning ejectile kinematics for both solution branches.</p>
 <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
-from reaction_kinematics import kinematic_curve
+from reaction_kinematics import Reaction
 
+rxn = Reaction(&quot;p&quot;, &quot;3H&quot;, &quot;n&quot;, &quot;3He&quot;)
 ek_array = np.linspace(1.0, 5.0, 500)
-branches = kinematic_curve(&quot;p&quot;, &quot;3H&quot;, &quot;n&quot;, &quot;3He&quot;, np.deg2rad(30), ek_array)
+branches = rxn.kinematic_curve(np.deg2rad(30), ek_array)
 
 for branch in branches:
     plt.plot(branch[&quot;ek&quot;], branch[&quot;e3&quot;])
