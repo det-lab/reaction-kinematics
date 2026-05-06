@@ -76,10 +76,10 @@ class Reaction:
         *,
         mass_unit: str | EnergyUnit | None = None,
     ) -> None:
-        self.m1 = _parse_mass(m1, mass_unit)
-        self.m2 = _parse_mass(m2, mass_unit)
-        self.m3 = _parse_mass(m3, mass_unit)
-        self.m4 = _parse_mass(m4, mass_unit)
+        self._m1 = _parse_mass(m1, mass_unit)
+        self._m2 = _parse_mass(m2, mass_unit)
+        self._m3 = _parse_mass(m3, mass_unit)
+        self._m4 = _parse_mass(m4, mass_unit)
         self._ncoscm: int = 500
         self._cached_ek: float | None = None
         self._table: dict[str, list[float]] | None = None
@@ -91,17 +91,17 @@ class Reaction:
         self._e03: float | None = None
         self._e04: float | None = None
         # lab-frame energy extrema
-        self.emax3: float | None = None
-        self.emin3: float | None = None
-        self.emax4: float | None = None
-        self.emin4: float | None = None
+        self._emax3: float | None = None
+        self._emin3: float | None = None
+        self._emax4: float | None = None
+        self._emin4: float | None = None
         # max lab angles and associated quantities (None = no forward maximum)
-        self.theta3max: float | None = None
-        self.theta4max: float | None = None
-        self.e3atmaxang: float | None = None
-        self.e4atmaxang: float | None = None
-        self.cmcos3max: float | None = None
-        self.cmcos4max: float | None = None
+        self._theta3max: float | None = None
+        self._theta4max: float | None = None
+        self._e3atmaxang: float | None = None
+        self._e4atmaxang: float | None = None
+        self._cmcos3max: float | None = None
+        self._cmcos4max: float | None = None
 
     @property
     def ncoscm(self) -> int:
@@ -116,7 +116,7 @@ class Reaction:
     @property
     def q_value(self) -> float:
         """Q-value of the reaction in MeV: Q = m1 + m2 - m3 - m4."""
-        return self.m1 + self.m2 - self.m3 - self.m4
+        return self._m1 + self._m2 - self._m3 - self._m4
 
     def _bind(self, ek_mev: float) -> None:
         """Compute and cache kinematic state for the given beam energy."""
@@ -131,95 +131,95 @@ class Reaction:
         self._pcmp = self._thesinh = self._thecosh = self._e03 = self._e04 = None
 
         # Mandelstam s
-        s = (self.m1 + self.m2) ** 2 + 2.0 * self.m2 * ek_mev
+        s = (self._m1 + self._m2) ** 2 + 2.0 * self._m2 * ek_mev
         if s <= 0.0:
             self._nogo = True
             return
 
         # initial CM momentum
-        pcm2 = (s - self.m1**2 - self.m2**2) ** 2 - 4.0 * self.m1**2 * self.m2**2
+        pcm2 = (s - self._m1**2 - self._m2**2) ** 2 - 4.0 * self._m1**2 * self._m2**2
         if pcm2 < 0:
             self._nogo = True
             return
         pcm = math.sqrt(pcm2 / (4.0 * s))
 
         # CM rapidity → boost parameters
-        acmratio = (math.sqrt(self.m2**2 + pcm**2) + pcm) / self.m2
+        acmratio = (math.sqrt(self._m2**2 + pcm**2) + pcm) / self._m2
         cmrap = math.log(acmratio)
         self._thesinh = math.sinh(cmrap)
         self._thecosh = math.cosh(cmrap)
 
         # final-state CM momentum
-        pcmp2 = (s - self.m3**2 - self.m4**2) ** 2 - 4.0 * self.m3**2 * self.m4**2
+        pcmp2 = (s - self._m3**2 - self._m4**2) ** 2 - 4.0 * self._m3**2 * self._m4**2
         if pcmp2 < 0:
             self._nogo = True
             return
         self._pcmp = math.sqrt(pcmp2 / (4.0 * s))
 
         # CM total energies of outgoing particles
-        self._e03 = math.sqrt(self._pcmp**2 + self.m3**2)
-        self._e04 = math.sqrt(self._pcmp**2 + self.m4**2)
+        self._e03 = math.sqrt(self._pcmp**2 + self._m3**2)
+        self._e04 = math.sqrt(self._pcmp**2 + self._m4**2)
 
         # lab-frame energy extrema
-        self.emax3 = self._e03 * self._thecosh + self._pcmp * self._thesinh - self.m3
-        self.emin3 = self._e03 * self._thecosh - self._pcmp * self._thesinh - self.m3
-        self.emax4 = self._e04 * self._thecosh + self._pcmp * self._thesinh - self.m4
-        self.emin4 = self._e04 * self._thecosh - self._pcmp * self._thesinh - self.m4
+        self._emax3 = self._e03 * self._thecosh + self._pcmp * self._thesinh - self._m3
+        self._emin3 = self._e03 * self._thecosh - self._pcmp * self._thesinh - self._m3
+        self._emax4 = self._e04 * self._thecosh + self._pcmp * self._thesinh - self._m4
+        self._emin4 = self._e04 * self._thecosh - self._pcmp * self._thesinh - self._m4
 
         # reset max-angle quantities to sentinel values
-        self.theta3max = None
-        self.theta4max = None
-        self.e3atmaxang = None
-        self.e4atmaxang = None
-        self.cmcos3max = None
-        self.cmcos4max = None
+        self._theta3max = None
+        self._theta4max = None
+        self._e3atmaxang = None
+        self._e4atmaxang = None
+        self._cmcos3max = None
+        self._cmcos4max = None
 
         # max ejectile lab angle (only exists when pcmp < m3 * sinh(rapidity))
         thetatest3: float | None = None
-        if self.m3 > 0.0:
-            thetatest3 = self._pcmp / (self.m3 * self._thesinh)
+        if self._m3 > 0.0:
+            thetatest3 = self._pcmp / (self._m3 * self._thesinh)
             if thetatest3 < 1.0:
-                self.theta3max = math.asin(thetatest3)
-                patmax = (self._e03 * math.cos(self.theta3max) * self._thesinh) / (
+                self._theta3max = math.asin(thetatest3)
+                patmax = (self._e03 * math.cos(self._theta3max) * self._thesinh) / (
                     1.0 + thetatest3**2 * self._thesinh**2
                 )
-                eatmax = math.sqrt(patmax**2 + self.m3**2)
-                self.e3atmaxang = eatmax - self.m3
-                self.cmcos3max = (eatmax - self._e03 * self._thecosh) / (self._pcmp * self._thesinh)
+                eatmax = math.sqrt(patmax**2 + self._m3**2)
+                self._e3atmaxang = eatmax - self._m3
+                self._cmcos3max = (eatmax - self._e03 * self._thecosh) / (self._pcmp * self._thesinh)
 
         # elastic case: forward-angle symmetry forces theta3max = 90°
-        if (self.m1 + self.m2) == (self.m3 + self.m4) and thetatest3 is not None:
+        if (self._m1 + self._m2) == (self._m3 + self._m4) and thetatest3 is not None:
             if abs(thetatest3 - 1.0) < 1e-3:
-                self.theta3max = math.pi / 2.0
-                self.cmcos3max = -1.0
-                self.e3atmaxang = (
+                self._theta3max = math.pi / 2.0
+                self._cmcos3max = -1.0
+                self._e3atmaxang = (
                     self._e03 * self._thecosh
-                    + self.cmcos3max * self._pcmp * self._thesinh
-                    - self.m3
+                    + self._cmcos3max * self._pcmp * self._thesinh
+                    - self._m3
                 )
 
         # max recoil lab angle
         thetatest4: float | None = None
         if self.m4 > 0.0:
-            thetatest4 = self._pcmp / (self.m4 * self._thesinh)
+            thetatest4 = self._pcmp / (self._m4 * self._thesinh)
             if thetatest4 < 1.0:
-                self.theta4max = math.asin(thetatest4)
-                patmax = (self._e04 * math.cos(self.theta4max) * self._thesinh) / (
+                self._theta4max = math.asin(thetatest4)
+                patmax = (self._e04 * math.cos(self._theta4max) * self._thesinh) / (
                     1.0 + thetatest4**2 * self._thesinh**2
                 )
                 eatmax = math.sqrt(patmax**2 + self.m4**2)
-                self.e4atmaxang = eatmax - self.m4
-                self.cmcos4max = (eatmax - self._e04 * self._thecosh) / (self._pcmp * self._thesinh)
+                self._e4atmaxang = eatmax - self._m4
+                self._cmcos4max = (eatmax - self._e04 * self._thecosh) / (self._pcmp * self._thesinh)
 
         # elastic case: theta4max = 90°
-        if (self.m1 + self.m2) == (self.m3 + self.m4) and thetatest4 is not None:
+        if (self._m1 + self._m2) == (self._m3 + self._m4) and thetatest4 is not None:
             if abs(thetatest4 - 1.0) < 1e-3:
-                self.theta4max = math.pi / 2.0
-                self.cmcos4max = 1.0
-                self.e4atmaxang = (
+                self._theta4max = math.pi / 2.0
+                self._cmcos4max = 1.0
+                self._e4atmaxang = (
                     self._e04 * self._thecosh
-                    - self.cmcos4max * self._pcmp * self._thesinh
-                    - self.m4
+                    - self._cmcos4max * self._pcmp * self._thesinh
+                    - self._m4
                 )
 
     def _kinematics_at_coscm(self, coscm: float) -> dict[str, float]:
@@ -242,8 +242,8 @@ class Reaction:
         pperp4 = self._pcmp * sincm
         ptot4 = math.hypot(ppar4, pperp4)
 
-        e3 = self._e03 * self._thecosh + coscm * self._pcmp * self._thesinh - self.m3
-        e4 = self._e04 * self._thecosh - coscm * self._pcmp * self._thesinh - self.m4
+        e3 = self._e03 * self._thecosh + coscm * self._pcmp * self._thesinh - self._m3
+        e4 = self._e04 * self._thecosh - coscm * self._pcmp * self._thesinh - self._m4
 
         return {
             "coscm": coscm,
@@ -252,8 +252,8 @@ class Reaction:
             "theta4": math.acos(ppar4 / ptot4) if ptot4 > 0 else 0.0,
             "e3": e3,
             "e4": e4,
-            "v3": ptot3 / (e3 + self.m3),
-            "v4": ptot4 / (e4 + self.m4),
+            "v3": ptot3 / (e3 + self._m3),
+            "v4": ptot4 / (e4 + self._m4),
             "p3": ptot3,
             "p4": ptot4,
         }
