@@ -80,7 +80,7 @@ class Reaction:
         self._m2 = _parse_mass(m2, mass_unit)
         self._m3 = _parse_mass(m3, mass_unit)
         self._m4 = _parse_mass(m4, mass_unit)
-        self._ncoscm: int = 500
+        self.__ncoscm: int = 500
         self._cached_ek: float | None = None
         self._table: dict[str, list[float]] | None = None
         # per-energy kinematic state, populated by _bind
@@ -105,11 +105,11 @@ class Reaction:
 
     @property
     def _ncoscm(self) -> int:
-        return self._ncoscm
+        return self.__ncoscm
 
     @_ncoscm.setter
     def _ncoscm(self, val: int) -> None:
-        self._ncoscm = val
+        self.__ncoscm = val
         self._cached_ek = None
         self._table = None
 
