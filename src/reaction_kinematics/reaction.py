@@ -104,11 +104,11 @@ class Reaction:
         self._cmcos4max: float | None = None
 
     @property
-    def ncoscm(self) -> int:
+    def _ncoscm(self) -> int:
         return self._ncoscm
 
-    @ncoscm.setter
-    def ncoscm(self, val: int) -> None:
+    @_ncoscm.setter
+    def _ncoscm(self, val: int) -> None:
         self._ncoscm = val
         self._cached_ek = None
         self._table = None
