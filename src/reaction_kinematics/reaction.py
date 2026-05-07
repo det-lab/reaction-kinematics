@@ -38,9 +38,9 @@ class Reaction:
     """
     Defines a two-body nuclear reaction: projectile + target → ejectile + recoil.
 
-    All energy-dependent methods accept an ``ek`` parameter (beam kinetic energy,
-    MeV by default). Internal computation is cached per energy so repeated calls
-    at the same energy are efficient.
+    All energy-dependent methods accept a ``beam_energy`` parameter (beam kinetic
+    energy, MeV by default). Internal computation is cached per energy so repeated
+    calls at the same energy are efficient.
 
     Parameters
     ----------
@@ -62,9 +62,9 @@ class Reaction:
     >>> rxn = Reaction("p", "3H", "n", "3He")
     >>> rxn.q_value
     -0.763...
-    >>> data = rxn.compute_arrays(ek=1.2)
-    >>> result = rxn.at_value("theta3", 0.5, ek=1.2)
-    >>> branches = rxn.kinematic_curve(np.deg2rad(30), np.linspace(1.0, 5.0, 200))
+    >>> data = rxn.kinematics_table_at_beam_energy(1.2)
+    >>> result = rxn.kinematics_at_beam_energy_and_variable(1.2, "theta3", 0.5)
+    >>> branches = rxn.kinematics_curve_at_angle(np.linspace(1.0, 5.0, 200), np.deg2rad(30))
     """
 
     def __init__(
@@ -272,18 +272,18 @@ class Reaction:
                 table[k].append(row[k])
         self._table = table
 
-    def compute_arrays(
-        self, ek: float, *, energy_unit: EnergyUnit = EnergyUnit.MeV
+    def kinematics_table_at_beam_energy(
+        self, beam_energy: float, *, energy_unit: EnergyUnit = EnergyUnit.MeV
     ) -> dict[str, npt.NDArray[np.float64]]:
         """
         Compute full kinematics over a CM angle grid.
 
         Parameters
         ----------
-        ek : float
+        beam_energy : float
             Beam kinetic energy.
         energy_unit : EnergyUnit, optional
-            Unit of ``ek`` (default MeV).
+            Unit of ``beam_energy`` (default MeV).
 
         Returns
         -------
@@ -296,10 +296,10 @@ class Reaction:
         ValueError
             If the reaction is kinematically forbidden at this energy.
         """
-        ek_mev = _parse_energy(ek, energy_unit)
+        ek_mev = _parse_energy(beam_energy, energy_unit)
         self._bind(ek_mev)
         if self._nogo:
-            raise ValueError(f"Reaction kinematically forbidden at ek={ek_mev} MeV")
+            raise ValueError(f"Reaction kinematically forbidden at beam_energy={ek_mev} MeV")
         keys = ["coscm", "theta_cm", "theta3", "theta4", "e3", "e4", "v3", "v4"]
         rows = [
             self._kinematics_at_coscm(i / self._ncoscm)
@@ -307,34 +307,34 @@ class Reaction:
         ]
         return {k: np.array([row[k] for row in rows]) for k in keys}
 
-    def at_value(
+    def kinematics_at_beam_energy_and_variable(
         self,
-        x_name: str,
-        x: float,
+        beam_energy: float,
+        var_name: str,
+        var_value: float,
         *,
-        ek: float,
         energy_unit: EnergyUnit = EnergyUnit.MeV,
-        y_names: str | list[str] | None = None,
+        return_variables: str | list[str] | None = None,
         duplicate_tol: float = 1e-6,
     ) -> dict[str, list[float]]:
         """
-        Interpolate kinematic quantities at a fixed independent variable.
+        Interpolate kinematic quantities at a fixed beam energy and kinematic variable value.
 
         Always returns lists to handle multi-valued cases (e.g. two ejectile
         energies at the same lab angle).
 
         Parameters
         ----------
-        x_name : str
+        beam_energy : float
+            Beam kinetic energy.
+        var_name : str
             Independent variable name, e.g. ``"theta3"``, ``"theta_cm"``,
             ``"coscm"``, ``"theta4"``.
-        x : float
+        var_value : float
             Value to evaluate at (radians for angles).
-        ek : float
-            Beam kinetic energy.
         energy_unit : EnergyUnit, optional
-            Unit of ``ek`` (default MeV).
-        y_names : str or list of str, optional
+            Unit of ``beam_energy`` (default MeV).
+        return_variables : str or list of str, optional
             Dependent variables to return. ``None`` returns all.
         duplicate_tol : float, optional
             Tolerance for merging near-duplicate solutions (default 1e-6).
@@ -347,63 +347,63 @@ class Reaction:
         Raises
         ------
         ValueError
-            If ``x`` is outside the physical range.
+            If ``var_value`` is outside the physical range.
 
         Examples
         --------
         >>> rxn = Reaction("p", "3H", "n", "3He")
-        >>> rxn.at_value("theta3", 0.5, ek=1.2, y_names=["e3", "v3"])
+        >>> rxn.kinematics_at_beam_energy_and_variable(1.2, "theta3", 0.5, return_variables=["e3", "v3"])
         {'e3': [...], 'v3': [...]}
         """
-        ek_mev = _parse_energy(ek, energy_unit)
+        ek_mev = _parse_energy(beam_energy, energy_unit)
         self._bind(ek_mev)
 
         if self._table is None:
             self._build_table()
         assert self._table is not None
 
-        xs = self._table[x_name]
+        xs = self._table[var_name]
 
-        if isinstance(y_names, str):
-            y_names = [y_names]
-        if y_names is None:
-            y_names = list(self._table.keys())
+        if isinstance(return_variables, str):
+            return_variables = [return_variables]
+        if return_variables is None:
+            return_variables = list(self._table.keys())
 
         solutions = []
 
-        exact_idx = np.where(np.isclose(xs, x, atol=1e-12))[0]
+        exact_idx = np.where(np.isclose(xs, var_value, atol=1e-12))[0]
         if len(exact_idx) > 0:
             for i in exact_idx:
-                solutions.append({k: self._table[k][i] for k in y_names})
+                solutions.append({k: self._table[k][i] for k in return_variables})
         else:
             found = False
             for i in range(len(xs) - 1):
                 x0, x1 = xs[i], xs[i + 1]
-                if (x0 - x) * (x1 - x) <= 0 and x0 != x1:
+                if (x0 - var_value) * (x1 - var_value) <= 0 and x0 != x1:
                     found = True
-                    t = (x - x0) / (x1 - x0)
+                    t = (var_value - x0) / (x1 - x0)
                     solutions.append(
                         {
                             k: self._table[k][i] + t * (self._table[k][i + 1] - self._table[k][i])
-                            for k in y_names
+                            for k in return_variables
                         }
                     )
             if not found:
-                raise ValueError(f"{x_name}={x} outside physical range")
+                raise ValueError(f"{var_name}={var_value} outside physical range")
 
-        e_key = "e3" if "e3" in y_names else y_names[0]
+        e_key = "e3" if "e3" in return_variables else return_variables[0]
         unique: list = []
         for sol in solutions:
             if not any(abs(sol[e_key] - u[e_key]) < duplicate_tol for u in unique):
                 unique.append(sol)
         unique.sort(key=lambda s: s[e_key], reverse=True)
 
-        return {k: [s[k] for s in unique] for k in y_names}
+        return {k: [s[k] for s in unique] for k in return_variables}
 
-    def kinematic_curve(
+    def kinematics_curve_at_angle(
         self,
+        beam_energy_array: Iterable[float],
         theta: float,
-        ek_array: Iterable[float],
         *,
         angle_unit: AngleUnit = AngleUnit.rad,
         energy_unit: EnergyUnit = EnergyUnit.MeV,
@@ -417,14 +417,14 @@ class Reaction:
 
         Parameters
         ----------
+        beam_energy_array : array-like
+            Beam energies to sweep.
         theta : float
             Fixed lab angle of the ejectile.
-        ek_array : array-like
-            Beam energies to sweep.
         angle_unit : AngleUnit, optional
             Unit of ``theta`` (default radians).
         energy_unit : EnergyUnit, optional
-            Unit of ``ek_array`` values (default MeV).
+            Unit of ``beam_energy_array`` values (default MeV).
 
         Returns
         -------
@@ -434,7 +434,7 @@ class Reaction:
         Examples
         --------
         >>> rxn = Reaction("p", "3H", "n", "3He")
-        >>> branches = rxn.kinematic_curve(np.deg2rad(30), np.linspace(1.0, 5.0, 200))
+        >>> branches = rxn.kinematics_curve_at_angle(np.linspace(1.0, 5.0, 200), np.deg2rad(30))
         >>> for b in branches:
         ...     plt.plot(b["ek"], b["e3"])
         """
@@ -448,10 +448,12 @@ class Reaction:
             {"ek": [], **{k: [] for k in keys}},
         ]
 
-        for ek in ek_array:
+        for ek in beam_energy_array:
             ek_mev = _parse_energy(ek, energy_unit)
             try:
-                row = self.at_value("theta3", theta_rad, ek=ek_mev, y_names=keys)
+                row = self.kinematics_at_beam_energy_and_variable(
+                    ek_mev, "theta3", theta_rad, return_variables=keys
+                )
             except ValueError:
                 solutions = []
             else:

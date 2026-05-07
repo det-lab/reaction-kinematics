@@ -14,8 +14,8 @@ import numpy as np
 
 from reaction_kinematics import Reaction
 
-ek_array = np.linspace(1.0, 5.0, 500)
-branches = Reaction("p", "3H", "n", "3He").kinematic_curve(np.deg2rad(30), ek_array)
+beam_energy_array = np.linspace(1.0, 5.0, 500)
+branches = Reaction("p", "3H", "n", "3He").kinematics_curve_at_angle(beam_energy_array, np.deg2rad(30))
 
 fig, ax = plt.subplots(figsize=(7, 5))
 

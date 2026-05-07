@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 rxn = Reaction("p", "3H", "n", "3He")
 # Proton + Tritium Reaction
 
-data = rxn.compute_arrays(ek=1.2)
+data = rxn.kinematics_table_at_beam_energy(1.2)
 
 plt.plot(data["theta4"], data["e3"])
 plt.xlabel("Recoil Angle θ₄ (rad)")
@@ -27,7 +27,7 @@ It should return a graph like this:
 
 ## Kinematic Curves at Fixed Lab Angle
 
-`kinematic_curve` sweeps over a range of beam energies at a **fixed lab angle**,
+`kinematics_curve_at_angle` sweeps over a range of beam energies at a **fixed lab angle**,
 returning ejectile kinematics for both solution branches.
 
 ```python
@@ -36,8 +36,8 @@ import matplotlib.pyplot as plt
 from reaction_kinematics import Reaction
 
 rxn = Reaction("p", "3H", "n", "3He")
-ek_array = np.linspace(1.0, 5.0, 500)
-branches = rxn.kinematic_curve(np.deg2rad(30), ek_array)
+beam_energy_array = np.linspace(1.0, 5.0, 500)
+branches = rxn.kinematics_curve_at_angle(beam_energy_array, np.deg2rad(30))
 
 for branch in branches:
     plt.plot(branch["ek"], branch["e3"])

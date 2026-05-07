@@ -1,6 +1,6 @@
 ## Accessing Individual Values
 
-To evaluate kinematic quantities at a specific value, use `at_value()`.
+To evaluate kinematic quantities at a specific beam energy and kinematic variable value, use `kinematics_at_beam_energy_and_variable()`.
 
 This method automatically handles multi-valued solutions and always returns lists.
 
@@ -12,7 +12,7 @@ from reaction_kinematics import Reaction
 rxn = Reaction("p", "3H", "n", "3He")
 # Proton + Tritium Reaction
 
-r = rxn.at_value("theta3", 2.13, ek=1.2)
+r = rxn.kinematics_at_beam_energy_and_variable(1.2, "theta3", 2.13)
 # 2.13 is in radians
 print(r)
 
@@ -32,7 +32,7 @@ This will return:
 ```
 Parameters:
 
-* `x_name` : Independent variable (e.g. `"theta3"`, `"theta4"`, `"theta_cm"`, `"coscm"`)
-* `x`      : Value at which to evaluate (radians for angles)
-* `ek`     : Beam kinetic energy in MeV (required)
-* `y_names`: Dependent variables to return — string, list, or `None` for all
+* `beam_energy` : Beam kinetic energy in MeV
+* `var_name`    : Independent variable (e.g. `"theta3"`, `"theta4"`, `"theta_cm"`, `"coscm"`)
+* `var_value`   : Value at which to evaluate (radians for angles)
+* `return_variables`     : Dependent variables to return — string, list, or `None` for all

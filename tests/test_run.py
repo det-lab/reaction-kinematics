@@ -19,10 +19,10 @@ def test_run_and_plot_example() -> None:
     Smoke-test the Reaction kinematics example and ensure plotting works.
     """
     rxn = Reaction("a", "12C", "a", "12C")
-    data = rxn.compute_arrays(1.2)
+    data = rxn.kinematics_table_at_beam_energy(1.2)
 
-    # Basic at_value interpolation
-    result = rxn.at_value("theta_cm", 0.8, ek=1.2)
+    # Basic interpolation at a fixed variable value
+    result = rxn.kinematics_at_beam_energy_and_variable(1.2, "theta_cm", 0.8)
     assert isinstance(result, dict)
     assert "theta_cm" in result
     assert all(isinstance(v, float) for values in result.values() for v in values)
@@ -31,7 +31,9 @@ def test_run_and_plot_example() -> None:
     theta4_arr = data["theta4"]
     edge_angle = max(theta4_arr) - 1e-12
     for y in ("e3", "v3", "p3"):
-        vals = rxn.at_value("theta4", edge_angle, ek=1.2, y_names=y)[y]
+        vals = rxn.kinematics_at_beam_energy_and_variable(
+            1.2, "theta4", edge_angle, return_variables=y
+        )[y]
         assert all(isinstance(v, float) for v in vals)
 
     # Plot energy vs angle without errors

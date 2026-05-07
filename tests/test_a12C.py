@@ -32,9 +32,9 @@ def test_alpha12C_reference_table():
 
     for _, row in df.iterrows():
         theta3 = float(np.deg2rad(row["theta3 (degrees)"]))
-        r = rxn.at_value("theta3", theta3, ek=4.0)
+        r = rxn.kinematics_at_beam_energy_and_variable(4.0, "theta3", theta3)
 
-        # at_value can return multiple theta4 branches, so choose the one
+        # kinematics_at_beam_energy_and_variable can return multiple theta4 branches, so choose the one
         # that matches the reference table value for this row
         theta4_vals_deg = np.rad2deg(np.array(r["theta4"]))
         theta4_best = theta4_vals_deg[np.argmin(np.abs(theta4_vals_deg - row["theta4 (degrees)"]))]

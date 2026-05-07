@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from reaction_kinematics import Reaction
 
 rxn = Reaction("p", "3H", "n", "3He")
-data = rxn.compute_arrays(ek=1.2)
+data = rxn.kinematics_table_at_beam_energy(1.2)
 
 plt.plot(data["theta4"], data["e3"])
 plt.xlabel("Recoil Angle θ₄ (rad)")

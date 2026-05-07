@@ -42,7 +42,7 @@ def test_p3H_n3He_reference_table():
     calc = []
 
     for _, row in df.iterrows():
-        r = rxn.at_value("coscm", float(row["costheta3cm"]), ek=1.2)  # pyright: ignore[reportArgumentType]
+        r = rxn.kinematics_at_beam_energy_and_variable(1.2, "coscm", float(row["costheta3cm"]))  # pyright: ignore[reportArgumentType]
 
         e3_vals = np.array(r["e3"])
         e4_vals = np.array(r["e4"])

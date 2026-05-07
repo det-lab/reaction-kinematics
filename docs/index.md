@@ -55,10 +55,10 @@ rxn = Reaction("p", "3H", "n", "3He")
 ### Compute Arrays
 
 
-To generate arrays of kinematic quantities over all center-of-mass angles, use `compute_arrays()`.
+To generate arrays of kinematic quantities over all center-of-mass angles, use `kinematics_table_at_beam_energy()`.
 
 ```python
-data = rxn.compute_arrays(ek=4.0)
+data = rxn.kinematics_table_at_beam_energy(4.0)
 ```
 
 This will return a dictionary containing the following:
