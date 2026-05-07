@@ -30,9 +30,6 @@
                                 <a class="function" href="#Reaction.__init__">Reaction</a>
                         </li>
                         <li>
-                                <a class="variable" href="#Reaction.ncoscm">ncoscm</a>
-                        </li>
-                        <li>
                                 <a class="variable" href="#Reaction.q_value">q_value</a>
                         </li>
                         <li>
@@ -156,11 +153,11 @@ reaction_kinematics    </h1>
 </span><span id="Reaction-105"><a href="#Reaction-105"><span class="linenos">105</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_cmcos4max</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 </span><span id="Reaction-106"><a href="#Reaction-106"><span class="linenos">106</span></a>
 </span><span id="Reaction-107"><a href="#Reaction-107"><span class="linenos">107</span></a>    <span class="nd">@property</span>
-</span><span id="Reaction-108"><a href="#Reaction-108"><span class="linenos">108</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">ncoscm</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+</span><span id="Reaction-108"><a href="#Reaction-108"><span class="linenos">108</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">_ncoscm</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 </span><span id="Reaction-109"><a href="#Reaction-109"><span class="linenos">109</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ncoscm</span>
 </span><span id="Reaction-110"><a href="#Reaction-110"><span class="linenos">110</span></a>
-</span><span id="Reaction-111"><a href="#Reaction-111"><span class="linenos">111</span></a>    <span class="nd">@ncoscm</span><span class="o">.</span><span class="n">setter</span>
-</span><span id="Reaction-112"><a href="#Reaction-112"><span class="linenos">112</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">ncoscm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="Reaction-111"><a href="#Reaction-111"><span class="linenos">111</span></a>    <span class="nd">@_ncoscm</span><span class="o">.</span><span class="n">setter</span>
+</span><span id="Reaction-112"><a href="#Reaction-112"><span class="linenos">112</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">_ncoscm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="Reaction-113"><a href="#Reaction-113"><span class="linenos">113</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_ncoscm</span> <span class="o">=</span> <span class="n">val</span>
 </span><span id="Reaction-114"><a href="#Reaction-114"><span class="linenos">114</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_cached_ek</span> <span class="o">=</span> <span class="kc">None</span>
 </span><span id="Reaction-115"><a href="#Reaction-115"><span class="linenos">115</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_table</span> <span class="o">=</span> <span class="kc">None</span>
@@ -600,24 +597,6 @@ mass_unit : str or EnergyUnit, optional
 </span><span id="Reaction.__init__-103"><a href="#Reaction.__init__-103"><span class="linenos">103</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_e4atmaxang</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 </span><span id="Reaction.__init__-104"><a href="#Reaction.__init__-104"><span class="linenos">104</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_cmcos3max</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 </span><span id="Reaction.__init__-105"><a href="#Reaction.__init__-105"><span class="linenos">105</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_cmcos4max</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-</span></pre></div>
-
-
-    
-
-                            </div>
-                            <div id="Reaction.ncoscm" class="classattr">
-                                        <input id="Reaction.ncoscm-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-<div class="attr variable">
-            <span class="name">ncoscm</span><span class="annotation">: int</span>
-
-                <label class="view-source-button" for="Reaction.ncoscm-view-source"><span>View Source</span></label>
-
-    </div>
-    <a class="headerlink" href="#Reaction.ncoscm"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Reaction.ncoscm-107"><a href="#Reaction.ncoscm-107"><span class="linenos">107</span></a>    <span class="nd">@property</span>
-</span><span id="Reaction.ncoscm-108"><a href="#Reaction.ncoscm-108"><span class="linenos">108</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">ncoscm</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-</span><span id="Reaction.ncoscm-109"><a href="#Reaction.ncoscm-109"><span class="linenos">109</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ncoscm</span>
 </span></pre></div>
 
 
