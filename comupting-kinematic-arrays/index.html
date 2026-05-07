@@ -117,13 +117,13 @@
                     <div class="col-md-9" role="main">
 
 <h2 id="computing-kinematic-arrays">Computing Kinematic Arrays</h2>
-<p>To generate arrays of kinematic quantities over all center-of-mass angles, use <code>compute_arrays()</code>.</p>
+<p>To generate arrays of kinematic quantities over all center-of-mass angles, use <code>kinematics_table_at_beam_energy()</code>.</p>
 <pre><code class="language-python">from reaction_kinematics import Reaction
 
 rxn = Reaction(&quot;p&quot;, &quot;3H&quot;, &quot;n&quot;, &quot;3He&quot;)
 # Proton + Tritium Reaction
 
-data = rxn.compute_arrays(ek=1.2)
+data = rxn.kinematics_table_at_beam_energy(1.2)
 
 print(data[&quot;theta4&quot;])
 print(data[&quot;e3&quot;])

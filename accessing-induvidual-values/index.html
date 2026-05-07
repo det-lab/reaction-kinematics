@@ -117,7 +117,7 @@
                     <div class="col-md-9" role="main">
 
 <h2 id="accessing-individual-values">Accessing Individual Values</h2>
-<p>To evaluate kinematic quantities at a specific value, use <code>at_value()</code>.</p>
+<p>To evaluate kinematic quantities at a specific beam energy and kinematic variable value, use <code>kinematics_at_beam_energy_and_variable()</code>.</p>
 <p>This method automatically handles multi-valued solutions and always returns lists.</p>
 <h3 id="syntax">Syntax</h3>
 <pre><code class="language-python">from reaction_kinematics import Reaction
@@ -125,7 +125,7 @@
 rxn = Reaction(&quot;p&quot;, &quot;3H&quot;, &quot;n&quot;, &quot;3He&quot;)
 # Proton + Tritium Reaction
 
-r = rxn.at_value(&quot;theta3&quot;, 2.13, ek=1.2)
+r = rxn.kinematics_at_beam_energy_and_variable(1.2, &quot;theta3&quot;, 2.13)
 # 2.13 is in radians
 print(r)
 
@@ -144,10 +144,10 @@ print(r)
 </code></pre>
 <p>Parameters:</p>
 <ul>
-<li><code>x_name</code> : Independent variable (e.g. <code>"theta3"</code>, <code>"theta4"</code>, <code>"theta_cm"</code>, <code>"coscm"</code>)</li>
-<li><code>x</code>      : Value at which to evaluate (radians for angles)</li>
-<li><code>ek</code>     : Beam kinetic energy in MeV (required)</li>
-<li><code>y_names</code>: Dependent variables to return — string, list, or <code>None</code> for all</li>
+<li><code>beam_energy</code> : Beam kinetic energy in MeV</li>
+<li><code>var_name</code>    : Independent variable (e.g. <code>"theta3"</code>, <code>"theta4"</code>, <code>"theta_cm"</code>, <code>"coscm"</code>)</li>
+<li><code>var_value</code>   : Value at which to evaluate (radians for angles)</li>
+<li><code>return_variables</code>     : Dependent variables to return — string, list, or <code>None</code> for all</li>
 </ul></div>
             </div>
         </div>
