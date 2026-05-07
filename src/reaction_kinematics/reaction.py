@@ -185,7 +185,9 @@ class Reaction:
                 )
                 eatmax = math.sqrt(patmax**2 + self._m3**2)
                 self._e3atmaxang = eatmax - self._m3
-                self._cmcos3max = (eatmax - self._e03 * self._thecosh) / (self._pcmp * self._thesinh)
+                self._cmcos3max = (eatmax - self._e03 * self._thecosh) / (
+                    self._pcmp * self._thesinh
+                )
 
         # elastic case: forward-angle symmetry forces theta3max = 90°
         if (self._m1 + self._m2) == (self._m3 + self._m4) and thetatest3 is not None:
@@ -200,16 +202,18 @@ class Reaction:
 
         # max recoil lab angle
         thetatest4: float | None = None
-        if self.m4 > 0.0:
+        if self._m4 > 0.0:
             thetatest4 = self._pcmp / (self._m4 * self._thesinh)
             if thetatest4 < 1.0:
                 self._theta4max = math.asin(thetatest4)
                 patmax = (self._e04 * math.cos(self._theta4max) * self._thesinh) / (
                     1.0 + thetatest4**2 * self._thesinh**2
                 )
-                eatmax = math.sqrt(patmax**2 + self.m4**2)
+                eatmax = math.sqrt(patmax**2 + self._m4**2)
                 self._e4atmaxang = eatmax - self._m4
-                self._cmcos4max = (eatmax - self._e04 * self._thecosh) / (self._pcmp * self._thesinh)
+                self._cmcos4max = (eatmax - self._e04 * self._thecosh) / (
+                    self._pcmp * self._thesinh
+                )
 
         # elastic case: theta4max = 90°
         if (self._m1 + self._m2) == (self._m3 + self._m4) and thetatest4 is not None:
