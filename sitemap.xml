@@ -2,30 +2,34 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://det-lab.github.io/reaction-kinematics/</loc>
-         <lastmod>2026-05-07</lastmod>
+         <lastmod>2026-05-14</lastmod>
     </url>
     <url>
          <loc>https://det-lab.github.io/reaction-kinematics/accessing-induvidual-values/</loc>
-         <lastmod>2026-05-07</lastmod>
+         <lastmod>2026-05-14</lastmod>
     </url>
     <url>
          <loc>https://det-lab.github.io/reaction-kinematics/apidocs/</loc>
-         <lastmod>2026-05-07</lastmod>
+         <lastmod>2026-05-14</lastmod>
     </url>
     <url>
          <loc>https://det-lab.github.io/reaction-kinematics/comupting-kinematic-arrays/</loc>
-         <lastmod>2026-05-07</lastmod>
+         <lastmod>2026-05-14</lastmod>
     </url>
     <url>
          <loc>https://det-lab.github.io/reaction-kinematics/contributing/</loc>
-         <lastmod>2026-05-07</lastmod>
+         <lastmod>2026-05-14</lastmod>
+    </url>
+    <url>
+         <loc>https://det-lab.github.io/reaction-kinematics/masstable/</loc>
+         <lastmod>2026-05-14</lastmod>
     </url>
     <url>
          <loc>https://det-lab.github.io/reaction-kinematics/plotting/</loc>
-         <lastmod>2026-05-07</lastmod>
+         <lastmod>2026-05-14</lastmod>
     </url>
     <url>
          <loc>https://det-lab.github.io/reaction-kinematics/updatecode/</loc>
-         <lastmod>2026-05-07</lastmod>
+         <lastmod>2026-05-14</lastmod>
     </url>
 </urlset>
