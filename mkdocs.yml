@@ -3,8 +3,18 @@ site_url: https://det-lab.github.io/reaction-kinematics/
 
 theme:
   name: material
-  color_mode: slate
+  palette: 
 
+      - scheme: defualt 
+        toggle:
+          icon: material/brightness-7
+          name: Switch to dark mode
+
+      - scheme: slate 
+        toggle:
+          icon: material/brightness-4 
+          name: Switch to light mode
+      
 nav:
   - Getting Started: index.md 
 
