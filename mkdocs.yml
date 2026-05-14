@@ -2,16 +2,33 @@ site_name: Reaction Kinematics
 site_url: https://det-lab.github.io/reaction-kinematics/
 
 theme:
-  name: mkdocs
-  color_mode: dark
+  name: material
+  color_mode: slate
 
 nav:
   - Getting Started: index.md 
+
   - Examples: 
     - Computing Kinematic Arrays: comupting-kinematic-arrays.md
     - Accessing Induvidual Values: accessing-induvidual-values.md 
     - Plotting: plotting.md
+
   - Contribuiting: 
       - Adding to Documentation: contributing.md
       - Suggestions for Code Updates: updatecode.md
+
+  - Mass Table: masstable.md
+
   - Api documentation: https://det-lab.github.io/reaction-kinematics/api/reaction_kinematics.html
+
+markdown_extensions:
+  - pymdownx.snippets
+
+extra_css:
+  - https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css
+  - stylesheets/extra.css
+
+extra_javascript:
+  - https://code.jquery.com/jquery-3.7.1.min.js
+  - https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js
+  - javascripts/mass_table.js
