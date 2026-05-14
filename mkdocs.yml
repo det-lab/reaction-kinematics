@@ -27,7 +27,7 @@ nav:
       - Adding to Documentation: contributing.md
       - Suggestions for Code Updates: updatecode.md
 
-  - Mass Table: masstable.md
+  - Mass Table: mass_table.md
 
   - Api documentation: https://det-lab.github.io/reaction-kinematics/api/reaction_kinematics.html
 
