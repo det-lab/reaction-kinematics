@@ -63,7 +63,7 @@ class Reaction:
     >>> rxn.q_value
     -0.763...
     >>> data = rxn.kinematics_table_at_beam_energy(1.2)
-    >>> result = rxn.kinematics_at_beam_energy_and_variable(1.2, "theta3", 0.5)
+    >>> result = rxn.kinematics_at_beam_energy_and_angle(1.2, "theta3", 0.5)
     >>> branches = rxn.kinematics_curve_at_angle(np.linspace(1.0, 5.0, 200), np.deg2rad(30))
     """
 
@@ -307,14 +307,13 @@ class Reaction:
         ]
         return {k: np.array([row[k] for row in rows]) for k in keys}
 
-    def kinematics_at_beam_energy_and_variable(
+    def kinematics_at_beam_energy_and_angle(
         self,
         beam_energy: float,
-        var_name: str,
-        var_value: float,
+        angle_name: str,
+        angle_value: float,
         *,
         energy_unit: EnergyUnit = EnergyUnit.MeV,
-        return_variables: str | list[str] | None = None,
         duplicate_tol: float = 1e-6,
     ) -> dict[str, list[float]]:
         """
@@ -327,33 +326,32 @@ class Reaction:
         ----------
         beam_energy : float
             Beam kinetic energy.
-        var_name : str
+        angle_name : str
             Independent variable name, e.g. ``"theta3"``, ``"theta_cm"``,
             ``"coscm"``, ``"theta4"``.
-        var_value : float
+        angle_value : float
             Value to evaluate at (radians for angles).
         energy_unit : EnergyUnit, optional
             Unit of ``beam_energy`` (default MeV).
-        return_variables : str or list of str, optional
-            Dependent variables to return. ``None`` returns all.
         duplicate_tol : float, optional
             Tolerance for merging near-duplicate solutions (default 1e-6).
 
         Returns
         -------
         dict of str -> list
-            Each value is a list of solutions, sorted descending by ``e3``.
+            Full dict of all kinematic variables, each a list of solutions
+            sorted descending by ``e3``.
 
         Raises
         ------
         ValueError
-            If ``var_value`` is outside the physical range.
+            If ``angle_value`` is outside the physical range.
 
         Examples
         --------
         >>> rxn = Reaction("p", "3H", "n", "3He")
-        >>> rxn.kinematics_at_beam_energy_and_variable(1.2, "theta3", 0.5, return_variables=["e3", "v3"])
-        {'e3': [...], 'v3': [...]}
+        >>> rxn.kinematics_at_beam_energy_and_angle(1.2, "theta3", 0.5)
+        {'theta3': [...], 'e3': [...], ...}
         """
         ek_mev = _parse_energy(beam_energy, energy_unit)
         self._bind(ek_mev)
@@ -362,43 +360,38 @@ class Reaction:
             self._build_table()
         assert self._table is not None
 
-        xs = self._table[var_name]
-
-        if isinstance(return_variables, str):
-            return_variables = [return_variables]
-        if return_variables is None:
-            return_variables = list(self._table.keys())
+        keys = list(self._table.keys())
+        xs = self._table[angle_name]
 
         solutions = []
 
-        exact_idx = np.where(np.isclose(xs, var_value, atol=1e-12))[0]
+        exact_idx = np.where(np.isclose(xs, angle_value, atol=1e-12))[0]
         if len(exact_idx) > 0:
             for i in exact_idx:
-                solutions.append({k: self._table[k][i] for k in return_variables})
+                solutions.append({k: self._table[k][i] for k in keys})
         else:
             found = False
             for i in range(len(xs) - 1):
                 x0, x1 = xs[i], xs[i + 1]
-                if (x0 - var_value) * (x1 - var_value) <= 0 and x0 != x1:
+                if (x0 - angle_value) * (x1 - angle_value) <= 0 and x0 != x1:
                     found = True
-                    t = (var_value - x0) / (x1 - x0)
+                    t = (angle_value - x0) / (x1 - x0)
                     solutions.append(
                         {
                             k: self._table[k][i] + t * (self._table[k][i + 1] - self._table[k][i])
-                            for k in return_variables
+                            for k in keys
                         }
                     )
             if not found:
-                raise ValueError(f"{var_name}={var_value} outside physical range")
+                raise ValueError(f"{angle_name}={angle_value} outside physical range")
 
-        e_key = "e3" if "e3" in return_variables else return_variables[0]
         unique: list = []
         for sol in solutions:
-            if not any(abs(sol[e_key] - u[e_key]) < duplicate_tol for u in unique):
+            if not any(abs(sol["e3"] - u["e3"]) < duplicate_tol for u in unique):
                 unique.append(sol)
-        unique.sort(key=lambda s: s[e_key], reverse=True)
+        unique.sort(key=lambda s: s["e3"], reverse=True)
 
-        return {k: [s[k] for s in unique] for k in return_variables}
+        return {k: [s[k] for s in unique] for k in keys}
 
     def kinematics_curve_at_angle(
         self,
@@ -451,8 +444,8 @@ class Reaction:
         for ek in beam_energy_array:
             ek_mev = _parse_energy(ek, energy_unit)
             try:
-                row = self.kinematics_at_beam_energy_and_variable(
-                    ek_mev, "theta3", theta_rad, return_variables=keys
+                row = self.kinematics_at_beam_energy_and_angle(
+                    ek_mev, "theta3", theta_rad
                 )
             except ValueError:
                 solutions = []
