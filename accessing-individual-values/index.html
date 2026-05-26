@@ -8,7 +8,7 @@
       
       
       
-        <link rel="canonical" href="https://det-lab.github.io/reaction-kinematics/accessing-induvidual-values/">
+        <link rel="canonical" href="https://det-lab.github.io/reaction-kinematics/accessing-individual-values/">
       
       
         <link rel="prev" href="../comupting-kinematic-arrays/">
@@ -25,7 +25,7 @@
     
     
       
-        <title>Accessing Induvidual Values - Reaction Kinematics</title>
+        <title>Accessing Individual Values - Reaction Kinematics</title>
       
     
     
@@ -116,7 +116,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Accessing Induvidual Values
+              Accessing Individual Values
             
           </span>
         </div>
@@ -356,7 +356,7 @@
   <span class="md-ellipsis">
     
   
-    Accessing Induvidual Values
+    Accessing Individual Values
   
 
     
@@ -374,7 +374,7 @@
   <span class="md-ellipsis">
     
   
-    Accessing Induvidual Values
+    Accessing Individual Values
   
 
     
@@ -702,7 +702,7 @@
 
 
 
-  <h1>Accessing Induvidual Values</h1>
+  <h1>Accessing Individual Values</h1>
 
 <h2 id="accessing-individual-values">Accessing Individual Values</h2>
 <p>To evaluate kinematic quantities at a specific beam energy and kinematic variable value, use <code>kinematics_at_beam_energy_and_angle()</code>.</p>
@@ -732,10 +732,14 @@ print(r)
 </code></pre>
 <p>Parameters:</p>
 <ul>
-<li><code>beam_energy</code>  : Beam kinetic energy in MeV</li>
+<li><code>beam_energy</code>  : Beam kinetic energy (MeV by default)</li>
 <li><code>angle_name</code>   : Independent variable (e.g. <code>"theta3_lab"</code>, <code>"theta4_lab"</code>, <code>"theta_cm"</code>, <code>"cos_theta_cm"</code>)</li>
 <li><code>angle_value</code>  : Value at which to evaluate (radians for angles)</li>
+<li><code>energy_unit</code>  : Unit for <code>beam_energy</code> — <code>"keV"</code>, <code>"MeV"</code> (default), <code>"GeV"</code>, <code>"TeV"</code></li>
 </ul>
+<p>For example, to evaluate at a beam energy given in keV:</p>
+<pre><code class="language-python">r = rxn.kinematics_at_beam_energy_and_angle(1200, &quot;theta3_lab&quot;, 2.13, energy_unit=&quot;keV&quot;)
+</code></pre>
 
 
 

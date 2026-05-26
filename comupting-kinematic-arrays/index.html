@@ -14,7 +14,7 @@
         <link rel="prev" href="..">
       
       
-        <link rel="next" href="../accessing-induvidual-values/">
+        <link rel="next" href="../accessing-individual-values/">
       
       
         
@@ -396,14 +396,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../accessing-induvidual-values/" class="md-nav__link">
+      <a href="../accessing-individual-values/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Accessing Induvidual Values
+    Accessing Individual Values
   
 
     
@@ -681,6 +681,9 @@ data = rxn.kinematics_table_at_beam_energy(1.2)
 
 print(data[&quot;theta4_lab&quot;])
 print(data[&quot;energy3_lab&quot;])
+</code></pre>
+<p>The <code>energy_unit</code> parameter accepts <code>"keV"</code>, <code>"MeV"</code> (default), <code>"GeV"</code>, or <code>"TeV"</code>:</p>
+<pre><code class="language-python">data = rxn.kinematics_table_at_beam_energy(1200, energy_unit=&quot;keV&quot;)  # equivalent to 1.2 MeV
 </code></pre>
 <p>This will return a dictionary containing the following:</p>
 <ul>
