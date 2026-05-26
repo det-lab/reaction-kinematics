@@ -37,7 +37,7 @@ def test_kinematic_curve_return_structure():
     )
 
     assert len(branches) == 2
-    expected_keys = {"ek", "e3", "e4", "theta4", "v3", "v4"}
+    expected_keys = {"ek", "energy3_lab", "energy4_lab", "theta4_lab", "velocity3_lab", "velocity4_lab"}
     for b in branches:
         assert set(b.keys()) == expected_keys
         for v in b.values():
@@ -52,8 +52,8 @@ def test_kinematic_curve_single_valued():
         beam_energy_array, np.deg2rad(30)
     )
 
-    assert not np.any(np.isnan(branches[0]["e3"]))
-    assert np.all(np.isnan(branches[1]["e3"]))
+    assert not np.any(np.isnan(branches[0]["energy3_lab"]))
+    assert np.all(np.isnan(branches[1]["energy3_lab"]))
 
 
 def test_kinematic_curve_two_valued():
@@ -66,12 +66,12 @@ def test_kinematic_curve_two_valued():
     )
 
     # Branch 0 should be fully populated
-    assert not np.any(np.isnan(branches[0]["e3"]))
+    assert not np.any(np.isnan(branches[0]["energy3_lab"]))
     # Branch 1 should have values for more than 90% of the range
-    assert np.sum(~np.isnan(branches[1]["e3"])) > 0.9 * len(beam_energy_array)
+    assert np.sum(~np.isnan(branches[1]["energy3_lab"])) > 0.9 * len(beam_energy_array)
     # Branch 0 always higher energy than branch 1 where both exist
-    both = ~np.isnan(branches[1]["e3"])
-    assert np.all(branches[0]["e3"][both] > branches[1]["e3"][both])
+    both = ~np.isnan(branches[1]["energy3_lab"])
+    assert np.all(branches[0]["energy3_lab"][both] > branches[1]["energy3_lab"][both])
 
 
 @pytest.mark.parametrize("data_file", KRANE_FILES, ids=lambda p: p.name)
@@ -93,8 +93,8 @@ def test_kinematic_curve_vs_krane(data_file):
         df["ek"].to_numpy(), theta3_rad
     )
 
-    e3_b0 = branches[0]["e3"]
-    e3_b1 = branches[1]["e3"]
+    e3_b0 = branches[0]["energy3_lab"]
+    e3_b1 = branches[1]["energy3_lab"]
 
     for i, e3_ref in enumerate(df["e3_ref"]):
         # Skip points where both branches are NaN — either below threshold

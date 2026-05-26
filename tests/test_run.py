@@ -24,21 +24,21 @@ def test_run_and_plot_example() -> None:
     # Basic interpolation at a fixed variable value
     result = rxn.kinematics_at_beam_energy_and_angle(1.2, "theta_cm", 0.8)
     assert isinstance(result, dict)
-    assert "theta_cm" in result
+    assert "theta_cm" in result  # theta_cm key name is unchanged
     assert all(isinstance(v, float) for values in result.values() for v in values)
 
     # Interpolation near the edge of the theta4 range
-    theta4_arr = data["theta4"]
+    theta4_arr = data["theta4_lab"]
     edge_angle = max(theta4_arr) - 1e-12
-    for y in ("e3", "v3", "p3"):
+    for y in ("energy3_lab", "velocity3_lab", "momentum3_lab"):
         vals = rxn.kinematics_at_beam_energy_and_angle(
-            1.2, "theta4", edge_angle
+            1.2, "theta4_lab", edge_angle
         )[y]
         assert all(isinstance(v, float) for v in vals)
 
     # Plot energy vs angle without errors
-    theta4 = data["theta4"]
-    e3 = data["e3"]
+    theta4 = data["theta4_lab"]
+    e3 = data["energy3_lab"]
     plt.figure()
     plt.plot(theta4, e3)
     plt.xlabel(r"$\theta_4$ (rad)")

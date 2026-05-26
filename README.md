@@ -38,61 +38,46 @@ https://det-lab.github.io/reaction-kinematics/
 ### Syntax
 
 ```python
-rxn.kinematics_at_beam_energy_and_variable(beam_energy, var_name, var_value, return_variables=None)
+rxn.kinematics_at_beam_energy_and_angle(beam_energy, angle_name, angle_value)
 ```
 
 Parameters:
 
-* `beam_energy` : Beam kinetic energy in MeV
-* `var_name`    : Independent variable (e.g. `"theta4"`, `"theta_cm"`, `"coscm"`)
-* `var_value`   : Value at which to evaluate (radians for angles)
-* `return_variables`     : Dependent variables (string or list, `None` returns all)
+* `beam_energy`  : Beam kinetic energy in MeV
+* `angle_name`   : Independent variable (e.g. `"theta4_lab"`, `"theta_cm"`, `"cos_theta_cm"`)
+* `angle_value`  : Value at which to evaluate (radians for angles)
 
 ---
 
-## Example: Single Quantity
+## Example
 
 ```python
 import math
 
 angle = 10 * math.pi / 180
 
-vals = rxn.kinematics_at_beam_energy_and_variable(1.2, "theta4", angle, return_variables="e3")
+vals = rxn.kinematics_at_beam_energy_and_angle(1.2, "theta4_lab", angle)
 print(vals)
 ```
 
 Output:
 
 ```
-{'e3': [0.3447, 0.0364]}
-```
-
-Multiple values indicate multiple physical solutions.
-
----
-
-## Example: Multiple Quantities
-
-```python
-vals = rxn.kinematics_at_beam_energy_and_variable(
-    1.2,
-    "theta4",
-    angle,
-    return_variables=["e3", "v3", "p3"]
-)
-
-print(vals)
-```
-
-Example output:
-
-```
 {
-  'e3': [0.3447, 0.0364],
-  'v3': [0.025, 0.009],
-  'p3': [23.7, 8.2]
+  'cos_theta_cm': [...],
+  'theta_cm': [...],
+  'theta3_lab': [...],
+  'theta4_lab': [...],
+  'energy3_lab': [0.3447, 0.0364],
+  'energy4_lab': [...],
+  'velocity3_lab': [0.025, 0.009],
+  'velocity4_lab': [...],
+  'momentum3_lab': [23.7, 8.2],
+  'momentum4_lab': [...]
 }
 ```
+
+Multiple values in each list indicate multiple physical solutions.
 
 ---
 

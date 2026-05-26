@@ -10,19 +10,19 @@ rxn = Reaction("p", "3H", "n", "3He")
 
 data = rxn.kinematics_table_at_beam_energy(1.2)
 
-print(data["theta4"])
-print(data["e3"])
+print(data["theta4_lab"])
+print(data["energy3_lab"])
 ```
 
 This will return a dictionary containing the following:
 
-* `coscm`   : cos(θ_CM)
-* `theta_cm`: CM angle (rad)
-* `theta3`  : Ejectile lab angle (rad)
-* `theta4`  : Recoil lab angle (rad)
-* `e3`      : Ejectile energy (MeV)
-* `e4`      : Recoil energy (MeV)
-* `v3`      : Ejectile velocity (c)
-* `v4`      : Recoil velocity (c)
+* `cos_theta_cm`   : cos(θ_CM)
+* `theta_cm`       : CM angle (rad)
+* `theta3_lab`     : Ejectile lab angle (rad)
+* `theta4_lab`     : Recoil lab angle (rad)
+* `energy3_lab`    : Ejectile energy (MeV)
+* `energy4_lab`    : Recoil energy (MeV)
+* `velocity3_lab`  : Ejectile velocity (c)
+* `velocity4_lab`  : Recoil velocity (c)
 
 

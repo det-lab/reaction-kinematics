@@ -5,13 +5,13 @@ Smoke-test the Reaction API and basic plotting.
 
 # Smoke-test example and plotting in a pytest function
 import matplotlib
+
 print(matplotlib.get_backend())
 
 
 import matplotlib.pyplot as plt
 
 from reaction_kinematics import Reaction
-
 
 """
 Smoke-test the Reaction kinematics example and ensure plotting works.
@@ -29,13 +29,13 @@ assert all(isinstance(v, float) for values in result.values() for v in values)
 # Ensure theta4max is defined and interpolation at its edge does not error
 # assert rxn.theta4max is not None
 # edge_angle = rxn.theta4max - 9.76e-8
-# for y in ("e3", "v3", "p3"):
-   # vals = rxn.kinematics_at_beam_energy_and_angle(1.2, "theta4", edge_angle)[y]
+# for y in ("energy3_lab", "velocity3_lab", "momentum3_lab"):
+   # vals = rxn.kinematics_at_beam_energy_and_angle(1.2, "theta4_lab", edge_angle)[y]
    # assert all(isinstance(v, float) for v in vals)
 
 # Plot energy vs angle without errors
-theta4 = data["theta4"]
-e3 = data["e3"]
+theta4 = data["theta4_lab"]
+e3 = data["energy3_lab"]
 plt.figure()
 plt.plot(theta4, e3)
 plt.xlabel(r"$\theta_4$ (rad)")

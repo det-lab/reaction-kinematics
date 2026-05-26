@@ -63,7 +63,7 @@ class Reaction:
     >>> rxn.q_value
     -0.763...
     >>> data = rxn.kinematics_table_at_beam_energy(1.2)
-    >>> result = rxn.kinematics_at_beam_energy_and_angle(1.2, "theta3", 0.5)
+    >>> result = rxn.kinematics_at_beam_energy_and_angle(1.2, "theta3_lab", 0.5)
     >>> branches = rxn.kinematics_curve_at_angle(np.linspace(1.0, 5.0, 200), np.deg2rad(30))
     """
 
@@ -250,21 +250,21 @@ class Reaction:
         e4 = self._e04 * self._thecosh - coscm * self._pcmp * self._thesinh - self._m4
 
         return {
-            "coscm": coscm,
+            "cos_theta_cm": coscm,
             "theta_cm": math.acos(coscm),
-            "theta3": math.acos(ppar3 / ptot3) if ptot3 > 0 else 0.0,
-            "theta4": math.acos(ppar4 / ptot4) if ptot4 > 0 else 0.0,
-            "e3": e3,
-            "e4": e4,
-            "v3": ptot3 / (e3 + self._m3),
-            "v4": ptot4 / (e4 + self._m4),
-            "p3": ptot3,
-            "p4": ptot4,
+            "theta3_lab": math.acos(ppar3 / ptot3) if ptot3 > 0 else 0.0,
+            "theta4_lab": math.acos(ppar4 / ptot4) if ptot4 > 0 else 0.0,
+            "energy3_lab": e3,
+            "energy4_lab": e4,
+            "velocity3_lab": ptot3 / (e3 + self._m3),
+            "velocity4_lab": ptot4 / (e4 + self._m4),
+            "momentum3_lab": ptot3,
+            "momentum4_lab": ptot4,
         }
 
     def _build_table(self) -> None:
         """Build the interpolation table over the full CM angle grid."""
-        keys = ["coscm", "theta_cm", "theta3", "theta4", "e3", "e4", "v3", "v4", "p3", "p4"]
+        keys = ["cos_theta_cm", "theta_cm", "theta3_lab", "theta4_lab", "energy3_lab", "energy4_lab", "velocity3_lab", "velocity4_lab", "momentum3_lab", "momentum4_lab"]
         table: dict[str, list[float]] = {k: [] for k in keys}
         for i in range(-self._ncoscm, self._ncoscm + 1):
             row = self._kinematics_at_coscm(i / self._ncoscm)
@@ -288,8 +288,9 @@ class Reaction:
         Returns
         -------
         dict[str, np.ndarray]
-            Keys: ``"coscm"``, ``"theta_cm"``, ``"theta3"``, ``"theta4"``,
-            ``"e3"``, ``"e4"``, ``"v3"``, ``"v4"``.
+            Keys: ``"cos_theta_cm"``, ``"theta_cm"``, ``"theta3_lab"``, ``"theta4_lab"``,
+            ``"energy3_lab"``, ``"energy4_lab"``, ``"velocity3_lab"``, ``"velocity4_lab"``,
+            ``"momentum3_lab"``, ``"momentum4_lab"``.
 
         Raises
         ------
@@ -300,7 +301,7 @@ class Reaction:
         self._bind(ek_mev)
         if self._nogo:
             raise ValueError(f"Reaction kinematically forbidden at beam_energy={ek_mev} MeV")
-        keys = ["coscm", "theta_cm", "theta3", "theta4", "e3", "e4", "v3", "v4"]
+        keys = ["cos_theta_cm", "theta_cm", "theta3_lab", "theta4_lab", "energy3_lab", "energy4_lab", "velocity3_lab", "velocity4_lab"]
         rows = [
             self._kinematics_at_coscm(i / self._ncoscm)
             for i in range(-self._ncoscm, self._ncoscm + 1)
@@ -327,8 +328,8 @@ class Reaction:
         beam_energy : float
             Beam kinetic energy.
         angle_name : str
-            Independent variable name, e.g. ``"theta3"``, ``"theta_cm"``,
-            ``"coscm"``, ``"theta4"``.
+            Independent variable name, e.g. ``"theta3_lab"``, ``"theta_cm"``,
+            ``"cos_theta_cm"``, ``"theta4_lab"``.
         angle_value : float
             Value to evaluate at (radians for angles).
         energy_unit : EnergyUnit, optional
@@ -340,7 +341,7 @@ class Reaction:
         -------
         dict of str -> list
             Full dict of all kinematic variables, each a list of solutions
-            sorted descending by ``e3``.
+            sorted descending by ``energy3_lab``.
 
         Raises
         ------
@@ -350,8 +351,8 @@ class Reaction:
         Examples
         --------
         >>> rxn = Reaction("p", "3H", "n", "3He")
-        >>> rxn.kinematics_at_beam_energy_and_angle(1.2, "theta3", 0.5)
-        {'theta3': [...], 'e3': [...], ...}
+        >>> rxn.kinematics_at_beam_energy_and_angle(1.2, "theta3_lab", 0.5)
+        {'theta3_lab': [...], 'energy3_lab': [...], ...}
         """
         ek_mev = _parse_energy(beam_energy, energy_unit)
         self._bind(ek_mev)
@@ -387,9 +388,9 @@ class Reaction:
 
         unique: list = []
         for sol in solutions:
-            if not any(abs(sol["e3"] - u["e3"]) < duplicate_tol for u in unique):
+            if not any(abs(sol["energy3_lab"] - u["energy3_lab"]) < duplicate_tol for u in unique):
                 unique.append(sol)
-        unique.sort(key=lambda s: s["e3"], reverse=True)
+        unique.sort(key=lambda s: s["energy3_lab"], reverse=True)
 
         return {k: [s[k] for s in unique] for k in keys}
 
@@ -422,20 +423,21 @@ class Reaction:
         Returns
         -------
         list of two dicts, each with keys:
-            ``"ek"``, ``"e3"``, ``"e4"``, ``"theta4"``, ``"v3"``, ``"v4"``.
+            ``"ek"``, ``"energy3_lab"``, ``"energy4_lab"``, ``"theta4_lab"``,
+            ``"velocity3_lab"``, ``"velocity4_lab"``.
 
         Examples
         --------
         >>> rxn = Reaction("p", "3H", "n", "3He")
         >>> branches = rxn.kinematics_curve_at_angle(np.linspace(1.0, 5.0, 200), np.deg2rad(30))
         >>> for b in branches:
-        ...     plt.plot(b["ek"], b["e3"])
+        ...     plt.plot(b["ek"], b["energy3_lab"])
         """
         if isinstance(angle_unit, str):
             angle_unit = AngleUnit[angle_unit]
         theta_rad = theta * angle_unit.value
 
-        keys = ["e3", "e4", "theta4", "v3", "v4"]
+        keys = ["energy3_lab", "energy4_lab", "theta4_lab", "velocity3_lab", "velocity4_lab"]
         branches = [
             {"ek": [], **{k: [] for k in keys}},
             {"ek": [], **{k: [] for k in keys}},
@@ -445,12 +447,12 @@ class Reaction:
             ek_mev = _parse_energy(ek, energy_unit)
             try:
                 row = self.kinematics_at_beam_energy_and_angle(
-                    ek_mev, "theta3", theta_rad
+                    ek_mev, "theta3_lab", theta_rad
                 )
             except ValueError:
                 solutions = []
             else:
-                n = len(row["e3"])
+                n = len(row["energy3_lab"])
                 solutions = [{k: row[k][i] for k in keys} for i in range(n)]
 
             for i, branch in enumerate(branches):

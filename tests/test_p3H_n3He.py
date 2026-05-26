@@ -42,14 +42,14 @@ def test_p3H_n3He_reference_table():
     calc = []
 
     for _, row in df.iterrows():
-        r = rxn.kinematics_at_beam_energy_and_angle(1.2, "coscm", float(row["costheta3cm"]))  # pyright: ignore[reportArgumentType]
+        r = rxn.kinematics_at_beam_energy_and_angle(1.2, "cos_theta_cm", float(row["costheta3cm"]))  # pyright: ignore[reportArgumentType]
 
-        e3_vals = np.array(r["e3"])
-        e4_vals = np.array(r["e4"])
+        e3_vals = np.array(r["energy3_lab"])
+        e4_vals = np.array(r["energy4_lab"])
         theta_cm_vals_deg = np.rad2deg(np.array(r["theta_cm"]))
-        theta4_vals_deg = np.rad2deg(np.array(r["theta4"]))
-        v3_vals = np.array(r["v3"])
-        v4_vals = np.array(r["v4"])
+        theta4_vals_deg = np.rad2deg(np.array(r["theta4_lab"]))
+        v3_vals = np.array(r["velocity3_lab"])
+        v4_vals = np.array(r["velocity4_lab"])
 
         # Some inputs can return multiple valid branches.
         # Pick the solution closest to the published reference row.

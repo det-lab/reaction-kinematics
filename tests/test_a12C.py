@@ -32,21 +32,21 @@ def test_alpha12C_reference_table():
 
     for _, row in df.iterrows():
         theta3 = float(np.deg2rad(row["theta3 (degrees)"]))
-        r = rxn.kinematics_at_beam_energy_and_angle(4.0, "theta3", theta3)
+        r = rxn.kinematics_at_beam_energy_and_angle(4.0, "theta3_lab", theta3)
 
         # kinematics_at_beam_energy_and_angle can return multiple theta4 branches, so choose the one
         # that matches the reference table value for this row
-        theta4_vals_deg = np.rad2deg(np.array(r["theta4"]))
+        theta4_vals_deg = np.rad2deg(np.array(r["theta4_lab"]))
         theta4_best = theta4_vals_deg[np.argmin(np.abs(theta4_vals_deg - row["theta4 (degrees)"]))]
 
         calc.append(
             {
-                "E3": r["e3"][0],
-                "E4": r["e4"][0],
+                "E3": r["energy3_lab"][0],
+                "E4": r["energy4_lab"][0],
                 "theta3cm": np.rad2deg(r["theta_cm"][0]),
-                "theta4": theta4_best,
-                "v3": r["v3"][0],
-                "v4": r["v4"][0],
+                "theta4_lab": theta4_best,
+                "velocity3_lab": r["velocity3_lab"][0],
+                "velocity4_lab": r["velocity4_lab"][0],
             }
         )
 
@@ -59,7 +59,7 @@ def test_alpha12C_reference_table():
     assert np.allclose(calc["E4"], df["E4 (MeV)"], rtol=1e-3)
     assert np.allclose(calc["theta3cm"], df["theta3cm (degrees)"], rtol=1e-3)
     assert np.allclose(
-        calc.loc[theta4_mask, "theta4"], df.loc[theta4_mask, "theta4 (degrees)"], rtol=1e-3
+        calc.loc[theta4_mask, "theta4_lab"], df.loc[theta4_mask, "theta4 (degrees)"], rtol=1e-3
     )
-    assert np.allclose(calc["v3"], df["v3 (fraction of c)"], rtol=1e-3)
-    assert np.allclose(calc["v4"], df["v4 (fraction of c)"], rtol=1e-3)
+    assert np.allclose(calc["velocity3_lab"], df["v3 (fraction of c)"], rtol=1e-3)
+    assert np.allclose(calc["velocity4_lab"], df["v4 (fraction of c)"], rtol=1e-3)
