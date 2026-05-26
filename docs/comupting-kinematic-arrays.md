@@ -14,6 +14,11 @@ print(data["theta4_lab"])
 print(data["energy3_lab"])
 ```
 
+The `energy_unit` parameter accepts `"keV"`, `"MeV"` (default), `"GeV"`, or `"TeV"`:
+```python
+data = rxn.kinematics_table_at_beam_energy(1200, energy_unit="keV")  # equivalent to 1.2 MeV
+```
+
 This will return a dictionary containing the following:
 
 * `cos_theta_cm`   : cos(θ_CM)

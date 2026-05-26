@@ -20,7 +20,7 @@ nav:
 
   - Examples: 
     - Computing Kinematic Arrays: comupting-kinematic-arrays.md
-    - Accessing Induvidual Values: accessing-induvidual-values.md 
+    - Accessing Individual Values: accessing-individual-values.md
     - Plotting: plotting.md
 
   - Contribuiting: 

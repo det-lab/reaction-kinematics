@@ -32,6 +32,12 @@ This will return:
 ```
 Parameters:
 
-* `beam_energy`  : Beam kinetic energy in MeV
+* `beam_energy`  : Beam kinetic energy (MeV by default)
 * `angle_name`   : Independent variable (e.g. `"theta3_lab"`, `"theta4_lab"`, `"theta_cm"`, `"cos_theta_cm"`)
 * `angle_value`  : Value at which to evaluate (radians for angles)
+* `energy_unit`  : Unit for `beam_energy` — `"keV"`, `"MeV"` (default), `"GeV"`, `"TeV"`
+
+For example, to evaluate at a beam energy given in keV:
+```python
+r = rxn.kinematics_at_beam_energy_and_angle(1200, "theta3_lab", 2.13, energy_unit="keV")
+```

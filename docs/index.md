@@ -48,9 +48,9 @@ rxn = Reaction("p", "3H", "n", "3He")
 ### Units 
 
 * Masses are internally stored in MeV/c²
-* Energies are in MeV by default
+* Energies are in MeV by default — supported units: `keV`, `MeV`, `GeV`, `TeV`
 * Velocities are given as fractions of c
-* Angles are in radians
+* Angles are in radians by default — supported units: `rad`, `deg`, `mrad`
 <br>
 
 ### Compute Arrays
