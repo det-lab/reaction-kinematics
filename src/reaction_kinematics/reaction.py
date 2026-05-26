@@ -3,6 +3,7 @@ Relativistic two-body reaction kinematics
 """
 
 import math
+import re
 from collections.abc import Iterable
 
 import numpy as np
@@ -28,6 +29,18 @@ def _parse_mass(m: MassArg, unit: str | EnergyUnit | None = None) -> float:
     raise TypeError(f"Unsupported mass input type: {type(m)}")
 
 
+def _parse_reaction_notation(notation: str) -> tuple[str, str, str, str]:
+    """Parse 'target(beam,ejectile)recoil' → (beam, target, ejectile, recoil)."""
+    match = re.fullmatch(r"\s*(\S+)\s*\(\s*(\S+)\s*,\s*(\S+)\s*\)\s*(\S+)\s*", notation)
+    if not match:
+        raise ValueError(
+            f"Invalid reaction notation {notation!r}. "
+            "Expected 'target(beam,ejectile)recoil', e.g. '3H(p,n)3He'."
+        )
+    target, beam, ejectile, recoil = match.groups()
+    return beam, target, ejectile, recoil
+
+
 def _parse_energy(ek: float, energy_unit: EnergyUnit) -> float:
     if isinstance(energy_unit, str):
         energy_unit = EnergyUnit[energy_unit]
@@ -44,10 +57,14 @@ class Reaction:
 
     Parameters
     ----------
-    m1, m2, m3, m4 : str, MassInput, or float
-        Masses of projectile, target, ejectile, and recoil.
-        Strings like ``"p"``, ``"12C"``, ``"alpha"`` are looked up in the mass table.
-        Floats require ``mass_unit``.
+    mass1 : str, MassInput, or float
+        Projectile mass, or a full reaction string in ``"target(beam,ejectile)recoil"``
+        notation (e.g. ``"3H(p,n)3He"``). If notation is given, ``mass2``–``mass4``
+        must be omitted.
+    mass2, mass3, mass4 : str, MassInput, or float, optional
+        Target, ejectile, and recoil masses. Required when ``mass1`` is not a
+        reaction notation string. Strings like ``"p"``, ``"12C"``, ``"alpha"``
+        are looked up in the mass table. Floats require ``mass_unit``.
     mass_unit : str or EnergyUnit, optional
         Unit for numeric masses (e.g. ``"MeV"``, ``"keV"``).
 
@@ -60,6 +77,7 @@ class Reaction:
     Examples
     --------
     >>> rxn = Reaction("p", "3H", "n", "3He")
+    >>> rxn = Reaction("3H(p,n)3He")  # equivalent
     >>> rxn.q_value
     -0.763...
     >>> data = rxn.kinematics_table_at_beam_energy(1.2)
@@ -69,17 +87,25 @@ class Reaction:
 
     def __init__(
         self,
-        m1: MassArg,
-        m2: MassArg,
-        m3: MassArg,
-        m4: MassArg,
+        mass1: MassArg,
+        mass2: MassArg | None = None,
+        mass3: MassArg | None = None,
+        mass4: MassArg | None = None,
         *,
         mass_unit: str | EnergyUnit | None = None,
     ) -> None:
-        self._m1 = _parse_mass(m1, mass_unit)
-        self._m2 = _parse_mass(m2, mass_unit)
-        self._m3 = _parse_mass(m3, mass_unit)
-        self._m4 = _parse_mass(m4, mass_unit)
+        if isinstance(mass1, str) and "(" in mass1:
+            if any(m is not None for m in (mass2, mass3, mass4)):
+                raise ValueError("Cannot mix reaction notation string with separate mass arguments.")
+            _m1, _m2, _m3, _m4 = _parse_reaction_notation(mass1)
+        else:
+            if mass2 is None or mass3 is None or mass4 is None:
+                raise ValueError("Provide either a reaction notation string or all four masses.")
+            _m1, _m2, _m3, _m4 = mass1, mass2, mass3, mass4
+        self._m1 = _parse_mass(_m1, mass_unit)
+        self._m2 = _parse_mass(_m2, mass_unit)
+        self._m3 = _parse_mass(_m3, mass_unit)
+        self._m4 = _parse_mass(_m4, mass_unit)
         self.__n_cm_grid_points: int = 1001
         self._cached_ek: float | None = None
         self._table: dict[str, list[float]] | None = None
@@ -115,7 +141,7 @@ class Reaction:
 
     @property
     def q_value(self) -> float:
-        """Q-value of the reaction in MeV: Q = m1 + m2 - m3 - m4."""
+        """Q-value of the reaction in MeV: Q = (beam + target) - (ejectile + recoil)."""
         return self._m1 + self._m2 - self._m3 - self._m4
 
     def _bind(self, ek_mev: float) -> None:
