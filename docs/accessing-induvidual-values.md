@@ -9,8 +9,8 @@ This method automatically handles multi-valued solutions and always returns list
 ```python
 from reaction_kinematics import Reaction
 
+# or equivalently: Reaction("3H(p,n)3He")
 rxn = Reaction("p", "3H", "n", "3He")
-# Proton + Tritium Reaction
 
 r = rxn.kinematics_at_beam_energy_and_angle(1.2, "theta3_lab", 2.13)
 # 2.13 is in radians

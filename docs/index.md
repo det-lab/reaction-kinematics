@@ -36,10 +36,11 @@ We define a reaction with these variables
 
 All masses are converted internally to MeV. Kinetic energy is assumed in MeV unless specified otherwise.
 
-For example if you wanted to do p(3H, n)3He:
+For example, for the reaction ³H(p,n)³He:
 ```python
 from reaction_kinematics import Reaction
 
+# or equivalently: Reaction("3H(p,n)3He")
 rxn = Reaction("p", "3H", "n", "3He")
 ```
 <br> 

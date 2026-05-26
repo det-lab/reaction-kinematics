@@ -8,8 +8,8 @@ You can use `matplotlib` to visualize kinematic relationships.
 from reaction_kinematics import Reaction
 import matplotlib.pyplot as plt
 
+# or equivalently: Reaction("3H(p,n)3He")
 rxn = Reaction("p", "3H", "n", "3He")
-# Proton + Tritium Reaction
 
 data = rxn.kinematics_table_at_beam_energy(1.2)
 
@@ -35,6 +35,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from reaction_kinematics import Reaction
 
+# or equivalently: Reaction("3H(p,n)3He")
 rxn = Reaction("p", "3H", "n", "3He")
 beam_energy_array = np.linspace(1.0, 5.0, 500)
 branches = rxn.kinematics_curve_at_angle(beam_energy_array, np.deg2rad(30))

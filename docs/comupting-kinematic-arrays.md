@@ -5,8 +5,8 @@ To generate arrays of kinematic quantities over all center-of-mass angles, use `
 ```python
 from reaction_kinematics import Reaction
 
+# or equivalently: Reaction("3H(p,n)3He")
 rxn = Reaction("p", "3H", "n", "3He")
-# Proton + Tritium Reaction
 
 data = rxn.kinematics_table_at_beam_energy(1.2)
 

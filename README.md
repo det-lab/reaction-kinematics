@@ -38,6 +38,9 @@ https://det-lab.github.io/reaction-kinematics/
 ### Syntax
 
 ```python
+# or equivalently: Reaction("3H(p,n)3He")
+rxn = Reaction("p", "3H", "n", "3He")
+
 rxn.kinematics_at_beam_energy_and_angle(beam_energy, angle_name, angle_value)
 ```
 
