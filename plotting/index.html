@@ -780,14 +780,14 @@ beam_energy_array = np.linspace(1.0, 5.0, 500)
 branches = rxn.kinematics_curve_at_angle(beam_energy_array, np.deg2rad(30))
 
 for branch in branches:
-    plt.plot(branch[&quot;ek&quot;], branch[&quot;energy3_lab&quot;])
+    plt.plot(branch[&quot;beam_energy_lab&quot;], branch[&quot;energy3_lab&quot;])
 
 plt.xlabel(&quot;Proton beam energy $E_p$ (MeV)&quot;)
 plt.ylabel(&quot;Neutron energy $E_n$ (MeV)&quot;)
 plt.show()
 </code></pre>
 <p>Each call returns a list of <strong>two dicts</strong> (branch 0 = high-energy solution,
-branch 1 = low-energy solution), each containing arrays for <code>ek</code>, <code>energy3_lab</code>,
+branch 1 = low-energy solution), each containing arrays for <code>beam_energy_lab</code>, <code>energy3_lab</code>,
 <code>energy4_lab</code>, <code>theta4_lab</code>, <code>velocity3_lab</code>, and <code>velocity4_lab</code>. Where a branch
 does not exist the values are <code>NaN</code>.</p>
 <p><img alt="3H(p,n)3He kinematic curve at 30°" src="../figures/kinematic_curve_plot.png" /></p>
