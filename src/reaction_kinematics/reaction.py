@@ -429,7 +429,8 @@ class Reaction:
         energy_unit: EnergyUnit = EnergyUnit.MeV,
     ) -> list[dict[str, npt.NDArray[np.float64]]]:
         """
-        Compute ejectile kinematics at a fixed lab angle over a range of beam energies.
+        Compute ejectile kinematics at a fixed ejectile lab angle (``theta3_lab``)
+        over a range of beam energies.
 
         Returns two branches (high- and low-energy) as a list of two dicts. Each
         dict contains arrays indexed by beam energy, with ``NaN`` where that branch
@@ -440,7 +441,7 @@ class Reaction:
         beam_energy_array : array-like
             Beam energies to sweep.
         theta3_lab : float
-            Fixed ejectile lab angle.
+            Fixed ejectile lab angle (``theta3_lab`` in the output dict).
         angle_unit : AngleUnit, optional
             Unit of ``theta3_lab`` (default radians).
         energy_unit : EnergyUnit, optional
