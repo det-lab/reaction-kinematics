@@ -710,8 +710,8 @@
 <h3 id="syntax">Syntax</h3>
 <pre><code class="language-python">from reaction_kinematics import Reaction
 
+# or equivalently: Reaction(&quot;3H(p,n)3He&quot;)
 rxn = Reaction(&quot;p&quot;, &quot;3H&quot;, &quot;n&quot;, &quot;3He&quot;)
-# Proton + Tritium Reaction
 
 r = rxn.kinematics_at_beam_energy_and_angle(1.2, &quot;theta3_lab&quot;, 2.13)
 # 2.13 is in radians

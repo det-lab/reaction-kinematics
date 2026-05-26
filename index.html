@@ -811,9 +811,10 @@
 <li>m4 (Recoil)</li>
 </ul>
 <p>All masses are converted internally to MeV. Kinetic energy is assumed in MeV unless specified otherwise.</p>
-<p>For example if you wanted to do p(3H, n)3He:</p>
+<p>For example, for the reaction ³H(p,n)³He:</p>
 <pre><code class="language-python">from reaction_kinematics import Reaction
 
+# or equivalently: Reaction(&quot;3H(p,n)3He&quot;)
 rxn = Reaction(&quot;p&quot;, &quot;3H&quot;, &quot;n&quot;, &quot;3He&quot;)
 </code></pre>
 <p><br> </p>
