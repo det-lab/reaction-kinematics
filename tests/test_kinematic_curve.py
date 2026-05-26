@@ -37,7 +37,7 @@ def test_kinematic_curve_return_structure():
     )
 
     assert len(branches) == 2
-    expected_keys = {"ek", "energy3_lab", "energy4_lab", "theta4_lab", "velocity3_lab", "velocity4_lab"}
+    expected_keys = {"beam_energy_lab", "energy3_lab", "energy4_lab", "theta4_lab", "velocity3_lab", "velocity4_lab"}
     for b in branches:
         assert set(b.keys()) == expected_keys
         for v in b.values():
@@ -87,10 +87,10 @@ def test_kinematic_curve_vs_krane(data_file):
     theta3_deg = parse_angle(data_file)
     theta3_rad = np.deg2rad(theta3_deg)
 
-    df = pd.read_csv(data_file, header=None, names=["ek", "e3_ref"])
+    df = pd.read_csv(data_file, header=None, names=["beam_energy_lab", "e3_ref"])
 
     branches = Reaction("p", "3H", "n", "3He").kinematics_curve_at_angle(
-        df["ek"].to_numpy(), theta3_rad
+        df["beam_energy_lab"].to_numpy(), theta3_rad
     )
 
     e3_b0 = branches[0]["energy3_lab"]

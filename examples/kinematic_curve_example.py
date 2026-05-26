@@ -21,7 +21,7 @@ branches = Reaction("p", "3H", "n", "3He").kinematics_curve_at_angle(beam_energy
 fig, ax = plt.subplots(figsize=(7, 5))
 
 for branch in branches:
-    ax.plot(branch["ek"], branch["energy3_lab"])
+    ax.plot(branch["beam_energy_lab"], branch["energy3_lab"])
 
 ax.set_xlabel("Proton beam energy $E_p$ (MeV)")
 ax.set_ylabel("Neutron energy $E_n$ (MeV)")

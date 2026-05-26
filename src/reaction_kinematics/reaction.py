@@ -423,7 +423,7 @@ class Reaction:
         Returns
         -------
         list of two dicts, each with keys:
-            ``"ek"``, ``"energy3_lab"``, ``"energy4_lab"``, ``"theta4_lab"``,
+            ``"beam_energy_lab"``, ``"energy3_lab"``, ``"energy4_lab"``, ``"theta4_lab"``,
             ``"velocity3_lab"``, ``"velocity4_lab"``.
 
         Examples
@@ -431,7 +431,7 @@ class Reaction:
         >>> rxn = Reaction("p", "3H", "n", "3He")
         >>> branches = rxn.kinematics_curve_at_angle(np.linspace(1.0, 5.0, 200), np.deg2rad(30))
         >>> for b in branches:
-        ...     plt.plot(b["ek"], b["energy3_lab"])
+        ...     plt.plot(b["beam_energy_lab"], b["energy3_lab"])
         """
         if isinstance(angle_unit, str):
             angle_unit = AngleUnit[angle_unit]
@@ -439,8 +439,8 @@ class Reaction:
 
         keys = ["energy3_lab", "energy4_lab", "theta4_lab", "velocity3_lab", "velocity4_lab"]
         branches = [
-            {"ek": [], **{k: [] for k in keys}},
-            {"ek": [], **{k: [] for k in keys}},
+            {"beam_energy_lab": [], **{k: [] for k in keys}},
+            {"beam_energy_lab": [], **{k: [] for k in keys}},
         ]
 
         for ek in beam_energy_array:
@@ -456,7 +456,7 @@ class Reaction:
                 solutions = [{k: row[k][i] for k in keys} for i in range(n)]
 
             for i, branch in enumerate(branches):
-                branch["ek"].append(ek_mev)
+                branch["beam_energy_lab"].append(ek_mev)
                 sol = solutions[i] if i < len(solutions) else None
                 for k in keys:
                     branch[k].append(sol[k] if sol is not None else float("nan"))
