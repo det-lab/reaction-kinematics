@@ -713,27 +713,27 @@
 rxn = Reaction(&quot;p&quot;, &quot;3H&quot;, &quot;n&quot;, &quot;3He&quot;)
 # Proton + Tritium Reaction
 
-r = rxn.kinematics_at_beam_energy_and_angle(1.2, &quot;theta3&quot;, 2.13)
+r = rxn.kinematics_at_beam_energy_and_angle(1.2, &quot;theta3_lab&quot;, 2.13)
 # 2.13 is in radians
 print(r)
 
 </code></pre>
 <p>This will return:</p>
-<pre><code class="language-python">{'coscm': [-0.9813047694699246], 
+<pre><code class="language-python">{'cos_theta_cm': [-0.9813047694699246], 
 'theta_cm': [2.9479854759117416], 
-'theta3': [2.13], 
-'theta4': [0.054070851022814864], 
-'e3': [0.005237930117122223], 
-'e4': [0.43100601988343396], 
-'v3': [0.003338681989975168], 
-'v4': [0.017517730726598162], 
-'p3': [3.136927647029636], 
-'p4': [49.204196838704895]}
+'theta3_lab': [2.13], 
+'theta4_lab': [0.054070851022814864], 
+'energy3_lab': [0.005237930117122223], 
+'energy4_lab': [0.43100601988343396], 
+'velocity3_lab': [0.003338681989975168], 
+'velocity4_lab': [0.017517730726598162], 
+'momentum3_lab': [3.136927647029636], 
+'momentum4_lab': [49.204196838704895]}
 </code></pre>
 <p>Parameters:</p>
 <ul>
 <li><code>beam_energy</code>  : Beam kinetic energy in MeV</li>
-<li><code>angle_name</code>   : Independent variable (e.g. <code>"theta3"</code>, <code>"theta4"</code>, <code>"theta_cm"</code>, <code>"coscm"</code>)</li>
+<li><code>angle_name</code>   : Independent variable (e.g. <code>"theta3_lab"</code>, <code>"theta4_lab"</code>, <code>"theta_cm"</code>, <code>"cos_theta_cm"</code>)</li>
 <li><code>angle_value</code>  : Value at which to evaluate (radians for angles)</li>
 </ul>
 
