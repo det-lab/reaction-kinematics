@@ -53,9 +53,9 @@ class Reaction:
 
     Attributes
     ----------
-    ncoscm : int
-        Number of CM angle grid points (default 500). Changing this invalidates
-        the cache.
+    n_cm_grid_points : int
+        Total number of CM angle grid points (default 1001). Changing this
+        invalidates the cache.
 
     Examples
     --------
@@ -80,7 +80,7 @@ class Reaction:
         self._m2 = _parse_mass(m2, mass_unit)
         self._m3 = _parse_mass(m3, mass_unit)
         self._m4 = _parse_mass(m4, mass_unit)
-        self.__ncoscm: int = 500
+        self.__n_cm_grid_points: int = 1001
         self._cached_ek: float | None = None
         self._table: dict[str, list[float]] | None = None
         # per-energy kinematic state, populated by _bind
@@ -104,12 +104,12 @@ class Reaction:
         self._cmcos4max: float | None = None
 
     @property
-    def _ncoscm(self) -> int:
-        return self.__ncoscm
+    def n_cm_grid_points(self) -> int:
+        return self.__n_cm_grid_points
 
-    @_ncoscm.setter
-    def _ncoscm(self, val: int) -> None:
-        self.__ncoscm = val
+    @n_cm_grid_points.setter
+    def n_cm_grid_points(self, val: int) -> None:
+        self.__n_cm_grid_points = val
         self._cached_ek = None
         self._table = None
 
@@ -266,8 +266,8 @@ class Reaction:
         """Build the interpolation table over the full CM angle grid."""
         keys = ["cos_theta_cm", "theta_cm", "theta3_lab", "theta4_lab", "energy3_lab", "energy4_lab", "velocity3_lab", "velocity4_lab", "momentum3_lab", "momentum4_lab"]
         table: dict[str, list[float]] = {k: [] for k in keys}
-        for i in range(-self._ncoscm, self._ncoscm + 1):
-            row = self._kinematics_at_coscm(i / self._ncoscm)
+        for coscm in np.linspace(-1.0, 1.0, self.n_cm_grid_points):
+            row = self._kinematics_at_coscm(coscm)
             for k in keys:
                 table[k].append(row[k])
         self._table = table
@@ -303,8 +303,8 @@ class Reaction:
             raise ValueError(f"Reaction kinematically forbidden at beam_energy={ek_mev} MeV")
         keys = ["cos_theta_cm", "theta_cm", "theta3_lab", "theta4_lab", "energy3_lab", "energy4_lab", "velocity3_lab", "velocity4_lab"]
         rows = [
-            self._kinematics_at_coscm(i / self._ncoscm)
-            for i in range(-self._ncoscm, self._ncoscm + 1)
+            self._kinematics_at_coscm(coscm)
+            for coscm in np.linspace(-1.0, 1.0, self.n_cm_grid_points)
         ]
         return {k: np.array([row[k] for row in rows]) for k in keys}
 
@@ -397,7 +397,7 @@ class Reaction:
     def kinematics_curve_at_angle(
         self,
         beam_energy_array: Iterable[float],
-        theta: float,
+        theta3_lab: float,
         *,
         angle_unit: AngleUnit = AngleUnit.rad,
         energy_unit: EnergyUnit = EnergyUnit.MeV,
@@ -413,10 +413,10 @@ class Reaction:
         ----------
         beam_energy_array : array-like
             Beam energies to sweep.
-        theta : float
-            Fixed lab angle of the ejectile.
+        theta3_lab : float
+            Fixed ejectile lab angle.
         angle_unit : AngleUnit, optional
-            Unit of ``theta`` (default radians).
+            Unit of ``theta3_lab`` (default radians).
         energy_unit : EnergyUnit, optional
             Unit of ``beam_energy_array`` values (default MeV).
 
@@ -435,7 +435,7 @@ class Reaction:
         """
         if isinstance(angle_unit, str):
             angle_unit = AngleUnit[angle_unit]
-        theta_rad = theta * angle_unit.value
+        theta_rad = theta3_lab * angle_unit.value
 
         keys = ["energy3_lab", "energy4_lab", "theta4_lab", "velocity3_lab", "velocity4_lab"]
         branches = [
