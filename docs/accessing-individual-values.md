@@ -12,8 +12,7 @@ from reaction_kinematics import Reaction
 # or equivalently: Reaction("3H(p,n)3He")
 rxn = Reaction("p", "3H", "n", "3He")
 
-r = rxn.kinematics_at_beam_energy_and_angle(1.2, "theta3_lab", 2.13)
-# 2.13 is in radians
+r = rxn.kinematics_at_beam_energy_and_angle(1.2, "theta3_lab", 122)
 print(r)
 
 ```
@@ -21,7 +20,7 @@ This will return:
 ```python
 {'cos_theta_cm': [-0.9813047694699246], 
 'theta_cm': [2.9479854759117416], 
-'theta3_lab': [2.13], 
+'theta3_lab': [2.129], 
 'theta4_lab': [0.054070851022814864], 
 'energy3_lab': [0.005237930117122223], 
 'energy4_lab': [0.43100601988343396], 
@@ -34,10 +33,11 @@ Parameters:
 
 * `beam_energy`  : Beam kinetic energy (MeV by default)
 * `angle_name`   : Independent variable (e.g. `"theta3_lab"`, `"theta4_lab"`, `"theta_cm"`, `"cos_theta_cm"`)
-* `angle_value`  : Value at which to evaluate (radians for angles)
+* `angle_value`  : Value at which to evaluate (degrees for angles by default)
+* `angle_unit`   : Unit for `angle_value` — `"deg"` (default), `"rad"`, `"mrad"`
 * `energy_unit`  : Unit for `beam_energy` — `"keV"`, `"MeV"` (default), `"GeV"`, `"TeV"`
 
 For example, to evaluate at a beam energy given in keV:
 ```python
-r = rxn.kinematics_at_beam_energy_and_angle(1200, "theta3_lab", 2.13, energy_unit="keV")
+r = rxn.kinematics_at_beam_energy_and_angle(1200, "theta3_lab", 122, energy_unit="keV")
 ```

@@ -22,7 +22,7 @@ def test_run_and_plot_example() -> None:
     data = rxn.kinematics_table_at_beam_energy(1.2)
 
     # Basic interpolation at a fixed variable value
-    result = rxn.kinematics_at_beam_energy_and_angle(1.2, "theta_cm", 0.8)
+    result = rxn.kinematics_at_beam_energy_and_angle(1.2, "theta_cm", 46)
     assert isinstance(result, dict)
     assert "theta_cm" in result  # theta_cm key name is unchanged
     assert all(isinstance(v, float) for values in result.values() for v in values)
@@ -32,7 +32,7 @@ def test_run_and_plot_example() -> None:
     edge_angle = max(theta4_arr) - 1e-12
     for y in ("energy3_lab", "velocity3_lab", "momentum3_lab"):
         vals = rxn.kinematics_at_beam_energy_and_angle(
-            1.2, "theta4_lab", edge_angle
+            1.2, "theta4_lab", edge_angle, angle_unit="rad"
         )[y]
         assert all(isinstance(v, float) for v in vals)
 

@@ -31,7 +31,7 @@ def test_alpha12C_reference_table():
     calc = []
 
     for _, row in df.iterrows():
-        theta3 = float(np.deg2rad(row["theta3 (degrees)"]))
+        theta3 = float(row["theta3 (degrees)"])
         r = rxn.kinematics_at_beam_energy_and_angle(4.0, "theta3_lab", theta3)
 
         # kinematics_at_beam_energy_and_angle can return multiple theta4 branches, so choose the one

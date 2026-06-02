@@ -21,7 +21,7 @@ rxn = Reaction("alpha", "12C", "alpha", "12C")
 data = rxn.kinematics_table_at_beam_energy(4.0)
 
 # Basic interpolation at a fixed variable value
-result = rxn.kinematics_at_beam_energy_and_angle(4.0, "theta_cm", 0.8)
+result = rxn.kinematics_at_beam_energy_and_angle(4.0, "theta_cm", 46)
 assert isinstance(result, dict)
 assert "theta_cm" in result
 assert all(isinstance(v, float) for values in result.values() for v in values)

@@ -81,7 +81,7 @@ class Reaction:
     >>> rxn.q_value
     -0.763...
     >>> data = rxn.kinematics_table_at_beam_energy(1.2)
-    >>> result = rxn.kinematics_at_beam_energy_and_angle(1.2, "theta3_lab", 0.5)
+    >>> result = rxn.kinematics_at_beam_energy_and_angle(1.2, "theta3_lab", 30)
     >>> branches = rxn.kinematics_curve_at_angle(np.linspace(1.0, 5.0, 200), 30)
     """
 
@@ -340,6 +340,7 @@ class Reaction:
         angle_name: str,
         angle_value: float,
         *,
+        angle_unit: AngleUnit = AngleUnit.deg,
         energy_unit: EnergyUnit = EnergyUnit.MeV,
         duplicate_tol: float = 1e-6,
     ) -> dict[str, list[float]]:
@@ -357,7 +358,11 @@ class Reaction:
             Independent variable name, can be one of ``"theta3_lab"``, ``"theta4_lab"``,
             ``"theta_cm"``, ``"cos_theta_cm"``.
         angle_value : float
-            Value to evaluate at (radians for angles).
+            Value to evaluate at. For angle keys (``theta*``), interpreted in
+            ``angle_unit`` (default degrees). For ``"cos_theta_cm"``, treated
+            as a dimensionless cosine — ``angle_unit`` is ignored.
+        angle_unit : AngleUnit, optional
+            Unit of ``angle_value`` for angle keys (default degrees).
         energy_unit : EnergyUnit, optional
             Unit of ``beam_energy`` (default MeV).
         duplicate_tol : float, optional
@@ -377,9 +382,14 @@ class Reaction:
         Examples
         --------
         >>> rxn = Reaction("p", "3H", "n", "3He")
-        >>> rxn.kinematics_at_beam_energy_and_angle(1.2, "theta3_lab", 0.5)
+        >>> rxn.kinematics_at_beam_energy_and_angle(1.2, "theta3_lab", 30)
         {'theta3_lab': [...], 'energy3_lab': [...], ...}
         """
+        if isinstance(angle_unit, str):
+            angle_unit = AngleUnit[angle_unit]
+        if angle_name.startswith("theta"):
+            angle_value = angle_value * angle_unit.value
+
         ek_mev = _parse_energy(beam_energy, energy_unit)
         self._bind(ek_mev)
 
@@ -474,7 +484,7 @@ class Reaction:
             ek_mev = _parse_energy(ek, energy_unit)
             try:
                 row = self.kinematics_at_beam_energy_and_angle(
-                    ek_mev, "theta3_lab", theta_rad
+                    ek_mev, "theta3_lab", theta_rad, angle_unit=AngleUnit.rad
                 )
             except ValueError:
                 solutions = []
