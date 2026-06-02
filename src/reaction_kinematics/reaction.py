@@ -354,8 +354,8 @@ class Reaction:
         beam_energy : float
             Beam kinetic energy.
         angle_name : str
-            Independent variable name, e.g. ``"theta3_lab"``, ``"theta_cm"``,
-            ``"cos_theta_cm"``, ``"theta4_lab"``.
+            Independent variable name, can be one of ``"theta3_lab"``, ``"theta4_lab"``,
+            ``"theta_cm"``, ``"cos_theta_cm"``.
         angle_value : float
             Value to evaluate at (radians for angles).
         energy_unit : EnergyUnit, optional
