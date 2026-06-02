@@ -537,26 +537,30 @@ reaction_kinematics    </h1>
 energy, MeV by default). Internal computation is cached per energy so repeated
 calls at the same energy are efficient.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>mass1 : str, MassInput, or float
-    Projectile mass, or a full reaction string in <code>"target(beam,ejectile)recoil"</code>
-    notation (e.g. <code>"3H(p,n)3He"</code>). If notation is given, <code>mass2</code>–<code>mass4</code>
-    must be omitted.
-mass2, mass3, mass4 : str, MassInput, or float, optional
-    Target, ejectile, and recoil masses. Required when <code>mass1</code> is not a
-    reaction notation string. Strings like <code>"p"</code>, <code>"12C"</code>, <code>"alpha"</code>
-    are looked up in the mass table. Floats require <code>mass_unit</code>.
-mass_unit : str or EnergyUnit, optional
-    Unit for numeric masses (e.g. <code>"MeV"</code>, <code>"keV"</code>).</p>
+<ul>
+<li><strong>mass1</strong> (str, MassInput, or float):
+Projectile mass, or a full reaction string in <code>"target(beam,ejectile)recoil"</code>
+notation (e.g. <code>"3H(p,n)3He"</code>). If notation is given, <code>mass2</code>–<code>mass4</code>
+must be omitted.</li>
+<li><strong>mass2, mass3, mass4</strong> (str, MassInput, or float, optional):
+Target, ejectile, and recoil masses. Required when <code>mass1</code> is not a
+reaction notation string. Strings like <code>"p"</code>, <code>"12C"</code>, <code>"alpha"</code>
+are looked up in the mass table. Floats require <code>mass_unit</code>.</li>
+<li><strong>mass_unit</strong> (str or EnergyUnit, optional):
+Unit for numeric masses (e.g. <code>"MeV"</code>, <code>"keV"</code>).</li>
+</ul>
 
-<h2 id="attributes">Attributes</h2>
+<h6 id="attributes">Attributes</h6>
 
-<p>n_cm_grid_points : int
-    Total number of CM angle grid points (default 1001). Changing this
-    invalidates the cache.</p>
+<ul>
+<li><strong>n_cm_grid_points</strong> (int):
+Total number of CM angle grid points (default 1001). Changing this
+invalidates the cache.</li>
+</ul>
 
-<h2 id="examples">Examples</h2>
+<h6 id="examples">Examples</h6>
 
 <div class="pdoc-code codehilite">
 <pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">rxn</span> <span class="o">=</span> <span class="n">Reaction</span><span class="p">(</span><span class="s2">&quot;p&quot;</span><span class="p">,</span> <span class="s2">&quot;3H&quot;</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">,</span> <span class="s2">&quot;3He&quot;</span><span class="p">)</span>
@@ -720,24 +724,28 @@ mass_unit : str or EnergyUnit, optional
 
             <div class="docstring"><p>Compute full kinematics over a CM angle grid.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>beam_energy : float
-    Beam kinetic energy.
-energy_unit : EnergyUnit, optional
-    Unit of <code>beam_energy</code> (default MeV).</p>
+<ul>
+<li><strong>beam_energy</strong> (float):
+Beam kinetic energy.</li>
+<li><strong>energy_unit</strong> (EnergyUnit, optional):
+Unit of <code>beam_energy</code> (default MeV).</li>
+</ul>
 
-<h2 id="returns">Returns</h2>
+<h6 id="returns">Returns</h6>
 
-<p>dict[str, np.ndarray]
-    Keys: <code>"cos_theta_cm"</code>, <code>"theta_cm"</code>, <code>"theta3_lab"</code>, <code>"theta4_lab"</code>,
-    <code>"energy3_lab"</code>, <code>"energy4_lab"</code>, <code>"velocity3_lab"</code>, <code>"velocity4_lab"</code>,
-    <code>"momentum3_lab"</code>, <code>"momentum4_lab"</code>.</p>
+<ul>
+<li><strong>dict[str, np.ndarray]</strong>: Keys: <code>"cos_theta_cm"</code>, <code>"theta_cm"</code>, <code>"theta3_lab"</code>, <code>"theta4_lab"</code>,
+<code>"energy3_lab"</code>, <code>"energy4_lab"</code>, <code>"velocity3_lab"</code>, <code>"velocity4_lab"</code>,
+<code>"momentum3_lab"</code>, <code>"momentum4_lab"</code>.</li>
+</ul>
 
-<h2 id="raises">Raises</h2>
+<h6 id="raises">Raises</h6>
 
-<p>ValueError
-    If the reaction is kinematically forbidden at this energy.</p>
+<ul>
+<li><strong>ValueError</strong>: If the reaction is kinematically forbidden at this energy.</li>
+</ul>
 </div>
 
 
@@ -846,32 +854,36 @@ energy_unit : EnergyUnit, optional
 <p>Always returns lists to handle multi-valued cases (e.g. two ejectile
 energies at the same lab angle).</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>beam_energy : float
-    Beam kinetic energy.
-angle_name : str
-    Independent variable name, e.g. <code>"theta3_lab"</code>, <code>"theta_cm"</code>,
-    <code>"cos_theta_cm"</code>, <code>"theta4_lab"</code>.
-angle_value : float
-    Value to evaluate at (radians for angles).
-energy_unit : EnergyUnit, optional
-    Unit of <code>beam_energy</code> (default MeV).
-duplicate_tol : float, optional
-    Tolerance for merging near-duplicate solutions (default 1e-6).</p>
+<ul>
+<li><strong>beam_energy</strong> (float):
+Beam kinetic energy.</li>
+<li><strong>angle_name</strong> (str):
+Independent variable name, e.g. <code>"theta3_lab"</code>, <code>"theta_cm"</code>,
+<code>"cos_theta_cm"</code>, <code>"theta4_lab"</code>.</li>
+<li><strong>angle_value</strong> (float):
+Value to evaluate at (radians for angles).</li>
+<li><strong>energy_unit</strong> (EnergyUnit, optional):
+Unit of <code>beam_energy</code> (default MeV).</li>
+<li><strong>duplicate_tol</strong> (float, optional):
+Tolerance for merging near-duplicate solutions (default 1e-6).</li>
+</ul>
 
-<h2 id="returns">Returns</h2>
+<h6 id="returns">Returns</h6>
 
-<p>dict of str -> list
-    Full dict of all kinematic variables, each a list of solutions
-    sorted descending by <code>energy3_lab</code>.</p>
+<ul>
+<li><strong>dict of str -> list</strong>: Full dict of all kinematic variables, each a list of solutions
+sorted descending by <code>energy3_lab</code>.</li>
+</ul>
 
-<h2 id="raises">Raises</h2>
+<h6 id="raises">Raises</h6>
 
-<p>ValueError
-    If <code>angle_value</code> is outside the physical range.</p>
+<ul>
+<li><strong>ValueError</strong>: If <code>angle_value</code> is outside the physical range.</li>
+</ul>
 
-<h2 id="examples">Examples</h2>
+<h6 id="examples">Examples</h6>
 
 <div class="pdoc-code codehilite">
 <pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">rxn</span> <span class="o">=</span> <span class="n">Reaction</span><span class="p">(</span><span class="s2">&quot;p&quot;</span><span class="p">,</span> <span class="s2">&quot;3H&quot;</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">,</span> <span class="s2">&quot;3He&quot;</span><span class="p">)</span>
@@ -973,24 +985,27 @@ over a range of beam energies.</p>
 dict contains arrays indexed by beam energy, with <code>NaN</code> where that branch
 does not exist. Branch 0 is always the higher-energy solution.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>beam_energy_array : array-like
-    Beam energies to sweep.
-theta3_lab : float
-    Fixed ejectile lab angle (<code>theta3_lab</code> in the output dict).
-angle_unit : AngleUnit, optional
-    Unit of <code>theta3_lab</code> (default radians).
-energy_unit : EnergyUnit, optional
-    Unit of <code>beam_energy_array</code> values (default MeV).</p>
+<ul>
+<li><strong>beam_energy_array</strong> (array-like):
+Beam energies to sweep.</li>
+<li><strong>theta3_lab</strong> (float):
+Fixed ejectile lab angle (<code>theta3_lab</code> in the output dict).</li>
+<li><strong>angle_unit</strong> (AngleUnit, optional):
+Unit of <code>theta3_lab</code> (default radians).</li>
+<li><strong>energy_unit</strong> (EnergyUnit, optional):
+Unit of <code>beam_energy_array</code> values (default MeV).</li>
+</ul>
 
-<h2 id="returns">Returns</h2>
+<h6 id="returns">Returns</h6>
 
-<p>list of two dicts, each with keys:
-    <code>"beam_energy_lab"</code>, <code>"energy3_lab"</code>, <code>"energy4_lab"</code>, <code>"theta4_lab"</code>,
-    <code>"velocity3_lab"</code>, <code>"velocity4_lab"</code>, <code>"momentum3_lab"</code>, <code>"momentum4_lab"</code>.</p>
+<ul>
+<li><strong>list of two dicts, each with keys:</strong>: <code>"beam_energy_lab"</code>, <code>"energy3_lab"</code>, <code>"energy4_lab"</code>, <code>"theta4_lab"</code>,
+<code>"velocity3_lab"</code>, <code>"velocity4_lab"</code>, <code>"momentum3_lab"</code>, <code>"momentum4_lab"</code>.</li>
+</ul>
 
-<h2 id="examples">Examples</h2>
+<h6 id="examples">Examples</h6>
 
 <div class="pdoc-code codehilite">
 <pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">rxn</span> <span class="o">=</span> <span class="n">Reaction</span><span class="p">(</span><span class="s2">&quot;p&quot;</span><span class="p">,</span> <span class="s2">&quot;3H&quot;</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">,</span> <span class="s2">&quot;3He&quot;</span><span class="p">)</span>
