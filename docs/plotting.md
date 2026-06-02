@@ -38,7 +38,7 @@ from reaction_kinematics import Reaction
 # or equivalently: Reaction("3H(p,n)3He")
 rxn = Reaction("p", "3H", "n", "3He")
 beam_energy_array = np.linspace(1.0, 5.0, 500)
-theta3_lab = np.deg2rad(30)  # fixed ejectile lab angle
+theta3_lab = 30  # fixed ejectile lab angle (degrees)
 branches = rxn.kinematics_curve_at_angle(beam_energy_array, theta3_lab)
 
 for branch in branches:

@@ -82,7 +82,7 @@ class Reaction:
     -0.763...
     >>> data = rxn.kinematics_table_at_beam_energy(1.2)
     >>> result = rxn.kinematics_at_beam_energy_and_angle(1.2, "theta3_lab", 0.5)
-    >>> branches = rxn.kinematics_curve_at_angle(np.linspace(1.0, 5.0, 200), np.deg2rad(30))
+    >>> branches = rxn.kinematics_curve_at_angle(np.linspace(1.0, 5.0, 200), 30)
     """
 
     def __init__(
@@ -425,7 +425,7 @@ class Reaction:
         beam_energy_array: Iterable[float],
         theta3_lab: float,
         *,
-        angle_unit: AngleUnit = AngleUnit.rad,
+        angle_unit: AngleUnit = AngleUnit.deg,
         energy_unit: EnergyUnit = EnergyUnit.MeV,
     ) -> list[dict[str, npt.NDArray[np.float64]]]:
         """
@@ -443,7 +443,7 @@ class Reaction:
         theta3_lab : float
             Fixed ejectile lab angle (``theta3_lab`` in the output dict).
         angle_unit : AngleUnit, optional
-            Unit of ``theta3_lab`` (default radians).
+            Unit of ``theta3_lab`` (default degrees).
         energy_unit : EnergyUnit, optional
             Unit of ``beam_energy_array`` values (default MeV).
 
@@ -456,7 +456,7 @@ class Reaction:
         Examples
         --------
         >>> rxn = Reaction("p", "3H", "n", "3He")
-        >>> branches = rxn.kinematics_curve_at_angle(np.linspace(1.0, 5.0, 200), np.deg2rad(30))
+        >>> branches = rxn.kinematics_curve_at_angle(np.linspace(1.0, 5.0, 200), 30)
         >>> for b in branches:
         ...     plt.plot(b["beam_energy_lab"], b["energy3_lab"])
         """

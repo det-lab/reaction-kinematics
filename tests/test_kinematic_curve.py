@@ -33,7 +33,7 @@ def test_kinematic_curve_return_structure():
     """kinematics_curve_at_angle returns a list of two dicts each with the expected keys."""
     beam_energy_array = np.linspace(1.5, 5.0, 20)
     branches = Reaction("p", "3H", "n", "3He").kinematics_curve_at_angle(
-        beam_energy_array, np.deg2rad(30)
+        beam_energy_array, 30
     )
 
     assert len(branches) == 2
@@ -49,7 +49,7 @@ def test_kinematic_curve_single_valued():
     populated, branch 1 all NaN."""
     beam_energy_array = np.linspace(1.5, 5.0, 50)
     branches = Reaction("p", "3H", "n", "3He").kinematics_curve_at_angle(
-        beam_energy_array, np.deg2rad(30)
+        beam_energy_array, 30
     )
 
     assert not np.any(np.isnan(branches[0]["energy3_lab"]))
@@ -62,7 +62,7 @@ def test_kinematic_curve_two_valued():
     # Two-valued regime for 12C(p,p)12C at 3° starts well below 50 MeV 12C beam energy.
     beam_energy_array = np.linspace(50.0, 200.0, 100)
     branches = Reaction("12C", "p", "12C", "p").kinematics_curve_at_angle(
-        beam_energy_array, np.deg2rad(3)
+        beam_energy_array, 3
     )
 
     # Branch 0 should be fully populated
@@ -85,12 +85,11 @@ def test_kinematic_curve_vs_krane(data_file):
     plot; rtol is avoided since E3 values near threshold can be very small.
     """
     theta3_deg = parse_angle(data_file)
-    theta3_rad = np.deg2rad(theta3_deg)
 
     df = pd.read_csv(data_file, header=None, names=["beam_energy_lab", "e3_ref"])
 
     branches = Reaction("p", "3H", "n", "3He").kinematics_curve_at_angle(
-        df["beam_energy_lab"].to_numpy(), theta3_rad
+        df["beam_energy_lab"].to_numpy(), theta3_deg
     )
 
     e3_b0 = branches[0]["energy3_lab"]
