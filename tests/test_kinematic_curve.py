@@ -37,7 +37,7 @@ def test_kinematic_curve_return_structure():
     )
 
     assert len(branches) == 2
-    expected_keys = {"beam_energy_lab", "energy3_lab", "energy4_lab", "theta4_lab", "velocity3_lab", "velocity4_lab"}
+    expected_keys = {"beam_energy_lab", "energy3_lab", "energy4_lab", "theta4_lab", "velocity3_lab", "velocity4_lab", "momentum3_lab", "momentum4_lab"}
     for b in branches:
         assert set(b.keys()) == expected_keys
         for v in b.values():
@@ -105,6 +105,6 @@ def test_kinematic_curve_vs_krane(data_file):
         candidates = [v for v in [e3_b0[i], e3_b1[i]] if not np.isnan(v)]
         best = min(candidates, key=lambda v: abs(v - e3_ref))
         assert np.isclose(best, e3_ref, atol=KRANE_ATOL_MEV, rtol=0.0), (
-            f"ek={df['ek'][i]:.4f}: computed {best:.4f}, reference {e3_ref:.4f} "
+            f"ek={df['beam_energy_lab'][i]:.4f}: computed {best:.4f}, reference {e3_ref:.4f} "
             f"(angle={theta3_deg} deg, file={data_file.name})"
         )

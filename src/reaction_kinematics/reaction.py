@@ -327,7 +327,7 @@ class Reaction:
         self._bind(ek_mev)
         if self._nogo:
             raise ValueError(f"Reaction kinematically forbidden at beam_energy={ek_mev} MeV")
-        keys = ["cos_theta_cm", "theta_cm", "theta3_lab", "theta4_lab", "energy3_lab", "energy4_lab", "velocity3_lab", "velocity4_lab"]
+        keys = ["cos_theta_cm", "theta_cm", "theta3_lab", "theta4_lab", "energy3_lab", "energy4_lab", "velocity3_lab", "velocity4_lab", "momentum3_lab", "momentum4_lab"]
         rows = [
             self._kinematics_at_coscm(coscm)
             for coscm in np.linspace(-1.0, 1.0, self.n_cm_grid_points)
@@ -451,7 +451,7 @@ class Reaction:
         -------
         list of two dicts, each with keys:
             ``"beam_energy_lab"``, ``"energy3_lab"``, ``"energy4_lab"``, ``"theta4_lab"``,
-            ``"velocity3_lab"``, ``"velocity4_lab"``.
+            ``"velocity3_lab"``, ``"velocity4_lab"``, ``"momentum3_lab"``, ``"momentum4_lab"``.
 
         Examples
         --------
@@ -464,7 +464,7 @@ class Reaction:
             angle_unit = AngleUnit[angle_unit]
         theta_rad = theta3_lab * angle_unit.value
 
-        keys = ["energy3_lab", "energy4_lab", "theta4_lab", "velocity3_lab", "velocity4_lab"]
+        keys = ["energy3_lab", "energy4_lab", "theta4_lab", "velocity3_lab", "velocity4_lab", "momentum3_lab", "momentum4_lab"]
         branches = [
             {"beam_energy_lab": [], **{k: [] for k in keys}},
             {"beam_energy_lab": [], **{k: [] for k in keys}},
