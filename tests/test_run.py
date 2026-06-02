@@ -32,7 +32,7 @@ def test_run_and_plot_example() -> None:
     edge_angle = max(theta4_arr) - 1e-12
     for y in ("energy3_lab", "velocity3_lab", "momentum3_lab"):
         vals = rxn.kinematics_at_beam_energy_and_angle(
-            1.2, "theta4_lab", edge_angle, angle_unit="rad"
+            1.2, "theta4_lab", edge_angle
         )[y]
         assert all(isinstance(v, float) for v in vals)
 
@@ -41,7 +41,7 @@ def test_run_and_plot_example() -> None:
     e3 = data["energy3_lab"]
     plt.figure()
     plt.plot(theta4, e3)
-    plt.xlabel(r"$\theta_4$ (rad)")
+    plt.xlabel(r"$\theta_4$ (deg)")
     plt.ylabel(r"$E_3$")
     plt.title("Ejectile Energy vs Angle")
     plt.grid(True)

@@ -38,7 +38,7 @@ theta4 = data["theta4_lab"]
 e3 = data["energy3_lab"]
 plt.figure()
 plt.plot(theta4, e3)
-plt.xlabel(r"$\theta_4$ (rad)")
+plt.xlabel(r"$\theta_4$ (deg)")
 plt.ylabel(r"$E_3$")
 plt.title("Ejectile Energy vs Angle")
 plt.grid(True)

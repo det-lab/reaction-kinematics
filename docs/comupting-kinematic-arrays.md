@@ -22,9 +22,9 @@ data = rxn.kinematics_table_at_beam_energy(1200, energy_unit="keV")  # equivalen
 This will return a dictionary containing the following:
 
 * `cos_theta_cm`   : cos(θ_CM)
-* `theta_cm`       : CM angle (rad)
-* `theta3_lab`     : Ejectile lab angle (rad)
-* `theta4_lab`     : Recoil lab angle (rad)
+* `theta_cm`       : CM angle (deg)
+* `theta3_lab`     : Ejectile lab angle (deg)
+* `theta4_lab`     : Recoil lab angle (deg)
 * `energy3_lab`    : Ejectile energy (MeV)
 * `energy4_lab`    : Recoil energy (MeV)
 * `velocity3_lab`  : Ejectile velocity (c)

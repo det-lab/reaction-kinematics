@@ -50,7 +50,7 @@ rxn = Reaction("p", "3H", "n", "3He")
 * Masses are internally stored in MeV/c²
 * Energies are in MeV by default — supported units: `keV`, `MeV`, `GeV`, `TeV`
 * Velocities are given as fractions of c
-* Angles are in radians by default — supported units: `rad`, `deg`, `mrad`
+* Angles are in degrees by default — supported units: `deg`, `rad`, `mrad`
 <br>
 
 ### Compute Arrays
@@ -64,14 +64,16 @@ data = rxn.kinematics_table_at_beam_energy(4.0)
 
 This will return a dictionary containing the following:
 
-* `coscm`   : cos(θ_CM)
-* `theta_cm`: CM angle (rad)
-* `theta3`  : Ejectile lab angle (rad)
-* `theta4`  : Recoil lab angle (rad)
-* `e3`      : Ejectile energy (MeV)
-* `e4`      : Recoil energy (MeV)
-* `v3`      : Ejectile velocity (c)
-* `v4`      : Recoil velocity (c)
+* `cos_theta_cm`  : cos(θ_CM)
+* `theta_cm`      : CM angle (deg)
+* `theta3_lab`    : Ejectile lab angle (deg)
+* `theta4_lab`    : Recoil lab angle (deg)
+* `energy3_lab`   : Ejectile energy (MeV)
+* `energy4_lab`   : Recoil energy (MeV)
+* `velocity3_lab` : Ejectile velocity (c)
+* `velocity4_lab` : Recoil velocity (c)
+* `momentum3_lab` : Ejectile momentum (MeV/c)
+* `momentum4_lab` : Recoil momentum (MeV/c)
 <br>
 
 ###### See [Plotting Example](plotting.md) for How to Plot

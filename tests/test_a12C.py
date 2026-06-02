@@ -36,14 +36,14 @@ def test_alpha12C_reference_table():
 
         # kinematics_at_beam_energy_and_angle can return multiple theta4 branches, so choose the one
         # that matches the reference table value for this row
-        theta4_vals_deg = np.rad2deg(np.array(r["theta4_lab"]))
+        theta4_vals_deg = np.array(r["theta4_lab"])
         theta4_best = theta4_vals_deg[np.argmin(np.abs(theta4_vals_deg - row["theta4 (degrees)"]))]
 
         calc.append(
             {
                 "E3": r["energy3_lab"][0],
                 "E4": r["energy4_lab"][0],
-                "theta3cm": np.rad2deg(r["theta_cm"][0]),
+                "theta3cm": r["theta_cm"][0],
                 "theta4_lab": theta4_best,
                 "velocity3_lab": r["velocity3_lab"][0],
                 "velocity4_lab": r["velocity4_lab"][0],

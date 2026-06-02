@@ -19,9 +19,9 @@ print(r)
 This will return:
 ```python
 {'cos_theta_cm': [-0.9813047694699246], 
-'theta_cm': [2.9479854759117416], 
-'theta3_lab': [2.129], 
-'theta4_lab': [0.054070851022814864], 
+'theta_cm': [168.9], 
+'theta3_lab': [122.0], 
+'theta4_lab': [3.098], 
 'energy3_lab': [0.005237930117122223], 
 'energy4_lab': [0.43100601988343396], 
 'velocity3_lab': [0.003338681989975168], 

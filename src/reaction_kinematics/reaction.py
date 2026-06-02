@@ -299,7 +299,11 @@ class Reaction:
         self._table = table
 
     def kinematics_table_at_beam_energy(
-        self, beam_energy: float, *, energy_unit: EnergyUnit = EnergyUnit.MeV
+        self,
+        beam_energy: float,
+        *,
+        angle_unit: AngleUnit = AngleUnit.deg,
+        energy_unit: EnergyUnit = EnergyUnit.MeV,
     ) -> dict[str, npt.NDArray[np.float64]]:
         """
         Compute full kinematics over a CM angle grid.
@@ -308,6 +312,9 @@ class Reaction:
         ----------
         beam_energy : float
             Beam kinetic energy.
+        angle_unit : AngleUnit, optional
+            Unit for angle outputs ``theta_cm``, ``theta3_lab``, ``theta4_lab``
+            (default degrees).
         energy_unit : EnergyUnit, optional
             Unit of ``beam_energy`` (default MeV).
 
@@ -316,13 +323,16 @@ class Reaction:
         dict[str, np.ndarray]
             Keys: ``"cos_theta_cm"``, ``"theta_cm"``, ``"theta3_lab"``, ``"theta4_lab"``,
             ``"energy3_lab"``, ``"energy4_lab"``, ``"velocity3_lab"``, ``"velocity4_lab"``,
-            ``"momentum3_lab"``, ``"momentum4_lab"``.
+            ``"momentum3_lab"``, ``"momentum4_lab"``. Angle keys are in ``angle_unit``
+            (default degrees).
 
         Raises
         ------
         ValueError
             If the reaction is kinematically forbidden at this energy.
         """
+        if isinstance(angle_unit, str):
+            angle_unit = AngleUnit[angle_unit]
         ek_mev = _parse_energy(beam_energy, energy_unit)
         self._bind(ek_mev)
         if self._nogo:
@@ -332,7 +342,11 @@ class Reaction:
             self._kinematics_at_coscm(coscm)
             for coscm in np.linspace(-1.0, 1.0, self.n_cm_grid_points)
         ]
-        return {k: np.array([row[k] for row in rows]) for k in keys}
+        result = {k: np.array([row[k] for row in rows]) for k in keys}
+        for k in keys:
+            if k.startswith("theta"):
+                result[k] = result[k] / angle_unit.value
+        return result
 
     def kinematics_at_beam_energy_and_angle(
         self,
@@ -372,7 +386,8 @@ class Reaction:
         -------
         dict of str -> list
             Full dict of all kinematic variables, each a list of solutions
-            sorted descending by ``energy3_lab``.
+            sorted descending by ``energy3_lab``. Angle keys (``theta*``) are
+            returned in ``angle_unit`` (default degrees).
 
         Raises
         ------
@@ -428,7 +443,11 @@ class Reaction:
                 unique.append(sol)
         unique.sort(key=lambda s: s["energy3_lab"], reverse=True)
 
-        return {k: [s[k] for s in unique] for k in keys}
+        output = {k: [s[k] for s in unique] for k in keys}
+        for k in keys:
+            if k.startswith("theta"):
+                output[k] = [v / angle_unit.value for v in output[k]]
+        return output
 
     def kinematics_curve_at_angle(
         self,
@@ -453,7 +472,7 @@ class Reaction:
         theta3_lab : float
             Fixed ejectile lab angle (``theta3_lab`` in the output dict).
         angle_unit : AngleUnit, optional
-            Unit of ``theta3_lab`` (default degrees).
+            Unit of ``theta3_lab`` input and ``theta4_lab`` output (default degrees).
         energy_unit : EnergyUnit, optional
             Unit of ``beam_energy_array`` values (default MeV).
 
@@ -462,6 +481,7 @@ class Reaction:
         list of two dicts, each with keys:
             ``"beam_energy_lab"``, ``"energy3_lab"``, ``"energy4_lab"``, ``"theta4_lab"``,
             ``"velocity3_lab"``, ``"velocity4_lab"``, ``"momentum3_lab"``, ``"momentum4_lab"``.
+            ``theta4_lab`` is in ``angle_unit`` (default degrees).
 
         Examples
         --------
@@ -498,4 +518,13 @@ class Reaction:
                 for k in keys:
                     branch[k].append(sol[k] if sol is not None else float("nan"))
 
-        return [{k: np.array(v) for k, v in branch.items()} for branch in branches]
+        result = []
+        for branch in branches:
+            converted = {}
+            for k, v in branch.items():
+                arr = np.array(v)
+                if k.startswith("theta"):
+                    arr = arr / angle_unit.value
+                converted[k] = arr
+            result.append(converted)
+        return result

@@ -46,8 +46,8 @@ def test_p3H_n3He_reference_table():
 
         e3_vals = np.array(r["energy3_lab"])
         e4_vals = np.array(r["energy4_lab"])
-        theta_cm_vals_deg = np.rad2deg(np.array(r["theta_cm"]))
-        theta4_vals_deg = np.rad2deg(np.array(r["theta4_lab"]))
+        theta_cm_vals_deg = np.array(r["theta_cm"])
+        theta4_vals_deg = np.array(r["theta4_lab"])
         v3_vals = np.array(r["velocity3_lab"])
         v4_vals = np.array(r["velocity4_lab"])
 
