@@ -760,7 +760,7 @@ rxn = Reaction(&quot;p&quot;, &quot;3H&quot;, &quot;n&quot;, &quot;3He&quot;)
 data = rxn.kinematics_table_at_beam_energy(1.2)
 
 plt.plot(data[&quot;theta4_lab&quot;], data[&quot;energy3_lab&quot;])
-plt.xlabel(&quot;Recoil Angle θ₄ (rad)&quot;)
+plt.xlabel(&quot;Recoil Angle θ₄ (deg)&quot;)
 plt.ylabel(&quot;Ejectile Energy E₃ (MeV)&quot;)
 plt.title(&quot;E₃ vs θ₄&quot;)
 plt.grid(True)
@@ -790,8 +790,8 @@ plt.show()
 </code></pre>
 <p>Each call returns a list of <strong>two dicts</strong> (branch 0 = high-energy solution,
 branch 1 = low-energy solution), each containing arrays for <code>beam_energy_lab</code>, <code>energy3_lab</code>,
-<code>energy4_lab</code>, <code>theta4_lab</code>, <code>velocity3_lab</code>, and <code>velocity4_lab</code>. Where a branch
-does not exist the values are <code>NaN</code>.</p>
+<code>energy4_lab</code>, <code>theta4_lab</code>, <code>velocity3_lab</code>, <code>velocity4_lab</code>, <code>momentum3_lab</code>, and
+<code>momentum4_lab</code>. Where a branch does not exist the values are <code>NaN</code>.</p>
 <p><img alt="3H(p,n)3He kinematic curve at 30°" src="../figures/kinematic_curve_plot.png" /></p>
 <p>The full example script is at <a href="https://github.com/det-lab/reaction-kinematics/blob/main/examples/kinematic_curve_example.py"><code>examples/kinematic_curve_example.py</code></a>.</p>
 <hr />

@@ -823,7 +823,7 @@ rxn = Reaction(&quot;p&quot;, &quot;3H&quot;, &quot;n&quot;, &quot;3He&quot;)
 <li>Masses are internally stored in MeV/c²</li>
 <li>Energies are in MeV by default — supported units: <code>keV</code>, <code>MeV</code>, <code>GeV</code>, <code>TeV</code></li>
 <li>Velocities are given as fractions of c</li>
-<li>Angles are in radians by default — supported units: <code>rad</code>, <code>deg</code>, <code>mrad</code>
+<li>Angles are in degrees by default — supported units: <code>deg</code>, <code>rad</code>, <code>mrad</code>
 <br></li>
 </ul>
 <h3 id="compute-arrays">Compute Arrays</h3>
@@ -832,14 +832,16 @@ rxn = Reaction(&quot;p&quot;, &quot;3H&quot;, &quot;n&quot;, &quot;3He&quot;)
 </code></pre>
 <p>This will return a dictionary containing the following:</p>
 <ul>
-<li><code>coscm</code>   : cos(θ_CM)</li>
-<li><code>theta_cm</code>: CM angle (rad)</li>
-<li><code>theta3</code>  : Ejectile lab angle (rad)</li>
-<li><code>theta4</code>  : Recoil lab angle (rad)</li>
-<li><code>e3</code>      : Ejectile energy (MeV)</li>
-<li><code>e4</code>      : Recoil energy (MeV)</li>
-<li><code>v3</code>      : Ejectile velocity (c)</li>
-<li><code>v4</code>      : Recoil velocity (c)
+<li><code>cos_theta_cm</code>  : cos(θ_CM)</li>
+<li><code>theta_cm</code>      : CM angle (deg)</li>
+<li><code>theta3_lab</code>    : Ejectile lab angle (deg)</li>
+<li><code>theta4_lab</code>    : Recoil lab angle (deg)</li>
+<li><code>energy3_lab</code>   : Ejectile energy (MeV)</li>
+<li><code>energy4_lab</code>   : Recoil energy (MeV)</li>
+<li><code>velocity3_lab</code> : Ejectile velocity (c)</li>
+<li><code>velocity4_lab</code> : Recoil velocity (c)</li>
+<li><code>momentum3_lab</code> : Ejectile momentum (MeV/c)</li>
+<li><code>momentum4_lab</code> : Recoil momentum (MeV/c)
 <br></li>
 </ul>
 <h6 id="see-plotting-example-for-how-to-plot">See <a href="plotting/">Plotting Example</a> for How to Plot</h6>
