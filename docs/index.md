@@ -6,7 +6,7 @@ This package is designed for students and researchers working in nuclear and par
 ```
 projectile + target → ejectile + recoil
 ```
-![Library Naming Ccheme for Reaction Kinematics°](SVG_reaction_kinematics.png)
+![Library Naming Ccheme for Reaction Kinematics°](figures/SVG_reaction_kinematics.png)
 
 This code can do:
 
