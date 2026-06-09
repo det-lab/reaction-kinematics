@@ -1,7 +1,7 @@
 # Welcome to Reaction Kinematics 
 This is a Python library for calculating relativistic two-body nuclear reaction kinematics.
 
-This package is designed for students and researchers working in nuclear and particle physics who need reliable kinematic calculations for reactions of the form:
+This package is designed for students and researchers working in nuclear and particle physics who need reliable relativistic kinematic calculations for reactions of the form:
 
 ```
 projectile + target → ejectile + recoil

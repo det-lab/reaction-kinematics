@@ -1,7 +1,7 @@
 # reaction-kinematics
 This is a Python library for calculating relativistic two-body nuclear reaction kinematics.
 
-This package is designed for students and researchers working in nuclear and particle physics who need fast, reliable kinematic calculations for reactions of the form:
+This package is designed for students and researchers working in nuclear and particle physics who need reliable relativistic kinematic calculations for reactions of the form:
 
 ```
 projectile + target → ejectile + recoil
@@ -12,11 +12,9 @@ projectile + target → ejectile + recoil
 ## Features 
 This code can do:
 * Relativistic two-body kinematics
-* Automatic unit handling
 * Center-of-mass and lab-frame quantities
 * Energy, angle, momentum, and velocity calculations
 * Support for multi-valued kinematic solutions
-* Simple plotting and data export
 
 ---
 
@@ -38,7 +36,8 @@ https://det-lab.github.io/reaction-kinematics/
 ### Syntax
 
 ```python
-# or equivalently: Reaction("3H(p,n)3He")
+# or equivalently:
+# rxn = Reaction("3H(p,n)3He")
 rxn = Reaction("p", "3H", "n", "3He")
 
 rxn.kinematics_at_beam_energy_and_angle(beam_energy, angle_name, angle_value)
@@ -101,7 +100,7 @@ rxn = Reaction(
 
 * Some kinematic variables are multi-valued.
 * Near kinematic extrema, solution branches may merge numerically.
-* The library automatically removes duplicate solutions within tolerance of 1e**-6.
+* The library automatically removes duplicate solutions within tolerance of 1e-6.
 
 ---
 
