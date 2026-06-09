@@ -46,9 +46,11 @@ rxn.kinematics_at_beam_energy_and_angle(beam_energy, angle_name, angle_value)
 
 Parameters:
 
-* `beam_energy`  : Beam kinetic energy in MeV
-* `angle_name`   : Independent variable (e.g. `"theta4_lab"`, `"theta_cm"`, `"cos_theta_cm"`)
+* `beam_energy`  : Beam kinetic energy (MeV by default)
+* `angle_name`   : Independent variable (e.g. `"theta3_lab"`, `"theta4_lab"`, `"theta_cm"`, `"cos_theta_cm"`)
 * `angle_value`  : Value at which to evaluate (degrees for angles by default)
+* `angle_unit`   : Unit for `angle_value` — `"deg"` (default), `"rad"`, `"mrad"`
+* `energy_unit`  : Unit for `beam_energy` — `"keV"`, `"MeV"` (default), `"GeV"`, `"TeV"`
 
 ---
 

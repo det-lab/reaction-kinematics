@@ -27,7 +27,9 @@ This will return a dictionary containing the following:
 * `theta4_lab`     : Recoil lab angle (deg)
 * `energy3_lab`    : Ejectile energy (MeV)
 * `energy4_lab`    : Recoil energy (MeV)
-* `velocity3_lab`  : Ejectile velocity (c)
-* `velocity4_lab`  : Recoil velocity (c)
+* `velocity3_lab`  : Ejectile velocity (unitless, reported as a fraction of c)
+* `velocity4_lab`  : Recoil velocity (unitless, reported as a fraction of c)
+* `momentum3_lab`  : Ejectile momentum (MeV/c)
+* `momentum4_lab`  : Recoil momentum (MeV/c)
 
 

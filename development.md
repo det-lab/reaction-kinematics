@@ -14,7 +14,7 @@ fork will make it easier to contribute) and
 ```bash
 git clone https://github.com/your-username/reaction-kinematics.git
 cd reaction-kinematics
-pip install -e .
+uv sync
 ```
 
 ## Basic Developer Workflows
