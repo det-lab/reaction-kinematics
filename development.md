@@ -97,6 +97,12 @@ extensions:
 
 ## Documentation
 
+To preview the docs site locally:
+
+```shell
+uv run mkdocs serve
+```
+
 - [uv docs](https://docs.astral.sh/uv/)
 
 - [basedpyright docs](https://docs.basedpyright.com/latest/)
