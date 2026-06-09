@@ -296,15 +296,26 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#about" class="md-nav__link">
+  <a href="#install" class="md-nav__link">
     <span class="md-ellipsis">
       
-        About
+        Install
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="About">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-to-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How to use
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="How to use">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -699,15 +710,26 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#about" class="md-nav__link">
+  <a href="#install" class="md-nav__link">
     <span class="md-ellipsis">
       
-        About
+        Install
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="About">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-to-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How to use
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="How to use">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -784,51 +806,48 @@
 
 <h1 id="welcome-to-reaction-kinematics">Welcome to Reaction Kinematics</h1>
 <p>This is a Python library for calculating relativistic two-body nuclear reaction kinematics.</p>
-<p>This package is designed for students and researchers working in nuclear and particle physics who need fast, reliable kinematic calculations for reactions of the form:</p>
+<p>This package is designed for students and researchers working in nuclear and particle physics who need reliable kinematic calculations for reactions of the form:</p>
 <pre><code>projectile + target → ejectile + recoil
 </code></pre>
-<p><img alt="Library Naming Ccheme for Reaction Kinematics°" src="figures/SVG_reaction_kinematics.png" /></p>
+<p><img alt="Library Naming Scheme for Reaction Kinematics" src="figures/SVG_reaction_kinematics.png" /></p>
 <p>This code can do:</p>
 <ul>
 <li>Relativistic two-body kinematics</li>
-<li>Automatic unit handling</li>
 <li>Center-of-mass and lab-frame quantities</li>
 <li>Energy, angle, momentum, and velocity calculations</li>
-<li>Support for multi-valued kinematic solutions</li>
-<li>Simple plotting and data export
+<li>Support for multi-valued kinematic solutions
 <br></li>
 </ul>
-<h2 id="about">About</h2>
-<p>The main interface is the <code>Reaction</code> class.</p>
-<pre><code class="language-python">from reaction_kinematics import Reaction
+<h2 id="install">Install</h2>
+<pre><code>pip install reaction-kinematics
 </code></pre>
+<h2 id="how-to-use">How to use</h2>
 <p>Create a reaction by specifying the four particle masses. The beam energy is passed separately to each calculation method.</p>
 <h3 id="reaction">Reaction</h3>
 <p>We define a reaction with these variables</p>
 <ul>
-<li>m1 (Projectile)</li>
-<li>m2 (Target)</li>
-<li>m3 (Ejectile)</li>
-<li>m4 (Recoil)</li>
+<li>mass1 (Projectile)</li>
+<li>mass2 (Target)</li>
+<li>mass3 (Ejectile)</li>
+<li>mass4 (Recoil)</li>
 </ul>
 <p>All masses are converted internally to MeV. Kinetic energy is assumed in MeV unless specified otherwise.</p>
 <p>For example, for the reaction ³H(p,n)³He:</p>
 <pre><code class="language-python">from reaction_kinematics import Reaction
 
-# or equivalently: Reaction(&quot;3H(p,n)3He&quot;)
+# or equivalently: 
+# rxn = Reaction(&quot;3H(p,n)3He&quot;)
 rxn = Reaction(&quot;p&quot;, &quot;3H&quot;, &quot;n&quot;, &quot;3He&quot;)
 </code></pre>
-<p><br> </p>
 <h3 id="units">Units</h3>
 <ul>
 <li>Masses are internally stored in MeV/c²</li>
 <li>Energies are in MeV by default — supported units: <code>keV</code>, <code>MeV</code>, <code>GeV</code>, <code>TeV</code></li>
 <li>Velocities are given as fractions of c</li>
-<li>Angles are in degrees by default — supported units: <code>deg</code>, <code>rad</code>, <code>mrad</code>
-<br></li>
+<li>Angles are in degrees by default — supported units: <code>deg</code>, <code>rad</code>, <code>mrad</code></li>
 </ul>
 <h3 id="compute-arrays">Compute Arrays</h3>
-<p>To generate arrays of kinematic quantities over all center-of-mass angles, use <code>kinematics_table_at_beam_energy()</code>.</p>
+<p>To generate arrays of kinematic quantities over all center-of-mass angles, use <code>kinematics_table_at_beam_energy(beam_energy)</code>.  The units for <code>beam_energy</code> are MeV by default but can be specified by the user using the <code>energy_unit</code> keyword.</p>
 <pre><code class="language-python">data = rxn.kinematics_table_at_beam_energy(4.0)
 </code></pre>
 <p>This will return a dictionary containing the following:</p>
@@ -839,11 +858,10 @@ rxn = Reaction(&quot;p&quot;, &quot;3H&quot;, &quot;n&quot;, &quot;3He&quot;)
 <li><code>theta4_lab</code>    : Recoil lab angle (deg)</li>
 <li><code>energy3_lab</code>   : Ejectile energy (MeV)</li>
 <li><code>energy4_lab</code>   : Recoil energy (MeV)</li>
-<li><code>velocity3_lab</code> : Ejectile velocity (c)</li>
-<li><code>velocity4_lab</code> : Recoil velocity (c)</li>
+<li><code>velocity3_lab</code> : Ejectile velocity (unitless, reported as a fraction of c)</li>
+<li><code>velocity4_lab</code> : Recoil velocity (unitless, reported as a fraction of c)</li>
 <li><code>momentum3_lab</code> : Ejectile momentum (MeV/c)</li>
-<li><code>momentum4_lab</code> : Recoil momentum (MeV/c)
-<br></li>
+<li><code>momentum4_lab</code> : Recoil momentum (MeV/c)</li>
 </ul>
 <h6 id="see-plotting-example-for-how-to-plot">See <a href="plotting/">Plotting Example</a> for How to Plot</h6>
 

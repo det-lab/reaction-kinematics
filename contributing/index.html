@@ -671,11 +671,14 @@
   <h1>Adding to Documentation</h1>
 
 <h4 id="updating-mkdocs">Updating mkdocs</h4>
+<p>First, install the development dependencies (includes mkdocs):</p>
+<pre><code class="language-bash">uv sync
+</code></pre>
+<p>Then use mkdocs via <code>uv run</code> (this ensures the project venv is used):</p>
 <ul>
-<li>Make changes in docs directory or mkdocs.yml</li>
-<li>mkdocs build (in terminal, to check errors)</li>
-<li>mkdocs serve (create local website to see documentation)</li>
-<li>mkdocs gh-deploy (push to git, and updates site)</li>
+<li><code>uv run mkdocs build</code> — build the site locally and check for errors</li>
+<li><code>uv run mkdocs serve</code> — serve the site locally at http://127.0.0.1:8000 for live preview</li>
+<li><code>uv run mkdocs gh-deploy</code> — deploy to GitHub Pages (updates the live docs site)</li>
 </ul>
 
 
