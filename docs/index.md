@@ -72,5 +72,3 @@ This will return a dictionary containing the following:
 * `momentum4_lab` : Recoil momentum (MeV/c)
 
 ###### See [Plotting Example](plotting.md) for How to Plot
-
-
