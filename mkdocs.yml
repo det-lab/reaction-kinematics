@@ -5,7 +5,7 @@ theme:
   name: material
   palette: 
 
-      - scheme: defualt 
+      - scheme: deflt 
         toggle:
           icon: material/brightness-7
           name: Switch to dark mode
@@ -23,7 +23,7 @@ nav:
     - Accessing Individual Values: accessing-individual-values.md
     - Plotting: plotting.md
 
-  - Contribuiting: 
+  - Contributing: 
       - Adding to Documentation: contributing.md
       - Suggestions for Code Updates: updatecode.md
 
