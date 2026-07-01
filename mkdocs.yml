@@ -5,7 +5,7 @@ theme:
   name: material
   palette: 
 
-      - scheme: deflt 
+      - scheme: default
         toggle:
           icon: material/brightness-7
           name: Switch to dark mode
