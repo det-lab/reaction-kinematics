@@ -31,7 +31,7 @@ jobs:
         run: mkdocs build --site-dir site
 
       - name: Build pdoc API docs
-        run: pdoc reaction_kinematics --output-dir site/api --docformat numpy
+        run: pdoc reaction_kinematics --output-dir site/api --docformat numpy --template-directory docs/pdoc-template
 
       - name: Deploy to gh-pages branch
         uses: peaceiris/actions-gh-pages@v4

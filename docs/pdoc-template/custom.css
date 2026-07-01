@@ -1,0 +1,8 @@
+/* Widen the pdoc API-reference sidebar so long function names (e.g.
+   kinematics_at_beam_energy_and_angle) don't wrap. See
+   https://pdoc.dev/docs/pdoc.html#theming for the custom.css mechanism. */
+@media (min-width: 770px) {
+    :root {
+        --sidebar-width: clamp(12.5rem, 28vw, 24rem);
+    }
+}
