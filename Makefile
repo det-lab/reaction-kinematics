@@ -14,7 +14,7 @@ install:
 lint:
 	uv run python devtools/lint.py
 
-test:
+test: lint
 	uv run pytest
 
 upgrade:
