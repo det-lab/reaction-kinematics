@@ -96,7 +96,9 @@ class Reaction:
     ) -> None:
         if isinstance(mass1, str) and "(" in mass1:
             if any(m is not None for m in (mass2, mass3, mass4)):
-                raise ValueError("Cannot mix reaction notation string with separate mass arguments.")
+                raise ValueError(
+                    "Cannot mix reaction notation string with separate mass arguments."
+                )
             _m1, _m2, _m3, _m4 = _parse_reaction_notation(mass1)
         else:
             if mass2 is None or mass3 is None or mass4 is None:
@@ -290,7 +292,18 @@ class Reaction:
 
     def _build_table(self) -> None:
         """Build the interpolation table over the full CM angle grid."""
-        keys = ["cos_theta_cm", "theta_cm", "theta3_lab", "theta4_lab", "energy3_lab", "energy4_lab", "velocity3_lab", "velocity4_lab", "momentum3_lab", "momentum4_lab"]
+        keys = [
+            "cos_theta_cm",
+            "theta_cm",
+            "theta3_lab",
+            "theta4_lab",
+            "energy3_lab",
+            "energy4_lab",
+            "velocity3_lab",
+            "velocity4_lab",
+            "momentum3_lab",
+            "momentum4_lab",
+        ]
         table: dict[str, list[float]] = {k: [] for k in keys}
         for coscm in np.linspace(-1.0, 1.0, self.n_cm_grid_points):
             row = self._kinematics_at_coscm(coscm)
@@ -337,7 +350,18 @@ class Reaction:
         self._bind(ek_mev)
         if self._nogo:
             raise ValueError(f"Reaction kinematically forbidden at beam_energy={ek_mev} MeV")
-        keys = ["cos_theta_cm", "theta_cm", "theta3_lab", "theta4_lab", "energy3_lab", "energy4_lab", "velocity3_lab", "velocity4_lab", "momentum3_lab", "momentum4_lab"]
+        keys = [
+            "cos_theta_cm",
+            "theta_cm",
+            "theta3_lab",
+            "theta4_lab",
+            "energy3_lab",
+            "energy4_lab",
+            "velocity3_lab",
+            "velocity4_lab",
+            "momentum3_lab",
+            "momentum4_lab",
+        ]
         rows = [
             self._kinematics_at_coscm(coscm)
             for coscm in np.linspace(-1.0, 1.0, self.n_cm_grid_points)
@@ -494,7 +518,15 @@ class Reaction:
             angle_unit = AngleUnit[angle_unit]
         theta_rad = theta3_lab * angle_unit.value
 
-        keys = ["energy3_lab", "energy4_lab", "theta4_lab", "velocity3_lab", "velocity4_lab", "momentum3_lab", "momentum4_lab"]
+        keys = [
+            "energy3_lab",
+            "energy4_lab",
+            "theta4_lab",
+            "velocity3_lab",
+            "velocity4_lab",
+            "momentum3_lab",
+            "momentum4_lab",
+        ]
         branches = [
             {"beam_energy_lab": [], **{k: [] for k in keys}},
             {"beam_energy_lab": [], **{k: [] for k in keys}},

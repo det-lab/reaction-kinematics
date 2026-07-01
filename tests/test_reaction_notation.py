@@ -31,6 +31,7 @@ def test_notation_kinematics_match():
     table_n = rxn_notation.kinematics_table_at_beam_energy(1.2)
     table_e = rxn_explicit.kinematics_table_at_beam_energy(1.2)
     import numpy as np
+
     for key in table_n:
         assert np.allclose(table_n[key], table_e[key])
 

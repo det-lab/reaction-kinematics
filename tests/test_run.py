@@ -31,9 +31,7 @@ def test_run_and_plot_example() -> None:
     theta4_arr = data["theta4_lab"]
     edge_angle = max(theta4_arr) - 1e-12
     for y in ("energy3_lab", "velocity3_lab", "momentum3_lab"):
-        vals = rxn.kinematics_at_beam_energy_and_angle(
-            1.2, "theta4_lab", edge_angle
-        )[y]
+        vals = rxn.kinematics_at_beam_energy_and_angle(1.2, "theta4_lab", edge_angle)[y]
         assert all(isinstance(v, float) for v in vals)
 
     # Plot energy vs angle without errors

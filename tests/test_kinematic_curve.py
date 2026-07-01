@@ -32,12 +32,19 @@ def parse_angle(path: Path) -> float:
 def test_kinematic_curve_return_structure():
     """kinematics_curve_at_angle returns a list of two dicts each with the expected keys."""
     beam_energy_array = np.linspace(1.5, 5.0, 20)
-    branches = Reaction("p", "3H", "n", "3He").kinematics_curve_at_angle(
-        beam_energy_array, 30
-    )
+    branches = Reaction("p", "3H", "n", "3He").kinematics_curve_at_angle(beam_energy_array, 30)
 
     assert len(branches) == 2
-    expected_keys = {"beam_energy_lab", "energy3_lab", "energy4_lab", "theta4_lab", "velocity3_lab", "velocity4_lab", "momentum3_lab", "momentum4_lab"}
+    expected_keys = {
+        "beam_energy_lab",
+        "energy3_lab",
+        "energy4_lab",
+        "theta4_lab",
+        "velocity3_lab",
+        "velocity4_lab",
+        "momentum3_lab",
+        "momentum4_lab",
+    }
     for b in branches:
         assert set(b.keys()) == expected_keys
         for v in b.values():
@@ -48,9 +55,7 @@ def test_kinematic_curve_single_valued():
     """3H(p,n)3He at 30° is single-valued over this energy range: branch 0 fully
     populated, branch 1 all NaN."""
     beam_energy_array = np.linspace(1.5, 5.0, 50)
-    branches = Reaction("p", "3H", "n", "3He").kinematics_curve_at_angle(
-        beam_energy_array, 30
-    )
+    branches = Reaction("p", "3H", "n", "3He").kinematics_curve_at_angle(beam_energy_array, 30)
 
     assert not np.any(np.isnan(branches[0]["energy3_lab"]))
     assert np.all(np.isnan(branches[1]["energy3_lab"]))
@@ -61,9 +66,7 @@ def test_kinematic_curve_two_valued():
     branches should be populated for most of the energy range."""
     # Two-valued regime for 12C(p,p)12C at 3° starts well below 50 MeV 12C beam energy.
     beam_energy_array = np.linspace(50.0, 200.0, 100)
-    branches = Reaction("12C", "p", "12C", "p").kinematics_curve_at_angle(
-        beam_energy_array, 3
-    )
+    branches = Reaction("12C", "p", "12C", "p").kinematics_curve_at_angle(beam_energy_array, 3)
 
     # Branch 0 should be fully populated
     assert not np.any(np.isnan(branches[0]["energy3_lab"]))
