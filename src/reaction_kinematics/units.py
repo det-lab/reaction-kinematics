@@ -6,6 +6,16 @@ import math
 from enum import Enum
 from typing import TypeVar
 
+import pint
+
+# The shared pint registry every Quantity this package produces is built from.
+# Using the application registry (rather than a package-private UnitRegistry())
+# is pint's recommended pattern for libraries: it keeps our Quantities
+# comparable/interoperable with whatever registry the calling application
+# (or other pint-using dependencies) is already using, instead of silently
+# creating a second, incompatible unit universe.
+ureg = pint.get_application_registry()
+
 T = TypeVar("T", bound="_UnitEnum")
 
 

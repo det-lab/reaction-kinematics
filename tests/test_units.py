@@ -9,7 +9,7 @@ import pytest
 
 from reaction_kinematics import Reaction
 from reaction_kinematics.inputs import EnergyValue, MassInput
-from reaction_kinematics.units import AngleUnit, EnergyUnit
+from reaction_kinematics.units import AngleUnit, EnergyUnit, ureg
 
 ENERGY_KEYS = ["energy3_lab", "energy4_lab", "momentum3_lab", "momentum4_lab"]
 DIMENSIONLESS_KEYS = [
@@ -84,16 +84,44 @@ def test_duplicate_tol_is_interpreted_in_energy_unit():
 
 def test_output_units_reflects_requested_units():
     default_units = Reaction.output_units()
-    assert default_units["theta3_lab"] == "deg"
-    assert default_units["energy3_lab"] == "MeV"
-    assert default_units["momentum3_lab"] == "MeV/c"
-    assert default_units["cos_theta_cm"] == "dimensionless"
-    assert default_units["velocity3_lab"] == "fraction of c"
+    assert default_units["theta3_lab"] == ureg.Unit("deg")
+    assert default_units["energy3_lab"] == ureg.Unit("MeV")
+    assert default_units["momentum3_lab"] == ureg.Unit("MeV/c")
+    assert default_units["cos_theta_cm"] == ureg.Unit("dimensionless")
+    assert default_units["velocity3_lab"] == ureg.Unit("dimensionless")
 
     custom_units = Reaction.output_units(angle_unit="rad", energy_unit="keV")
-    assert custom_units["theta3_lab"] == "rad"
-    assert custom_units["energy3_lab"] == "keV"
-    assert custom_units["momentum3_lab"] == "keV/c"
+    assert custom_units["theta3_lab"] == ureg.Unit("rad")
+    assert custom_units["energy3_lab"] == ureg.Unit("keV")
+    assert custom_units["momentum3_lab"] == ureg.Unit("keV/c")
+
+
+def test_kinematics_result_units_match_output_units_and_never_drift():
+    """The whole point of bundling .units with the data: they're built in the
+    same call from the same angle_unit/energy_unit, so they can't disagree."""
+    rxn = Reaction("p", "11B", "a", "8Be")
+    expected = Reaction.output_units(angle_unit=AngleUnit.rad, energy_unit=EnergyUnit.keV)
+
+    table = rxn.kinematics_table_at_beam_energy(
+        5400.0, angle_unit=AngleUnit.rad, energy_unit=EnergyUnit.keV
+    )
+    for key in table:
+        assert table.units[key] == expected[key]
+
+    result = rxn.kinematics_at_beam_energy_and_angle(
+        5400.0, "theta3_lab", 0.28, angle_unit=AngleUnit.rad, energy_unit=EnergyUnit.keV
+    )
+    for key in result:
+        assert result.units[key] == expected[key]
+
+    branches = rxn.kinematics_curve_at_angle(
+        np.linspace(4000.0, 6000.0, 5),
+        0.28,
+        angle_unit=AngleUnit.rad,
+        energy_unit=EnergyUnit.keV,
+    )
+    for key in branches[0]:
+        assert branches[0].units[key] == expected[key]
 
 
 @pytest.mark.parametrize(

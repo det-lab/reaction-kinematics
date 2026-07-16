@@ -6,6 +6,8 @@ Created on Fri Dec 26 13:02:45 2025
 """
 
 # Smoke-test example and plotting in a pytest function
+from collections.abc import Mapping
+
 import matplotlib
 
 matplotlib.use("Agg")
@@ -23,7 +25,7 @@ def test_run_and_plot_example() -> None:
 
     # Basic interpolation at a fixed variable value
     result = rxn.kinematics_at_beam_energy_and_angle(1.2, "theta_cm", 46)
-    assert isinstance(result, dict)
+    assert isinstance(result, Mapping)
     assert "theta_cm" in result  # theta_cm key name is unchanged
     assert all(isinstance(v, float) for values in result.values() for v in values)
 

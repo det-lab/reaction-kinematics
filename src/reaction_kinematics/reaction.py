@@ -4,13 +4,17 @@ Relativistic two-body reaction kinematics
 
 import math
 import re
-from collections.abc import Iterable
+from collections.abc import Iterable, Iterator, Mapping
+from typing import TypeVar
 
 import numpy as np
 import numpy.typing as npt
+import pint
 
 from reaction_kinematics.inputs import MassInput
-from reaction_kinematics.units import AngleUnit, EnergyUnit
+from reaction_kinematics.units import AngleUnit, EnergyUnit, ureg
+
+_V = TypeVar("_V")
 
 MassArg = str | int | float | MassInput
 
@@ -18,9 +22,64 @@ MassArg = str | int | float | MassInput
 # or energy-valued (scaled by energy_unit) on output. Everything else
 # (cos_theta_cm, velocityN_lab, jacobianN_lab) is dimensionless.
 _ANGLE_KEYS = frozenset({"theta_cm", "theta3_lab", "theta4_lab"})
-_ENERGY_KEYS = frozenset(
-    {"energy3_lab", "energy4_lab", "momentum3_lab", "momentum4_lab", "beam_energy_lab"}
+_MOMENTUM_KEYS = frozenset({"momentum3_lab", "momentum4_lab"})
+_ENERGY_KEYS = frozenset({"energy3_lab", "energy4_lab", "beam_energy_lab"}) | _MOMENTUM_KEYS
+
+# Every key that can appear in a dict returned by kinematics_table_at_beam_energy,
+# kinematics_at_beam_energy_and_angle, or kinematics_curve_at_angle.
+_ALL_RESULT_KEYS = (
+    _ANGLE_KEYS
+    | _ENERGY_KEYS
+    | frozenset(
+        {"cos_theta_cm", "velocity3_lab", "velocity4_lab", "jacobian3_lab", "jacobian4_lab"}
+    )
 )
+
+
+def _result_unit(key: str, angle_unit: AngleUnit, energy_unit: EnergyUnit) -> pint.Unit:
+    """The pint Unit for a kinematics result key, e.g. Unit('MeV/c') for momentum."""
+    if key in _ANGLE_KEYS:
+        return ureg.Unit(angle_unit.name)
+    if key in _MOMENTUM_KEYS:
+        return ureg.Unit(f"{energy_unit.name}/c")
+    if key in _ENERGY_KEYS:
+        return ureg.Unit(energy_unit.name)
+    return ureg.Unit("dimensionless")
+
+
+def _result_units(
+    keys: Iterable[str], angle_unit: AngleUnit, energy_unit: EnergyUnit
+) -> dict[str, pint.Unit]:
+    return {k: _result_unit(k, angle_unit, energy_unit) for k in keys}
+
+
+class KinematicsResult(Mapping[str, _V]):
+    """
+    A read-only, dict-like kinematics result: ``result["theta3_lab"]`` works
+    exactly like a plain dict of arrays/lists, plus a ``.units`` dict (str ->
+    ``pint.Unit``) giving the unit of each key.
+
+    Values are plain numbers/arrays, not pint.Quantity — they work unmodified
+    with numpy, matplotlib, pandas, etc. Check ``.units[key]`` when you need to
+    know or convert the unit; wrap a value yourself (``ureg.Quantity(result[key],
+    result.units[key])``) if you want pint-native arithmetic for a specific step.
+    """
+
+    def __init__(self, data: dict[str, _V], units: dict[str, pint.Unit]) -> None:
+        self._data = data
+        self.units = units
+
+    def __getitem__(self, key: str) -> _V:
+        return self._data[key]
+
+    def __iter__(self) -> Iterator[str]:
+        return iter(self._data)
+
+    def __len__(self) -> int:
+        return len(self._data)
+
+    def __repr__(self) -> str:
+        return f"{type(self).__name__}({self._data!r}, units={self.units!r})"
 
 
 def _parse_mass(m: MassArg, unit: str | EnergyUnit | None = None) -> float:
@@ -66,12 +125,16 @@ class Reaction:
     All energy-dependent methods accept a ``beam_energy`` parameter (beam kinetic
     energy, MeV by default) and an ``energy_unit`` keyword that governs both that
     input and every energy- and momentum-valued output; likewise ``angle_value``/
-    ``angle_unit`` govern every angle-valued input and output. Nothing is ever
-    silently returned in a different unit than the one you asked for. Call
-    ``Reaction.output_units(angle_unit=..., energy_unit=...)`` to get an explicit
-    ``{key: unit_label}`` map for a given unit choice, or see the ``Returns``
-    section of each method below. Internal computation is cached per energy so
-    repeated calls at the same energy are efficient.
+    ``angle_unit`` govern every angle-valued input and output.
+
+    The three ``kinematics_*`` methods below return a ``KinematicsResult``: a
+    read-only, dict-like object (``result["theta3_lab"]`` works like a plain
+    dict of arrays/lists) with a ``.units`` dict (str -> ``pint.Unit``) giving
+    the unit of each key. ``Reaction.output_units(angle_unit=..., energy_unit=...)``
+    gives that same ``{key: pint.Unit}`` mapping without needing to run a
+    computation first. See the ``Returns`` section of each method below for
+    per-key detail. Internal computation is cached per energy so repeated
+    calls at the same energy are efficient.
 
     Parameters
     ----------
@@ -365,9 +428,13 @@ class Reaction:
         *,
         angle_unit: AngleUnit = AngleUnit.deg,
         energy_unit: EnergyUnit = EnergyUnit.MeV,
-    ) -> dict[str, npt.NDArray[np.float64]]:
+    ) -> KinematicsResult[npt.NDArray[np.float64]]:
         """
         Compute full kinematics over a CM angle grid.
+
+        Values are plain arrays (work unmodified with numpy/matplotlib/etc.).
+        The returned ``KinematicsResult`` also carries a ``.units`` dict (str ->
+        ``pint.Unit``) giving the unit of each key.
 
         Parameters
         ----------
@@ -385,7 +452,7 @@ class Reaction:
 
         Returns
         -------
-        dict[str, np.ndarray]
+        KinematicsResult[np.ndarray]
             ``"cos_theta_cm"`` : dimensionless, in [-1, 1].
             ``"theta_cm"``, ``"theta3_lab"``, ``"theta4_lab"`` : ``angle_unit``
             (default degrees).
@@ -399,8 +466,9 @@ class Reaction:
             converts a lab-frame differential cross section to the cm-frame one:
             ``dsigma/dOmega_cm = dsigma/dOmegaN_lab * jacobianN_lab``.
 
-            Call ``Reaction.output_units(angle_unit=..., energy_unit=...)`` with the
-            same arguments to get this same mapping as a ``{key: unit_label}`` dict.
+            ``result.units`` carries this same mapping as ``{key: pint.Unit}``.
+            ``Reaction.output_units(angle_unit=..., energy_unit=...)`` gives the
+            same thing without needing to run a computation first.
 
         Raises
         ------
@@ -437,7 +505,7 @@ class Reaction:
                 result[k] = result[k] / angle_unit.value
             elif k in _ENERGY_KEYS:
                 result[k] = result[k] / energy_unit.value
-        return result
+        return KinematicsResult(result, _result_units(keys, angle_unit, energy_unit))
 
     def kinematics_at_beam_energy_and_angle(
         self,
@@ -448,12 +516,14 @@ class Reaction:
         angle_unit: AngleUnit = AngleUnit.deg,
         energy_unit: EnergyUnit = EnergyUnit.MeV,
         duplicate_tol: float = 1e-6,
-    ) -> dict[str, list[float]]:
+    ) -> KinematicsResult[list[float]]:
         """
         Interpolate kinematic quantities at a fixed beam energy and kinematic variable value.
 
         Always returns lists to handle multi-valued cases (e.g. two ejectile
-        energies at the same lab angle).
+        energies at the same lab angle). Values are plain lists (work unmodified
+        with numpy/pandas/etc.). The returned ``KinematicsResult`` also carries a
+        ``.units`` dict (str -> ``pint.Unit``) giving the unit of each key.
 
         Parameters
         ----------
@@ -479,11 +549,12 @@ class Reaction:
 
         Returns
         -------
-        dict of str -> list
-            Full dict of all kinematic variables, each a list of solutions
-            sorted descending by ``energy3_lab``. See ``Reaction.output_units()``
-            for the unit of each key (angle keys in ``angle_unit``, energy and
-            momentum keys in ``energy_unit``, both default degrees/MeV).
+        KinematicsResult[list[float]]
+            Full dict of all kinematic variables, each a list of solutions sorted
+            descending by ``energy3_lab``. Angle keys are in ``angle_unit``, energy
+            and momentum keys in ``energy_unit`` (both default degrees/MeV) — see
+            ``Reaction.output_units()`` for the full mapping, or just read
+            ``.units[key]`` off the returned result directly.
 
         Raises
         ------
@@ -500,6 +571,28 @@ class Reaction:
         """
         angle_unit = AngleUnit.from_any(angle_unit)
         energy_unit = EnergyUnit.from_any(energy_unit)
+        output = self._kinematics_at_beam_energy_and_angle_raw(
+            beam_energy,
+            angle_name,
+            angle_value,
+            angle_unit=angle_unit,
+            energy_unit=energy_unit,
+            duplicate_tol=duplicate_tol,
+        )
+        return KinematicsResult(output, _result_units(output.keys(), angle_unit, energy_unit))
+
+    def _kinematics_at_beam_energy_and_angle_raw(
+        self,
+        beam_energy: float,
+        angle_name: str,
+        angle_value: float,
+        *,
+        angle_unit: AngleUnit,
+        energy_unit: EnergyUnit,
+        duplicate_tol: float,
+    ) -> dict[str, list[float]]:
+        """Plain-float core of kinematics_at_beam_energy_and_angle, reused internally
+        by kinematics_curve_at_angle."""
         # Keep the value/unit as the caller wrote it for error messages — the
         # internal, canonical-radians angle_value below is not what they typed.
         is_angle = angle_name.startswith("theta")
@@ -569,14 +662,16 @@ class Reaction:
         *,
         angle_unit: AngleUnit = AngleUnit.deg,
         energy_unit: EnergyUnit = EnergyUnit.MeV,
-    ) -> list[dict[str, npt.NDArray[np.float64]]]:
+    ) -> list[KinematicsResult[npt.NDArray[np.float64]]]:
         """
         Compute ejectile kinematics at a fixed ejectile lab angle (``theta3_lab``)
         over a range of beam energies.
 
-        Returns two branches (high- and low-energy) as a list of two dicts. Each
-        dict contains arrays indexed by beam energy, with ``NaN`` where that branch
-        does not exist. Branch 0 is always the higher-energy solution.
+        Returns two branches (high- and low-energy) as a list of two
+        ``KinematicsResult``s. Each contains plain arrays indexed by beam energy,
+        with ``NaN`` where that branch does not exist, plus a ``.units`` dict
+        (str -> ``pint.Unit``) computed from the same ``angle_unit``/``energy_unit``
+        as the data. Branch 0 is always the higher-energy solution.
 
         Parameters
         ----------
@@ -595,12 +690,13 @@ class Reaction:
 
         Returns
         -------
-        list of two dicts, each with keys:
-            ``"beam_energy_lab"``, ``"energy3_lab"``, ``"energy4_lab"``, ``"theta4_lab"``,
-            ``"velocity3_lab"``, ``"velocity4_lab"``, ``"momentum3_lab"``, ``"momentum4_lab"``,
-            ``"jacobian3_lab"``, ``"jacobian4_lab"``. See ``Reaction.output_units()``
-            for the unit of each key (angle keys in ``angle_unit``, energy and
-            momentum keys in ``energy_unit``, both default degrees/MeV).
+        list[KinematicsResult[np.ndarray]]
+            List of two results, each with keys ``"beam_energy_lab"``, ``"energy3_lab"``,
+            ``"energy4_lab"``, ``"theta4_lab"``, ``"velocity3_lab"``, ``"velocity4_lab"``,
+            ``"momentum3_lab"``, ``"momentum4_lab"``, ``"jacobian3_lab"``, ``"jacobian4_lab"``.
+            Angle keys are in ``angle_unit``, energy and momentum keys in
+            ``energy_unit`` (both default degrees/MeV) — see ``Reaction.output_units()``
+            for the full mapping, or just read ``.units[key]`` off either result.
 
         Examples
         --------
@@ -632,8 +728,13 @@ class Reaction:
         for ek in beam_energy_array:
             ek_mev = _parse_energy(ek, energy_unit)
             try:
-                row = self.kinematics_at_beam_energy_and_angle(
-                    ek_mev, "theta3_lab", theta_rad, angle_unit=AngleUnit.rad
+                row = self._kinematics_at_beam_energy_and_angle_raw(
+                    ek_mev,
+                    "theta3_lab",
+                    theta_rad,
+                    angle_unit=AngleUnit.rad,
+                    energy_unit=EnergyUnit.MeV,
+                    duplicate_tol=1e-6,
                 )
             except ValueError:
                 solutions = []
@@ -657,7 +758,11 @@ class Reaction:
                 elif k in _ENERGY_KEYS:
                     arr = arr / energy_unit.value
                 converted[k] = arr
-            result.append(converted)
+            result.append(
+                KinematicsResult(
+                    converted, _result_units(converted.keys(), angle_unit, energy_unit)
+                )
+            )
         return result
 
     @staticmethod
@@ -665,40 +770,31 @@ class Reaction:
         *,
         angle_unit: AngleUnit | str = AngleUnit.deg,
         energy_unit: EnergyUnit | str = EnergyUnit.MeV,
-    ) -> dict[str, str]:
+    ) -> dict[str, pint.Unit]:
         """
-        Human-readable unit label for every key that can appear in the dicts
-        returned by ``kinematics_table_at_beam_energy``,
-        ``kinematics_at_beam_energy_and_angle``, and ``kinematics_curve_at_angle``.
+        The ``pint.Unit`` for every key that can appear in the dicts returned by
+        ``kinematics_table_at_beam_energy``, ``kinematics_at_beam_energy_and_angle``,
+        and ``kinematics_curve_at_angle`` — the same mapping each of those methods
+        attaches as ``result.units``, available here without running a computation
+        first.
 
-        Pass the same ``angle_unit``/``energy_unit`` you passed to one of those
-        methods to get a matching ``{key: unit_label}`` map — not every key appears
+        Pass the same ``angle_unit``/``energy_unit`` you'd pass to one of those
+        methods to get a matching ``{key: pint.Unit}`` map — not every key appears
         in every method's output, so look up only the keys actually present in the
-        dict you're inspecting.
+        result you're inspecting. ``velocity3_lab``/``velocity4_lab`` (fraction of
+        the speed of light) and ``jacobian3_lab``/``jacobian4_lab`` (ratio of solid
+        angles, dOmega_lab/dOmega_cm) are both genuinely dimensionless, not just
+        unlabeled.
 
         Examples
         --------
-        >>> Reaction.output_units()["theta3_lab"]
-        'deg'
-        >>> Reaction.output_units(energy_unit="keV")["momentum3_lab"]
-        'keV/c'
+        >>> str(Reaction.output_units()["theta3_lab"])
+        'degree'
+        >>> f"{Reaction.output_units(energy_unit='keV')['momentum3_lab']:~}"
+        'keV / c'
         """
         angle_unit = AngleUnit.from_any(angle_unit)
         energy_unit = EnergyUnit.from_any(energy_unit)
-        angle_label = angle_unit.name
-        energy_label = energy_unit.name
-        return {
-            "cos_theta_cm": "dimensionless",
-            "theta_cm": angle_label,
-            "theta3_lab": angle_label,
-            "theta4_lab": angle_label,
-            "energy3_lab": energy_label,
-            "energy4_lab": energy_label,
-            "beam_energy_lab": energy_label,
-            "velocity3_lab": "fraction of c",
-            "velocity4_lab": "fraction of c",
-            "momentum3_lab": f"{energy_label}/c",
-            "momentum4_lab": f"{energy_label}/c",
-            "jacobian3_lab": "dimensionless (dOmega_lab/dOmega_cm)",
-            "jacobian4_lab": "dimensionless (dOmega_lab/dOmega_cm)",
-        }
+        # Built from the same _result_unit used to actually tag KinematicsResult.units,
+        # so this preview can't drift out of sync with real results.
+        return _result_units(_ALL_RESULT_KEYS, angle_unit, energy_unit)
