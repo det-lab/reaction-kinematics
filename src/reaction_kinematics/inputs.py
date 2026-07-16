@@ -2,6 +2,8 @@
 User input containers
 """
 
+import math
+
 from .constants import AMU
 from .mass import get_mass
 from .units import EnergyUnit
@@ -19,6 +21,8 @@ class MassInput:
             self.mass = float(value) * AMU
         else:
             raise ValueError(f"Invalid mass unit: {unit}")
+        if not math.isfinite(self.mass):
+            raise ValueError(f"mass={self.mass} is not a finite number")
 
 
 class EnergyValue:
@@ -27,3 +31,5 @@ class EnergyValue:
     def __init__(self, value: float, unit: EnergyUnit | str = EnergyUnit.MeV) -> None:
         unit = EnergyUnit.from_any(unit)
         self.value = float(value) * unit.value
+        if not math.isfinite(self.value):
+            raise ValueError(f"value={self.value} is not a finite number")

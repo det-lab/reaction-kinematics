@@ -23,9 +23,11 @@ def _parse_mass(m: MassArg, unit: str | EnergyUnit | None = None) -> float:
     if isinstance(m, (int, float)):
         if unit is None:
             raise ValueError("Numeric mass provided without mass_unit")
-        if isinstance(unit, str):
-            unit = EnergyUnit[unit]
-        return m * unit.value
+        unit = EnergyUnit.from_any(unit)
+        mass = m * unit.value
+        if not math.isfinite(mass):
+            raise ValueError(f"mass={mass} is not a finite number")
+        return mass
     raise TypeError(f"Unsupported mass input type: {type(m)}")
 
 
@@ -42,9 +44,11 @@ def _parse_reaction_notation(notation: str) -> tuple[str, str, str, str]:
 
 
 def _parse_energy(ek: float, energy_unit: EnergyUnit) -> float:
-    if isinstance(energy_unit, str):
-        energy_unit = EnergyUnit[energy_unit]
-    return float(ek) * energy_unit.value
+    energy_unit = EnergyUnit.from_any(energy_unit)
+    ek_mev = float(ek) * energy_unit.value
+    if not math.isfinite(ek_mev):
+        raise ValueError(f"beam_energy={ek_mev} is not a finite number")
+    return ek_mev
 
 
 class Reaction:
@@ -344,8 +348,7 @@ class Reaction:
         ValueError
             If the reaction is kinematically forbidden at this energy.
         """
-        if isinstance(angle_unit, str):
-            angle_unit = AngleUnit[angle_unit]
+        angle_unit = AngleUnit.from_any(angle_unit)
         ek_mev = _parse_energy(beam_energy, energy_unit)
         self._bind(ek_mev)
         if self._nogo:
@@ -416,7 +419,9 @@ class Reaction:
         Raises
         ------
         ValueError
-            If ``angle_value`` is outside the physical range.
+            If ``beam_energy`` or ``angle_value`` is not finite, if the reaction is
+            kinematically forbidden at this energy, or if ``angle_value`` is outside
+            the physical range.
 
         Examples
         --------
@@ -424,13 +429,17 @@ class Reaction:
         >>> rxn.kinematics_at_beam_energy_and_angle(1.2, "theta3_lab", 30)
         {'theta3_lab': [...], 'energy3_lab': [...], ...}
         """
-        if isinstance(angle_unit, str):
-            angle_unit = AngleUnit[angle_unit]
+        angle_unit = AngleUnit.from_any(angle_unit)
         if angle_name.startswith("theta"):
             angle_value = angle_value * angle_unit.value
 
+        if not math.isfinite(angle_value):
+            raise ValueError(f"{angle_name}={angle_value} is not a finite number")
+
         ek_mev = _parse_energy(beam_energy, energy_unit)
         self._bind(ek_mev)
+        if self._nogo:
+            raise ValueError(f"Reaction kinematically forbidden at beam_energy={ek_mev} MeV")
 
         if self._table is None:
             self._build_table()
@@ -514,8 +523,7 @@ class Reaction:
         >>> for b in branches:
         ...     plt.plot(b["beam_energy_lab"], b["energy3_lab"])
         """
-        if isinstance(angle_unit, str):
-            angle_unit = AngleUnit[angle_unit]
+        angle_unit = AngleUnit.from_any(angle_unit)
         theta_rad = theta3_lab * angle_unit.value
 
         keys = [
