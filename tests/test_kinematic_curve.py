@@ -44,6 +44,8 @@ def test_kinematic_curve_return_structure():
         "velocity4_lab",
         "momentum3_lab",
         "momentum4_lab",
+        "jacobian3_lab",
+        "jacobian4_lab",
     }
     for b in branches:
         assert set(b.keys()) == expected_keys

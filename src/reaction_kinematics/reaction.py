@@ -285,6 +285,26 @@ class Reaction:
         e3 = self._e03 * self._thecosh + coscm * self._pcmp * self._thesinh - self._m3
         e4 = self._e04 * self._thecosh - coscm * self._pcmp * self._thesinh - self._m4
 
+        # dOmega_lab/dOmega_cm for each ejectile, i.e. the factor that converts a
+        # lab-frame differential cross section to the cm-frame one:
+        # dsigma/dOmega_cm = dsigma/dOmega_lab * jacobianN_lab
+        #
+        # Both are d(cos_theta_lab)/d(coscm), coscm being cos_theta_cm of particle 3.
+        # ppar4's sign convention (see above) flips the sign of the thecosh term
+        # relative to particle 3's formula.
+        if ptot3 > 0:
+            jacobian3_lab = (self._pcmp**2 / ptot3**2) * (
+                coscm * ppar3 / ptot3 + sincm * pperp3 * self._thecosh / ptot3
+            )
+        else:
+            jacobian3_lab = math.nan
+        if ptot4 > 0:
+            jacobian4_lab = (self._pcmp**2 / ptot4**2) * (
+                coscm * ppar4 / ptot4 - sincm * pperp4 * self._thecosh / ptot4
+            )
+        else:
+            jacobian4_lab = math.nan
+
         return {
             "cos_theta_cm": coscm,
             "theta_cm": math.acos(coscm),
@@ -296,6 +316,8 @@ class Reaction:
             "velocity4_lab": ptot4 / (e4 + self._m4),
             "momentum3_lab": ptot3,
             "momentum4_lab": ptot4,
+            "jacobian3_lab": jacobian3_lab,
+            "jacobian4_lab": jacobian4_lab,
         }
 
     def _build_table(self) -> None:
@@ -311,6 +333,8 @@ class Reaction:
             "velocity4_lab",
             "momentum3_lab",
             "momentum4_lab",
+            "jacobian3_lab",
+            "jacobian4_lab",
         ]
         table: dict[str, list[float]] = {k: [] for k in keys}
         for coscm in np.linspace(-1.0, 1.0, self.n_cm_grid_points):
@@ -344,8 +368,11 @@ class Reaction:
         dict[str, np.ndarray]
             Keys: ``"cos_theta_cm"``, ``"theta_cm"``, ``"theta3_lab"``, ``"theta4_lab"``,
             ``"energy3_lab"``, ``"energy4_lab"``, ``"velocity3_lab"``, ``"velocity4_lab"``,
-            ``"momentum3_lab"``, ``"momentum4_lab"``. Angle keys are in ``angle_unit``
-            (default degrees).
+            ``"momentum3_lab"``, ``"momentum4_lab"``, ``"jacobian3_lab"``,
+            ``"jacobian4_lab"``. Angle keys are in ``angle_unit`` (default degrees).
+            ``jacobianN_lab`` is ``dOmegaN_lab/dOmega_cm``, i.e. the factor that
+            converts a lab-frame differential cross section to the cm-frame one:
+            ``dsigma/dOmega_cm = dsigma/dOmegaN_lab * jacobianN_lab``.
 
         Raises
         ------
@@ -368,6 +395,8 @@ class Reaction:
             "velocity4_lab",
             "momentum3_lab",
             "momentum4_lab",
+            "jacobian3_lab",
+            "jacobian4_lab",
         ]
         rows = [
             self._kinematics_at_coscm(coscm)
@@ -517,7 +546,8 @@ class Reaction:
         -------
         list of two dicts, each with keys:
             ``"beam_energy_lab"``, ``"energy3_lab"``, ``"energy4_lab"``, ``"theta4_lab"``,
-            ``"velocity3_lab"``, ``"velocity4_lab"``, ``"momentum3_lab"``, ``"momentum4_lab"``.
+            ``"velocity3_lab"``, ``"velocity4_lab"``, ``"momentum3_lab"``, ``"momentum4_lab"``,
+            ``"jacobian3_lab"``, ``"jacobian4_lab"``.
             ``theta4_lab`` is in ``angle_unit`` (default degrees).
 
         Examples
@@ -538,6 +568,8 @@ class Reaction:
             "velocity4_lab",
             "momentum3_lab",
             "momentum4_lab",
+            "jacobian3_lab",
+            "jacobian4_lab",
         ]
         branches = [
             {"beam_energy_lab": [], **{k: [] for k in keys}},
