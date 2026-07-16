@@ -22,7 +22,7 @@ class MassInput:
         else:
             raise ValueError(f"Invalid mass unit: {unit}")
         if not math.isfinite(self.mass):
-            raise ValueError(f"mass={self.mass} is not a finite number")
+            raise ValueError(f"mass={value} {unit} is not a finite number")
 
 
 class EnergyValue:
@@ -32,4 +32,4 @@ class EnergyValue:
         unit = EnergyUnit.from_any(unit)
         self.value = float(value) * unit.value
         if not math.isfinite(self.value):
-            raise ValueError(f"value={self.value} is not a finite number")
+            raise ValueError(f"value={value} {unit.name} is not a finite number")
