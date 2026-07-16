@@ -454,17 +454,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#kinematic-curves-at-fixed-lab-angle" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -708,17 +697,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#kinematic-curves-at-fixed-lab-angle" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -760,14 +738,18 @@ rxn = Reaction(&quot;p&quot;, &quot;3H&quot;, &quot;n&quot;, &quot;3He&quot;)
 data = rxn.kinematics_table_at_beam_energy(1.2)
 
 plt.plot(data[&quot;theta4_lab&quot;], data[&quot;energy3_lab&quot;])
-plt.xlabel(&quot;Recoil Angle θ₄ (deg)&quot;)
-plt.ylabel(&quot;Ejectile Energy E₃ (MeV)&quot;)
+plt.xlabel(f&quot;Recoil Angle θ₄ ({data.units['theta4_lab']:~})&quot;)
+plt.ylabel(f&quot;Ejectile Energy E₃ ({data.units['energy3_lab']:~})&quot;)
 plt.title(&quot;E₃ vs θ₄&quot;)
 plt.grid(True)
 plt.show()
 </code></pre>
 <p>It should return a graph like this: </p>
-<h2 id="_1"><img alt="e3_v_theta_graph.png" src="../figures/e3_v_theta_graph.png" /></h2>
+<p><img alt="e3_v_theta_graph.png" src="../figures/e3_v_theta_graph.png" /></p>
+<p>The axis labels are built from <code>data.units[...]</code> (<code>~</code> gives the short form,
+e.g. <code>"MeV"</code> instead of <code>"megaelectron_volt"</code>), so they stay correct if you
+change <code>angle_unit</code>/<code>energy_unit</code>.</p>
+<hr />
 <h2 id="kinematic-curves-at-fixed-lab-angle">Kinematic Curves at Fixed Lab Angle</h2>
 <p><code>kinematics_curve_at_angle</code> sweeps over a range of beam energies at a fixed
 ejectile lab angle (<code>theta3_lab</code>), returning ejectile kinematics for both solution branches.</p>
@@ -784,8 +766,8 @@ branches = rxn.kinematics_curve_at_angle(beam_energy_array, theta3_lab)
 for branch in branches:
     plt.plot(branch[&quot;beam_energy_lab&quot;], branch[&quot;energy3_lab&quot;])
 
-plt.xlabel(&quot;Proton beam energy $E_p$ (MeV)&quot;)
-plt.ylabel(&quot;Neutron energy $E_n$ (MeV)&quot;)
+plt.xlabel(f&quot;Proton beam energy $E_p$ ({branches[0].units['beam_energy_lab']:~})&quot;)
+plt.ylabel(f&quot;Neutron energy $E_n$ ({branches[0].units['energy3_lab']:~})&quot;)
 plt.show()
 </code></pre>
 <p>Each call returns a list of <strong>two <code>KinematicsResult</code>s</strong> (branch 0 = high-energy
