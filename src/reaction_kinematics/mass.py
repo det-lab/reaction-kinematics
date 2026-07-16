@@ -43,7 +43,7 @@ def get_mass(isotope: str) -> float:
     try:
         entry = MTAB[(A, el)]
     except KeyError as err:
-        raise KeyError(f"Isotope not found: {A}{el}") from err
+        raise ValueError(f"Isotope not found: {A}{el}") from err
 
     mass_excess = entry["mexcess"] * 1e-3  # keV → MeV
     return A * AMU + mass_excess - entry["Z"] * EMASS

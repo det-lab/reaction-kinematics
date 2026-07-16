@@ -141,6 +141,10 @@ class Reaction:
 
     @n_cm_grid_points.setter
     def n_cm_grid_points(self, val: int) -> None:
+        if not isinstance(val, int):
+            raise TypeError(f"n_cm_grid_points must be an int, got {type(val).__name__}")
+        if val < 2:
+            raise ValueError(f"n_cm_grid_points={val} must be at least 2")
         self.__n_cm_grid_points = val
         self._cached_ek = None
         self._table = None
