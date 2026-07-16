@@ -14,15 +14,21 @@ rxn = Reaction("p", "3H", "n", "3He")
 data = rxn.kinematics_table_at_beam_energy(1.2)
 
 plt.plot(data["theta4_lab"], data["energy3_lab"])
-plt.xlabel("Recoil Angle θ₄ (deg)")
-plt.ylabel("Ejectile Energy E₃ (MeV)")
+plt.xlabel(f"Recoil Angle θ₄ ({data.units['theta4_lab']:~})")
+plt.ylabel(f"Ejectile Energy E₃ ({data.units['energy3_lab']:~})")
 plt.title("E₃ vs θ₄")
 plt.grid(True)
 plt.show()
 ```
+
 It should return a graph like this: 
 
 ![e3_v_theta_graph.png](figures/e3_v_theta_graph.png)
+
+The axis labels are built from `data.units[...]` (`~` gives the short form,
+e.g. `"MeV"` instead of `"megaelectron_volt"`), so they stay correct if you
+change `angle_unit`/`energy_unit`.
+
 ---
 
 ## Kinematic Curves at Fixed Lab Angle
@@ -44,8 +50,8 @@ branches = rxn.kinematics_curve_at_angle(beam_energy_array, theta3_lab)
 for branch in branches:
     plt.plot(branch["beam_energy_lab"], branch["energy3_lab"])
 
-plt.xlabel("Proton beam energy $E_p$ (MeV)")
-plt.ylabel("Neutron energy $E_n$ (MeV)")
+plt.xlabel(f"Proton beam energy $E_p$ ({branches[0].units['beam_energy_lab']:~})")
+plt.ylabel(f"Neutron energy $E_n$ ({branches[0].units['energy3_lab']:~})")
 plt.show()
 ```
 
