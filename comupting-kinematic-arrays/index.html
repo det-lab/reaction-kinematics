@@ -682,10 +682,14 @@ data = rxn.kinematics_table_at_beam_energy(1.2)
 print(data[&quot;theta4_lab&quot;])
 print(data[&quot;energy3_lab&quot;])
 </code></pre>
-<p>The <code>energy_unit</code> parameter accepts <code>"keV"</code>, <code>"MeV"</code> (default), <code>"GeV"</code>, or <code>"TeV"</code>:</p>
+<p>The <code>energy_unit</code> parameter accepts <code>"keV"</code>, <code>"MeV"</code> (default), <code>"GeV"</code>, or <code>"TeV"</code>.
+It governs <code>energy3_lab</code>, <code>energy4_lab</code>, <code>momentum3_lab</code>, and <code>momentum4_lab</code> in
+the returned result too, not just the input beam energy:</p>
 <pre><code class="language-python">data = rxn.kinematics_table_at_beam_energy(1200, energy_unit=&quot;keV&quot;)  # equivalent to 1.2 MeV
+# energy3_lab, energy4_lab, momentum3_lab, momentum4_lab are all in keV here
 </code></pre>
-<p>This will return a dictionary containing the following:</p>
+<p>This will return a <code>KinematicsResult</code> (behaves like a dict: <code>data["energy3_lab"]</code>)
+containing the following:</p>
 <ul>
 <li><code>cos_theta_cm</code>   : cos(θ_CM)</li>
 <li><code>theta_cm</code>       : CM angle (deg)</li>
@@ -697,7 +701,10 @@ print(data[&quot;energy3_lab&quot;])
 <li><code>velocity4_lab</code>  : Recoil velocity (unitless, reported as a fraction of c)</li>
 <li><code>momentum3_lab</code>  : Ejectile momentum (MeV/c)</li>
 <li><code>momentum4_lab</code>  : Recoil momentum (MeV/c)</li>
+<li><code>jacobian3_lab</code>  : dΩ₃(lab)/dΩ(cm), converts a lab-frame differential cross section to the cm frame</li>
+<li><code>jacobian4_lab</code>  : dΩ₄(lab)/dΩ(cm), converts a lab-frame differential cross section to the cm frame</li>
 </ul>
+<p>Each key's unit: <code>data.units["energy3_lab"]</code>, or <code>Reaction.output_units(energy_unit="keV")</code> for a preview without running a computation.</p>
 
 
 

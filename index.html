@@ -846,11 +846,23 @@ rxn = Reaction(&quot;p&quot;, &quot;3H&quot;, &quot;n&quot;, &quot;3He&quot;)
 <li>Velocities are given as fractions of c</li>
 <li>Angles are in degrees by default — supported units: <code>deg</code>, <code>rad</code>, <code>mrad</code></li>
 </ul>
+<p><code>energy_unit</code> governs every energy- and momentum-valued <em>output</em> as well as the
+energy input — e.g. <code>energy_unit="keV"</code> returns <code>energy3_lab</code>/<code>momentum3_lab</code>/etc.
+in keV, not just interprets the input beam energy as keV. <code>angle_unit</code> works
+the same way for angle-valued outputs.</p>
+<p>Every kinematics method below returns a <code>KinematicsResult</code>: it behaves like a
+plain dict (<code>result["theta3_lab"]</code>), and also carries a <code>.units</code> dict giving
+the <a href="https://pint.readthedocs.io/">pint</a> <code>Unit</code> of each key:</p>
+<pre><code class="language-python">data = rxn.kinematics_table_at_beam_energy(4000.0, energy_unit=&quot;keV&quot;)  # 4 MeV
+data.units[&quot;energy3_lab&quot;]  # Unit('kiloelectron_volt')
+</code></pre>
+<p><code>Reaction.output_units(angle_unit=..., energy_unit=...)</code> gives that same
+mapping without running a computation first.</p>
 <h3 id="compute-arrays">Compute Arrays</h3>
 <p>To generate arrays of kinematic quantities over all center-of-mass angles, use <code>kinematics_table_at_beam_energy(beam_energy)</code>.  The units for <code>beam_energy</code> are MeV by default but can be specified by the user using the <code>energy_unit</code> keyword.</p>
 <pre><code class="language-python">data = rxn.kinematics_table_at_beam_energy(4.0)
 </code></pre>
-<p>This will return a dictionary containing the following:</p>
+<p>This will return a <code>KinematicsResult</code> containing the following:</p>
 <ul>
 <li><code>cos_theta_cm</code>  : cos(θ_CM)</li>
 <li><code>theta_cm</code>      : CM angle (deg)</li>
@@ -862,6 +874,8 @@ rxn = Reaction(&quot;p&quot;, &quot;3H&quot;, &quot;n&quot;, &quot;3He&quot;)
 <li><code>velocity4_lab</code> : Recoil velocity (unitless, reported as a fraction of c)</li>
 <li><code>momentum3_lab</code> : Ejectile momentum (MeV/c)</li>
 <li><code>momentum4_lab</code> : Recoil momentum (MeV/c)</li>
+<li><code>jacobian3_lab</code> : dΩ₃(lab)/dΩ(cm) — converts a lab-frame differential cross section to the cm frame</li>
+<li><code>jacobian4_lab</code> : dΩ₄(lab)/dΩ(cm) — converts a lab-frame differential cross section to the cm frame</li>
 </ul>
 <h6 id="see-plotting-example-for-how-to-plot">See <a href="plotting/">Plotting Example</a> for How to Plot</h6>
 

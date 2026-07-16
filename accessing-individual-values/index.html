@@ -714,21 +714,24 @@
 rxn = Reaction(&quot;p&quot;, &quot;3H&quot;, &quot;n&quot;, &quot;3He&quot;)
 
 r = rxn.kinematics_at_beam_energy_and_angle(1.2, &quot;theta3_lab&quot;, 122)
-print(r)
-
+print(r[&quot;energy3_lab&quot;], r[&quot;theta4_lab&quot;])
 </code></pre>
-<p>This will return:</p>
-<pre><code class="language-python">{'cos_theta_cm': [-0.9813047694699246], 
-'theta_cm': [168.9], 
-'theta3_lab': [122.0], 
-'theta4_lab': [3.098], 
-'energy3_lab': [0.005237930117122223], 
-'energy4_lab': [0.43100601988343396], 
-'velocity3_lab': [0.003338681989975168], 
-'velocity4_lab': [0.017517730726598162], 
-'momentum3_lab': [3.136927647029636], 
-'momentum4_lab': [49.204196838704895]}
-</code></pre>
+<p>This returns a <code>KinematicsResult</code>, which behaves like a dict with these keys:</p>
+<ul>
+<li><code>cos_theta_cm</code>: <code>[-0.981259434287812]</code></li>
+<li><code>theta_cm</code>: <code>[168.89373250634032]</code></li>
+<li><code>theta3_lab</code>: <code>[121.99999999999999]</code></li>
+<li><code>theta4_lab</code>: <code>[3.1017567808349322]</code></li>
+<li><code>energy3_lab</code>: <code>[0.005245865820720845]</code></li>
+<li><code>energy4_lab</code>: <code>[0.43099808417983787]</code></li>
+<li><code>velocity3_lab</code>: <code>[0.003341198974529349]</code></li>
+<li><code>velocity4_lab</code>: <code>[0.017517569485073135]</code></li>
+<li><code>momentum3_lab</code>: <code>[3.1392925586297746]</code></li>
+<li><code>momentum4_lab</code>: <code>[49.2037438008774]</code></li>
+<li><code>jacobian3_lab</code>: <code>[13.26018747199885]</code> — dΩ(lab)/dΩ(cm) for the ejectile, converts a lab-frame differential cross section to the cm frame</li>
+<li><code>jacobian4_lab</code>: <code>[-0.07813620376523883]</code> — same, for the recoil</li>
+</ul>
+<p>Each key's unit: <code>r.units["energy3_lab"]</code>.</p>
 <p>Parameters:</p>
 <ul>
 <li><code>beam_energy</code>  : Beam kinetic energy (MeV by default)</li>
@@ -737,8 +740,11 @@ print(r)
 <li><code>angle_unit</code>   : Unit for <code>angle_value</code> — <code>"deg"</code> (default), <code>"rad"</code>, <code>"mrad"</code></li>
 <li><code>energy_unit</code>  : Unit for <code>beam_energy</code> — <code>"keV"</code>, <code>"MeV"</code> (default), <code>"GeV"</code>, <code>"TeV"</code></li>
 </ul>
-<p>For example, to evaluate at a beam energy given in keV:</p>
+<p><code>energy_unit</code> also governs <code>energy3_lab</code>, <code>energy4_lab</code>, <code>momentum3_lab</code>, and
+<code>momentum4_lab</code> in the result, not just the input beam energy. For example, to
+evaluate at a beam energy given in keV:</p>
 <pre><code class="language-python">r = rxn.kinematics_at_beam_energy_and_angle(1200, &quot;theta3_lab&quot;, 122, energy_unit=&quot;keV&quot;)
+# energy3_lab, energy4_lab, momentum3_lab, momentum4_lab are all in keV here
 </code></pre>
 
 
