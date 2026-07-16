@@ -49,10 +49,11 @@ plt.ylabel("Neutron energy $E_n$ (MeV)")
 plt.show()
 ```
 
-Each call returns a list of **two dicts** (branch 0 = high-energy solution,
-branch 1 = low-energy solution), each containing arrays for `beam_energy_lab`, `energy3_lab`,
-`energy4_lab`, `theta4_lab`, `velocity3_lab`, `velocity4_lab`, `momentum3_lab`, and
-`momentum4_lab`. Where a branch does not exist the values are `NaN`.
+Each call returns a list of **two `KinematicsResult`s** (branch 0 = high-energy
+solution, branch 1 = low-energy solution), each with arrays for `beam_energy_lab`,
+`energy3_lab`, `energy4_lab`, `theta4_lab`, `velocity3_lab`, `velocity4_lab`,
+`momentum3_lab`, `momentum4_lab`, `jacobian3_lab`, and `jacobian4_lab`. Where a
+branch does not exist the values are `NaN`.
 
 ![3H(p,n)3He kinematic curve at 30°](figures/kinematic_curve_plot.png)
 

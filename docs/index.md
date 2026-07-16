@@ -51,6 +51,23 @@ rxn = Reaction("p", "3H", "n", "3He")
 * Velocities are given as fractions of c
 * Angles are in degrees by default — supported units: `deg`, `rad`, `mrad`
 
+`energy_unit` governs every energy- and momentum-valued *output* as well as the
+energy input — e.g. `energy_unit="keV"` returns `energy3_lab`/`momentum3_lab`/etc.
+in keV, not just interprets the input beam energy as keV. `angle_unit` works
+the same way for angle-valued outputs.
+
+Every kinematics method below returns a `KinematicsResult`: it behaves like a
+plain dict (`result["theta3_lab"]`), and also carries a `.units` dict giving
+the [pint](https://pint.readthedocs.io/) `Unit` of each key:
+
+```python
+data = rxn.kinematics_table_at_beam_energy(4000.0, energy_unit="keV")  # 4 MeV
+data.units["energy3_lab"]  # Unit('kiloelectron_volt')
+```
+
+`Reaction.output_units(angle_unit=..., energy_unit=...)` gives that same
+mapping without running a computation first.
+
 ### Compute Arrays
 To generate arrays of kinematic quantities over all center-of-mass angles, use `kinematics_table_at_beam_energy(beam_energy)`.  The units for `beam_energy` are MeV by default but can be specified by the user using the `energy_unit` keyword.
 
@@ -58,7 +75,7 @@ To generate arrays of kinematic quantities over all center-of-mass angles, use `
 data = rxn.kinematics_table_at_beam_energy(4.0)
 ```
 
-This will return a dictionary containing the following:
+This will return a `KinematicsResult` containing the following:
 
 * `cos_theta_cm`  : cos(θ_CM)
 * `theta_cm`      : CM angle (deg)
@@ -70,5 +87,7 @@ This will return a dictionary containing the following:
 * `velocity4_lab` : Recoil velocity (unitless, reported as a fraction of c)
 * `momentum3_lab` : Ejectile momentum (MeV/c)
 * `momentum4_lab` : Recoil momentum (MeV/c)
+* `jacobian3_lab` : dΩ₃(lab)/dΩ(cm) — converts a lab-frame differential cross section to the cm frame
+* `jacobian4_lab` : dΩ₄(lab)/dΩ(cm) — converts a lab-frame differential cross section to the cm frame
 
 ###### See [Plotting Example](plotting.md) for How to Plot

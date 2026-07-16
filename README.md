@@ -57,10 +57,10 @@ Parameters:
 
 ```python
 vals = rxn.kinematics_at_beam_energy_and_angle(1.2, "theta4_lab", 10)
-print(vals)
 ```
 
-Output:
+`vals` is a `KinematicsResult` — behaves like a dict (`vals["energy3_lab"]`), plus
+a `.units` dict giving the `pint.Unit` of each key (`vals.units["energy3_lab"]`):
 
 ```
 {
@@ -68,16 +68,20 @@ Output:
   'theta_cm': [...],
   'theta3_lab': [...],
   'theta4_lab': [...],
-  'energy3_lab': [0.3447, 0.0364],
+  'energy3_lab': [0.3448, 0.0364],
   'energy4_lab': [...],
-  'velocity3_lab': [0.025, 0.009],
+  'velocity3_lab': [0.027, 0.009],
   'velocity4_lab': [...],
-  'momentum3_lab': [23.7, 8.2],
-  'momentum4_lab': [...]
+  'momentum3_lab': [25.5, 8.3],
+  'momentum4_lab': [...],
+  'jacobian3_lab': [...],
+  'jacobian4_lab': [...]
 }
 ```
 
 Multiple values in each list indicate multiple physical solutions.
+`jacobian3_lab`/`jacobian4_lab` are dΩ(lab)/dΩ(cm) for the ejectile/recoil —
+the factor that converts a lab-frame differential cross section to the cm frame.
 
 ---
 

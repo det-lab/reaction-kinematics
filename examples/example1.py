@@ -4,6 +4,8 @@ Smoke-test the Reaction API and basic plotting.
 """
 
 # Smoke-test example and plotting in a pytest function
+from collections.abc import Mapping
+
 import matplotlib
 
 print(matplotlib.get_backend())
@@ -22,7 +24,7 @@ data = rxn.kinematics_table_at_beam_energy(4.0)
 
 # Basic interpolation at a fixed variable value
 result = rxn.kinematics_at_beam_energy_and_angle(4.0, "theta_cm", 46)
-assert isinstance(result, dict)
+assert isinstance(result, Mapping)
 assert "theta_cm" in result
 assert all(isinstance(v, float) for values in result.values() for v in values)
 
